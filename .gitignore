@@ -1,0 +1,3 @@
+node_modules/
+tools/model.cjs
+tools/reference_*.html

@@ -1,0 +1,13 @@
+{
+  "name": "hold-the-line",
+  "private": true,
+  "description": "Hold the Line — a central banker game for teaching monetary policy",
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "test": "node tools/build.mjs && node --test tests/model.test.mjs tests/play.test.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^24.1.3"
+  }
+}
