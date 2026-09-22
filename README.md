@@ -24,7 +24,7 @@ npm test             # build, then balance tests and full simulated playthroughs
 | `src/js/03-…` to `11-…` | Sound, art, news generators, screens and the quarter flow |
 | `src/styles/` | CSS |
 | `tests/` | `model.test.mjs` (balance and economics), `play.test.mjs` (plays every level in a simulated browser) |
-| `legacy/` | Earlier versions and the original 2024 R Shiny code |
+| `legacy/` | Earlier versions and the original 2024 R Shiny code (kept locally, not published) |
 
 Every change should keep `npm test` green. The balance tests check that a rule-following governor finishes every level with a sensible score, that giving in to the government costs credibility, and that hard mode is harder but winnable.
 
