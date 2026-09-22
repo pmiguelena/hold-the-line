@@ -192,7 +192,7 @@ function applyMode(sc, hard, em, mandate, carry) {
   if (hard) { const f = sc.key === "oil" ? 1.15 : 1.3; ["d", "s"].forEach(k => (sc[k] = sc[k].map(v => v * f))); ["noiseD", "noiseS"].forEach(k => (sc[k] = sc[k].map(v => v * 1.4))); sc.cred = Math.max(0.3, sc.cred - 0.05); }
   if (em) { sc.em = true; sc.cred = Math.max(0.3, sc.cred - 0.08); }                           // emerging-market central banks start less trusted
   sc.mandate = mandate === "dual" ? "dual" : "price";
-  if (carry) { sc.cred = clamp(carry.cred ?? sc.cred, 0.3, 0.9); sc.dept0 = carry.dept; sc.points0 = carry.points; }   // a career: the institution carries forward
+  if (carry) { sc.cred = clamp(carry.cred ?? sc.cred, 0.3, 0.9); sc.dept0 = carry.dept; sc.points0 = carry.points; sc.rel0 = carry.rel; }   // a career: the institution carries forward
   return sc;
 }
 /*FIN-END*/
@@ -231,7 +231,7 @@ function boardPrefs(seen, prep) {
 }
 function boardVote(s, sc, prep, move) {
   const prefs = boardPrefs(seenOf(s, sc, s.t), prep);
-  const votes = Object.entries(prefs).map(([id, pref]) => ({ id, pref, yes: Math.abs(pref - move) <= (BOARD_STYLE[id] === "gradualist" ? 0.5 : 0.25) + 1e-9 }));
+  const votes = Object.entries(prefs).map(([id, pref]) => ({ id, pref, yes: Math.abs(pref - move) <= (BOARD_STYLE[id] === "gradualist" ? 0.5 : 0.25) + clamp((relOf(s, "board") - 55) / 250, -0.12, 0.12) + 1e-9 }));
   const yes = 1 + votes.filter(v => v.yes).length, passed = yes >= 3;
   const all = [move, ...votes.map(v => v.pref)].sort((a, b) => a - b);
   return { votes, yes, no: 5 - yes, passed, implemented: passed ? move : all[2] };   // if you lose, the median member decides
@@ -247,7 +247,7 @@ const GD = { truce: TRUCE, crash: CRASH };
 const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false, catP: {}, hp: 100, hpg: 0.8, dept: sc.dept0 ? Object.assign(initDept(), sc.dept0) : initDept(), points: sc.points0 ?? BUDGET_START, board: BOARD0.slice(),
   Lm: 0, lam: (MANDATE[sc.mandate] || MANDATE.price).lam, mandate: sc.mandate || "price", macro: false, fogM: 1,
   lev: 0, cg: 6, bust: 0, bustSize: 0, bankCap: 100, reserves: sc.em ? 6 : 12, ssHit: false,
-  debt: debtStart(sc), ri: 3, prim: PRIM0, interest: 1.8, deficit: 2.8, qeStock: 0, grp: { savers: 50, borrowers: 50, workers: 50, retirees: 50 } });
+  rel: sc.rel0 ? Object.assign(REL0(), sc.rel0) : REL0(), debt: debtStart(sc), ri: 3, prim: PRIM0, interest: 1.8, deficit: 2.8, qeStock: 0, grp: { savers: 50, borrowers: 50, workers: 50, retirees: 50 } });
 function prepGame(s, sc) {
   const p = prepare(seenOf(s, sc, s.t), sc), dept = s.dept || initDept();   // advisors, the government and the press all read the published data
   p.gd = p.dilemma ? null : drawdown(s) >= CRASH_DD + 4 * dept.supervision && !s.crashUsed ? "crash" : s.heat >= 55 ? "truce" : null;
@@ -256,6 +256,9 @@ function prepGame(s, sc) {
   p.debtPress = debtNow >= LIM.heat;
   p.qe = s.i <= QE_RATE;
   p.qt = !p.qe && (s.qeStock || 0) >= 1;
+  p.em = !!sc.em;
+  p.hearing = (p.t === 6 || p.t === 14 || (p.t === 10 && s.heat >= 40)) && !p.gd;     // parliament calls the Governor in twice a term
+  if (p.hearing) p.hearQs = hearingQs(seenOf(s, sc, s.t), p);
   p.budget = budgetQuarter(p.t); p.canMacro = dept.supervision >= 2;
   p.fxTool = !!sc.em || dept.markets >= 2; p.bustNow = s.bust === 3; p.ssLast = !!s.ssHit;
   return p;
@@ -268,8 +271,9 @@ function stepGame(s, sc, prep, inp) {
   const iwNow = sc.iw ? sc.iw[t] : 2.5, iwPrev = sc.iw ? sc.iw[t - 1] : 2.5;
   const pSS = sc.em ? clamp(0.02 + 0.2 * Math.max(0, iwNow - iwPrev) + 0.4 * Math.max(0, 0.55 - s.cred) + ((s.reserves ?? 6) < 3 ? 0.08 : 0), 0, 0.6) : 0;
   const ss = !!(sc.ssRoll && sc.ssRoll[t] < pSS);                               // sudden stop: capital flees an emerging market
-  inp = Object.assign({}, inp, { move: vote && !vote.passed ? vote.implemented : inp.move, toneK: TONEK[dept.comms],
-    hDamp: 1 - 0.1 * dept.markets, eqDamp: 1 - 0.15 * dept.supervision - (macro ? 0.15 : 0) });
+  const relPress = relOf(s, "press"), relPres = relOf(s, "pres");
+  inp = Object.assign({}, inp, { move: vote && !vote.passed ? vote.implemented : inp.move, toneK: TONEK[dept.comms] * (1 + (relPress - 55) / 400),
+    hDamp: (1 - 0.1 * dept.markets) * (1 - (relPress - 55) / 500), eqDamp: 1 - 0.15 * dept.supervision - (macro ? 0.15 : 0) });
   const gdT = prep.gd && inp.choice != null ? GD[prep.gd][inp.choice] || {} : {};
   const doQT = !!inp.qt && prep.qt;
   const q0 = doQT ? QT : QE[(prep.qe ? inp.qe : 0) || 0], qe = Object.assign({}, q0, { d: q0.d * QEK[dept.markets], y: q0.y * QEK[dept.markets] }), ff = finFeed(s, sc);
@@ -295,7 +299,7 @@ function stepGame(s, sc, prep, inp) {
   if (qe.heat) hp.push([doQT ? "qt" : "qe", qe.heat]);
   if (vote) { if (!vote.passed) bump(-0.04, 0, "outvoted"); else if (vote.no >= 2) bump(-0.01, 0, "divided"); else if (vote.no === 0) bump(0.005, 0, "united"); }
   if (macro) bump(0, -0.5, "macro");
-  hp.push(["drift", ((s.pop >= 50 ? 10 : 20) + md.heat - s.heat) * 0.2]);
+  hp.push(["drift", ((s.pop >= 50 ? 10 : 20) + md.heat - (relPres - 55) * 0.035 - s.heat) * 0.2]);
   if (prep.pressure === "cut" && inp.move > 0) hp.push(["defied", 5 * prep.level + (n.pop < 38 && prep.level >= 2 ? 10 : 0)]);
   else if (has("resisted")) hp.push(["resisted", 3 * prep.level]);
   if (has("caved")) hp.push(["caved", -10]);
@@ -341,6 +345,19 @@ function stepGame(s, sc, prep, inp) {
   if (!n.lost && n.cred < M.credLose) n.lost = "cred";
   if (!n.lost && (n.pop < M.popFire || heat >= 100 || (heat >= 80 && n.pop < 35))) n.lost = "fired";
   if (!n.lost && ss && resv0 < 1) n.lost = "fxcrisis";                              // capital fled and there was nothing left to defend with
+  const hear = prep.hearing && inp.hear ? (prep.hearQs || []).map((id, k) => [id, inp.hear[k] ?? 0]) : [];
+  let hearHeat = 0;
+  hear.forEach(([id, k]) => {
+    const e = (HEAR_Q[id] || [])[k];
+    if (!e) return;
+    bump(e[0], e[1], "hearing");
+    if (e[2]) { hp.push(["hearing", e[2]]); hearHeat += e[2]; }
+  });
+  res.hear = hear;
+  Object.assign(n, relStep(s, n, sc, prep, inp, res, vote, hear));
+  res.relParts = n.relParts; delete n.relParts;
+  if (relOf(n, "press") < 30) bump(-0.01, -0.5, "hostilePress");
+  n.pop = clamp(n.pop + (relOf(n, "press") - 55) * 0.03, 0, 100);
   n.qeStock = Math.max(0, (s.qeStock || 0) * 0.98 + (prep.qe ? inp.qe || 0 : 0) - (doQT ? 1 : 0));
   const monet = prep.dilemma === "financing" && inp.choice === 1;                  // printing money for the Treasury retires debt, and costs trust
   Object.assign(n, fiscalStep(s, n, sc, monet, bustOnset ? 3 + 0.2 * lev : 0));
@@ -356,7 +373,7 @@ function stepGame(s, sc, prep, inp) {
   n.grp = groupMood(n);
   const angry = Object.values(n.grp).filter(v => v < 22).length;
   if (angry) hp.push(["street", Math.min(1.5, 0.6 * angry)]);
-  n.heat = clamp(n.heat + Math.min(1.5, 0.6 * angry) + tHeat, 0, 100);
+  n.heat = clamp(n.heat + Math.min(1.5, 0.6 * angry) + tHeat + hearHeat, 0, 100);
   n.heatPeak = Math.max(n.heatPeak || 0, n.heat);
   if (!n.lost && (n.heat >= 100 || (n.heat >= 80 && n.pop < 35))) n.lost = "fired";
   res.heatParts = hp; res.ff = ff; res.qt = doQT;
@@ -367,6 +384,54 @@ function ruleBoundGame(sc) {
   while (s.t < M.turns && !s.lost) { const p = prepGame(s, sc); s = stepGame(s, sc, p, { move: p.advisors.taylor, tone: "neutral", choice: 0, qa: null, qe: p.qe && s.x < -0.5 ? 2 : 0, buy: p.budget ? ruleBuys(s) : [] }).state; }
   return s;
 }
+/*REL-START*/
+// People remember. Advisors, the press, the President and your own board each keep a running opinion of you.
+const REL_IDS = ["harrow", "weiss", "okafor", "press", "pres", "board"];
+const REL0 = () => ({ harrow: 55, weiss: 55, okafor: 55, press: 55, pres: 55, board: 55 });
+const ADV_OF = { keynes: "harrow", friedman: "weiss", taylor: "okafor" };
+// A hearing in parliament: three questions, and the committee remembers the answers.
+// Each answer is [credibility, popularity, removal risk, press trust, President's trust].
+const HEAR_Q = {
+  h_infl: [[0.03, -2, 2, 5, -4], [-0.02, 2, -2, -2, 4], [-0.01, 0, 1, -4, 0]],
+  h_jobs: [[0.02, -2, 3, 4, -4], [-0.03, 3, -3, -3, 5], [0, 0, 0, -3, 0]],
+  h_indep: [[0.05, -3, 5, 6, -7], [-0.06, 3, -5, -4, 7], [-0.01, 0, 1, -3, 1]],
+  h_debt: [[0.04, -2, 4, 5, -6], [-0.05, 2, -4, -3, 6], [0, 0, 1, -2, 0]],
+  h_banks: [[0.03, -1, 1, 4, -2], [-0.02, 2, -1, -2, 3], [-0.01, -1, 1, -3, 0]],
+  h_record: [[0.02, 1, -1, 3, 0], [-0.03, 2, -2, -3, 3], [0.01, -2, 2, 2, -2]]
+};
+function hearingQs(s, prep) {                                            // the committee asks about whatever is going wrong
+  const q = [];
+  if (Math.abs(s.pi - 2) > 1) q.push("h_infl");
+  if (s.x < -0.8) q.push("h_jobs");
+  if ((s.debt ?? 60) >= debtLim(prep && prep.em).heat) q.push("h_debt");
+  if ((s.bankCap ?? 100) < 85 || (s.lev || 0) >= 4) q.push("h_banks");
+  if (s.heat >= 45) q.push("h_indep");
+  q.push("h_record", "h_infl", "h_jobs");
+  return [...new Set(q)].slice(0, 3);
+}
+function relStep(s, n, sc, prep, inp, res, vote, hear) {
+  const r = Object.assign(REL0(), s.rel || {}), d = {}, add = (k, v) => (d[k] = (d[k] || 0) + v);
+  const move = n.move ?? inp.move;
+  for (const [school, id] of Object.entries(ADV_OF)) {                   // advisors watch whether you take their advice
+    const rec = prep.advisors[school], gap = Math.abs(move - rec);
+    add(id, gap < 0.01 ? 3 : gap <= 0.25 ? 1.5 : Math.sign(move) === Math.sign(rec) ? -1 : -2.5);
+  }
+  if (inp.qa != null) add("press", [3, -1, -4][inp.qa] ?? 0);            // straight answers build trust, evasion burns it
+  if (res.credParts.some(q => q[0] === "keptWord")) add("press", 2);
+  if (res.credParts.some(q => q[0] === "brokeHawk" || q[0] === "brokeDove")) add("press", -5);
+  if (res.credParts.some(q => q[0] === "caved")) { add("pres", 6); add("press", -3); }
+  if (res.credParts.some(q => q[0] === "resisted")) { add("pres", -5); add("press", 3); }
+  if (prep.pressure === "cut" && move > 0) add("pres", -7);
+  if (prep.dilemma && inp.choice != null) add("pres", inp.choice === 1 ? 5 : -3);
+  if (vote) add("board", vote.passed ? (vote.no === 0 ? 3 : 1) : -5);
+  if (res.stacked) add("board", -6);
+  (hear || []).forEach(([id, k]) => { const e = (HEAR_Q[id] || [])[k]; if (e) { add("press", e[3]); add("pres", e[4]); } });
+  for (const id of REL_IDS) r[id] = clamp(Math.round((r[id] + (d[id] || 0)) * 0.92 + 55 * 0.08), 0, 100);   // opinions drift back to indifference
+  return { rel: r, relParts: d };
+}
+const relOf = (s, id) => ((s && s.rel) || REL0())[id] ?? 55;
+const relMood = v => (v >= 75 ? "ally" : v >= 60 ? "warm" : v > 40 ? "neutral" : v > 25 ? "cool" : "hostile");
+/*REL-END*/
 /*FISC-START*/
 // The Treasury: a stock of debt, what it costs to service, and the politics that follow. High debt makes the Bank's job political.
 // Where each era starts: roughly where public debt stood in 1973, 2007 and 2020. Emerging markets borrow less and pay more.

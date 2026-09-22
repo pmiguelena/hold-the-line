@@ -54,6 +54,7 @@ function endLevel(restored) {
     </dl>
     <p class="note">${esc(gg.starsNote)}</p>
     ${fresh.length ? `<div class="achs"><span class="sec-lab">${esc(gg.newAch)}</span>${fresh.map(a => `<div class="ach"><b>${esc(gg.ach[a][0])}</b><small>${esc(gg.ach[a][1])}</small></div>`).join("")}</div>` : ""}
+    ${memoirHTML(s)}
     ${handInHTML()}
     <div class="end-charts">${["infl", "mkt", "pol"].map(k => chartCard(k, qL, true)).join("")}</div>
     ${game.cfg.career ? `<div class="btns"><button class="btn big" id="eCareer" data-hot>${esc(gg.career.continueStory)} →</button><button class="btn ghost" id="eDebrief">${esc(gg.debrief.btn)}</button></div>` : `<div class="btns">

@@ -1,12 +1,13 @@
 /* ═══════════════ A QUARTER ═══════════════ */
 function beginQuarter() {
   const s = cur(), prep = (game.prep = prepGame(s, game.sc));
-  draft = { move: null, tone: "neutral", choice: null, qe: 0, buy: [], macro: !!s.macro, fx: 0, qt: false };
+  draft = { move: null, tone: "neutral", choice: null, qe: 0, buy: [], macro: !!s.macro, fx: 0, qt: false, hear: null };
   resetStage(); drawRoom(); renderHUD(s, null, prep.t);
   const list = [quarterCard, newsBeat, frontPageBeat, mapBeat];
   if (prep.budget) list.push(budgetBeat);
   calls(s, prep).forEach((c, k) => list.push(() => { callBeat(c, k); coach([c.pres && prep.pressure && "pressure", "calls"]); }));
   if (prep.dilemma || prep.gd) list.push(dilemmaBeat);
+  if (prep.hearing) list.push(hearingBeat);
   list.push(advisorsBeat, decideBeat);
   play(list.map(fn => { const b = () => { fn(); coachFor(fn); }; b.ov = fn === quarterCard; return b; }));
 }
@@ -114,7 +115,9 @@ function advisorsBeat() {
   const s = seenNow(), prep = game.prep, t = tr(), gg = g(), keys = ["keynes", "friedman", "taylor"];
   const cards = keys.map((k, n) => {
     const m = prep.advisors[k];
-    return `<article class="adv" style="--n:${n}"><header><b>${esc(t.adv[k].name)}</b><span>${esc(t.adv[k].school)}</span></header><p>${esc(advisorText(k, s, prep))}</p>
+    const rv = relOf(cur(), ADV_OF[k]), wh = advisorWhisper(k);
+    return `<article class="adv" style="--n:${n}"><header><b>${esc(t.adv[k].name)}</b><span>${esc(t.adv[k].school)}</span><span class="rel-chip" style="--c:${relColor(rv)}" title="${esc(g().standing.moods[relMood(rv)])}">${rv}</span></header><p>${esc(advisorText(k, s, prep))}</p>
+      ${wh ? `<p class="whisper">${esc(wh)}</p>` : ""}
       <footer><span class="rec ${m < 0 ? "cut" : m > 0 ? "hike" : ""}">${esc(t.moveName(m))}</span><button class="btn small ghost" data-follow="${m}" data-adv="${k}" aria-pressed="${draft.adv === k}">${esc(draft.adv === k ? gg.followed : gg.follow)}</button></footer></article>`;
   }).join("");
   const mood = k => (k === "friedman" && s.pi > 3.5) || (k === "keynes" && s.x < -2) ? "angry" : prep.advisors[k] === 0 ? "neutral" : "happy";
@@ -189,7 +192,7 @@ function announce() {
   const prep = game.prep;
   if (draft.move == null || ((prep.dilemma || prep.gd) && draft.choice == null)) return;
   Sound.stamp(); game.nudge = null;
-  const inp = { move: draft.move, tone: draft.tone, choice: prep.dilemma || prep.gd ? draft.choice : null, qe: prep.qe ? draft.qe || 0 : 0, qa: null, buy: prep.budget ? draft.buy.slice() : [], macro: prep.canMacro ? !!draft.macro : false, fx: prep.fxTool ? draft.fx || 0 : 0, qt: prep.qt ? !!draft.qt : false };
+  const inp = { move: draft.move, tone: draft.tone, choice: prep.dilemma || prep.gd ? draft.choice : null, qe: prep.qe ? draft.qe || 0 : 0, qa: null, buy: prep.budget ? draft.buy.slice() : [], macro: prep.canMacro ? !!draft.macro : false, fx: prep.fxTool ? draft.fx || 0 : 0, qt: prep.qt ? !!draft.qt : false, hear: prep.hearing ? draft.hear : null };
   play([() => presserBeat(inp), () => { qaBeat(inp); coach(["qa"]); }]);
 }
 function afterQA(inp) {
@@ -256,7 +259,7 @@ function falloutBeat(r) {
   say({ cast: s.lost ? [{ id: s.govt === "opp" ? "quiroga" : "salas", mood: "angry" }] : [], name: gg.resultTitle, role: quarterLabel(s.t),
     text: s.lost ? `${t.outcome[s.lost]}. ${t.lostWhy[s.lost]}` : "",
     pre: streak >= 2 && !s.lost ? `<div class="streak">${esc(gg.streak(streak))}</div>` : "",
-    extra: `<div class="ledgers">${ledger(t.credHead, cd, r.credParts, t.credWhy, 100, 0)}${ledger(t.popHead, pd, r.popParts, t.popWhy, 1, 1)}${ledger(gg.hud.heat, hd, r.heatParts, gg.heatWhy, 1, 0, true)}</div><p class="verdict-q">${esc(verdict)}</p>` });
+    extra: `${relStrip(r)}<div class="ledgers">${ledger(t.credHead, cd, r.credParts, t.credWhy, 100, 0)}${ledger(t.popHead, pd, r.popParts, t.popWhy, 1, 1)}${ledger(gg.hud.heat, hd, r.heatParts, gg.heatWhy, 1, 0, true)}</div><p class="verdict-q">${esc(verdict)}</p>` });
 }
 
 function electionBeat(r) {

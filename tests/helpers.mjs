@@ -75,6 +75,7 @@ export function playThrough(d, { level, lang = "en", hard = false, em = false, a
     }
     if (P.querySelector(".react")) seen.reactions++;
     if (P.querySelector(".grp-row")) seen.groups = (seen.groups || 0) + 1;
+    if (P.querySelector("[data-hear]")) { seen.hearQs = (seen.hearQs || 0) + 1; P.querySelectorAll("[data-hear]")[qa % 3].click(); continue; }
     if (P.querySelector("[data-qa]")) { seen.qa++; P.querySelectorAll("[data-qa]")[qa].click(); continue; }
     if (P.querySelector(".decide")) {
       const q = P.querySelectorAll("[data-qe]");

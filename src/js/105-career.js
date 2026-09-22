@@ -56,10 +56,10 @@ function careerRecord(s, total, stars) {
   const cr = careerNow(); if (!cr || cr.recorded === cr.era) return;
   const [from, to] = eraYears(cr.era);
   cr.gov.terms.push({ era: cr.era, score: total, stars, cred: s.cred, outcome: s.lost || "served", from, to });
-  cr.results.push({ era: cr.era, governor: cr.gov.name, score: total, stars, outcome: s.lost || "served" });
+  cr.results.push({ era: cr.era, governor: cr.gov.name, score: total, stars, outcome: s.lost || "served", mem: { lost: s.lost, pi: s.pi, cred: s.cred, rel: Object.assign({}, s.rel) } });
   const next = CAREER_ERAS[Math.min(cr.era + 1, CAREER_ERAS.length - 1)];
   const base = SCEN[next].cred - (cr.em ? 0.08 : 0) - (cr.hard ? 0.05 : 0);
-  cr.carry = { dept: Object.assign({}, s.dept || initDept()), cred: +clamp(0.5 * base + 0.5 * s.cred - (s.lost ? 0.1 : 0), 0.3, 0.9).toFixed(3), points: 3 + stars };
+  cr.carry = { rel: Object.assign({}, s.rel), dept: Object.assign({}, s.dept || initDept()), cred: +clamp(0.5 * base + 0.5 * s.cred - (s.lost ? 0.1 : 0), 0.3, 0.9).toFixed(3), points: 3 + stars };
   cr.last = { lost: s.lost, cred: s.cred, heat: s.heat, pop: s.pop, govt: s.govt };
   cr.recorded = cr.era;
   persist();
@@ -74,6 +74,12 @@ function finishGovernor(gov, ended) {
   return rec;
 }
 
+// What people carry into the next era: half of it for a governor who stays, almost nothing for a successor.
+const carryRel = (rel, sameGov) => {
+  const out = REL0();
+  for (const id of REL_IDS) out[id] = clamp(Math.round(55 + (((rel || {})[id] ?? 55) - 55) * (sameGov ? 0.5 : 0.15)), 0, 100);
+  return out;
+};
 function careerAfterTerm() {
   const cr = careerNow(); if (!cr || !cr.last) return levelSelect();
   const gg = g(), C = gg.career, last = cr.last, finalEra = cr.era >= CAREER_ERAS.length - 1;
@@ -94,6 +100,7 @@ function careerAfterTerm() {
     if (endsTenure || finalEra) cr.govs.push(finishGovernor(cr.gov, kind === "ousted" ? last.lost : finalEra ? "retired" : "notReappointed"));
     if (finalEra) { persist(); return careerFinish(); }
     if (endsTenure) cr.gov = { name: ($("succName").value || "").trim().slice(0, 28) || suggestion, terms: [] };
+    if (cr.carry) cr.carry.rel = carryRel(cr.carry.rel, !endsTenure);          // a new governor is not owed the old one's friendships
     cr.era++; cr.last = null; persist();
     careerInterlude();
   };
@@ -132,6 +139,7 @@ function careerFinish() {
     <div class="tbl-wrap"><table class="hof"><thead><tr><th>${esc(C.eraCol)}</th><th>${esc(C.cols[0])}</th><th>${esc(C.cols[3])}</th><th>★</th><th>${esc(C.cols[5])}</th></tr></thead>
       <tbody>${results.map(r => `<tr><td>${esc(C.eras[r.era])}</td><td>${esc(r.governor)}</td><td>${r.score}</td><td>${r.stars}</td><td>${esc(C.ended[r.outcome] || r.outcome)}</td></tr>`).join("")}</tbody></table></div>
     <div class="score"><span>${esc(C.total)}</span><b>${total}</b></div>
+    ${results.filter(r => r.mem).map(r => memoirHTML(r.mem, `${C.eras[r.era]} · ${r.governor}`)).join("")}
     ${fresh.length ? `<div class="achs"><span class="sec-lab">${esc(gg.newAch)}</span>${fresh.map(a => `<div class="ach"><b>${esc(gg.ach[a][0])}</b><small>${esc(gg.ach[a][1])}</small></div>`).join("")}</div>` : ""}
     <div class="btns"><button class="btn big" id="cfHall" data-hot>${esc(C.hall)}</button><button class="btn ghost" id="cfLevels">${esc(gg.toLevels)}</button></div>
   </div>`);

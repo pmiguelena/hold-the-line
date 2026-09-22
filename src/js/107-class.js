@@ -15,9 +15,9 @@ const classLink = code => (/^https?:$/.test(location.protocol) && !/claude/.test
 
 // Decisions, packed small so a whole term fits in a code a student can paste.
 const TONES = ["dovish", "neutral", "hawkish"], DEPT_L = { stats: "s", research: "r", comms: "c", supervision: "v", markets: "m" };
-const packInp = i => [Math.round(i.move * 4), TONES.indexOf(i.tone), i.choice ?? -1, i.qa ?? -1, i.qe || 0, i.fx || 0, i.macro ? 1 : 0, (i.buy || []).map(k => DEPT_L[k]).join(""), i.qt ? 1 : 0];
+const packInp = i => [Math.round(i.move * 4), TONES.indexOf(i.tone), i.choice ?? -1, i.qa ?? -1, i.qe || 0, i.fx || 0, i.macro ? 1 : 0, (i.buy || []).map(k => DEPT_L[k]).join(""), i.qt ? 1 : 0, (i.hear || []).join("")];
 const unpackInp = a => ({ move: a[0] / 4, tone: TONES[a[1]] || "neutral", choice: a[2] < 0 ? null : a[2], qa: a[3] < 0 ? null : a[3], qe: a[4] || 0, fx: a[5] || 0, macro: !!a[6],
-  qt: !!a[8], buy: [...(a[7] || "")].map(c => Object.keys(DEPT_L).find(k => DEPT_L[k] === c)).filter(Boolean) });
+  qt: !!a[8], hear: a[9] ? [...String(a[9])].map(Number) : null, buy: [...(a[7] || "")].map(c => Object.keys(DEPT_L).find(k => DEPT_L[k] === c)).filter(Boolean) });
 
 // A teacher's scenario: the model part builds the shocks, this adds its words to both languages.
 function installCustom(spec) {

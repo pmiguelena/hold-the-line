@@ -545,6 +545,23 @@ dl.gloss dd{margin:0;font-size:14.5px;line-height:1.5;color:#D5DAE6}
 .grp .mbar{grid-area:bar}
 .hud-row.a .t-lab{white-space:normal;overflow:visible;line-height:1.2}
 @media (min-width:901px) and (max-width:1420px){.hud-row.a .t-lab{font-size:10px;letter-spacing:.04em}.hud-row.a .t-val{font-size:18px}.hud-row>*{padding:8px 10px}}
+.rel-grid{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:12px}
+.rel{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"face head" "face bar" "face mood" "text text";gap:4px 12px;align-items:center;padding:12px 14px;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);text-align:left}
+.rel-face{grid-area:face;width:64px;height:64px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.05)}
+.rel-face svg{width:100%;height:auto;display:block}
+.rel-head{grid-area:head;display:grid} .rel-head b{font:800 16px var(--f-ui)} .rel-head span{font-size:12.5px;color:var(--muted)}
+.rel-bar{grid-area:bar;display:flex;gap:8px;align-items:center} .rel-bar .mbar{flex:1}
+.rel-num{font-variant-numeric:tabular-nums;font-weight:700;font-size:13px;display:flex;gap:4px;align-items:baseline}
+.rel-mood{grid-area:mood;color:var(--c);font:700 11.5px var(--f-ui);letter-spacing:.06em;text-transform:uppercase}
+.rel p{grid-area:text;margin:2px 0 0;font-size:14px;line-height:1.45;color:#C9CFDD}
+.rel-chip{margin-left:auto;font:800 12px var(--f-ui);color:var(--c);background:rgba(255,255,255,.06);border-radius:99px;padding:2px 8px}
+.whisper{margin:6px 0 0!important;padding-left:10px;border-left:2px solid var(--amber);font-style:italic;color:#E4D4B0!important}
+.hear-mood{display:flex;gap:10px;align-items:center;margin-bottom:6px}
+.rel-strip{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:10px;font-size:13px}
+.rel-strip span{display:inline-flex;gap:6px;align-items:center;color:var(--muted)}
+.rel-strip b{font-variant-numeric:tabular-nums}
+.memoir{width:min(640px,100%);display:grid;gap:8px;padding:16px 18px;border-radius:16px;background:linear-gradient(135deg,rgba(196,160,255,.12),rgba(255,255,255,.02));box-shadow:inset 0 0 0 1px rgba(196,160,255,.35);text-align:left}
+.memoir p{margin:0;font:400 16.5px/1.5 var(--f-news);color:#E4E8F1}
 </style>
 </head>
 <body>
@@ -1708,6 +1725,8 @@ Object.assign(G.en, {
       react: "Markets price the surprise, not the move. If they expected a hike and you hiked, little happens. A surprise moves the currency, [[yield10|bond yields]] and stocks.",
       ledger: "This ledger shows exactly why [[credibility|credibility]], popularity and removal risk moved. Credibility is your most valuable asset: it keeps expectations anchored near 2%.",
       heat: "Your [[heat|removal risk]] is climbing. At 100 you are fired. Cooperating lowers it but costs credibility: the classic dilemma of central bank [[independence|independence]].",
+      people: "These numbers are what each person thinks of you, and they remember. Advisors you follow open up, a press you answer straight is kinder to your surprises, and a President who trusts you is slower to reach for your job.",
+      hearing: "Parliament, not the government, gave the Bank its mandate. Answer straight and the committee and the press back your independence; tell them what they want to hear and the President is pleased instead.",
       qt: "The Bank still owns the bonds it bought in the emergency. Selling them back ([[qt|quantitative tightening]]) drains money, lifts long rates and raises the Treasury's costs, which the government will feel.",
       groups: "One rate, four different households. Savers like high real rates, borrowers hate them, workers care about jobs, retirees about inflation. There is no decision that pleases everyone.",
       debt: "Public debt is high enough to matter for you. Every point you add to the rate raises the Treasury's interest bill, and a government with expensive debt pushes hard for cuts. Watch the Public finances layer of the map.",
@@ -1808,6 +1827,8 @@ Object.assign(G.es, {
       react: "Los mercados valoran la sorpresa, no la decisión. Si esperaban una suba y subiste, pasa poco. Una sorpresa mueve la moneda, los [[yield10|bonos]] y las acciones.",
       ledger: "Este balance muestra exactamente por qué se movieron la [[credibility|credibilidad]], la popularidad y el riesgo de remoción. La credibilidad es tu activo más valioso: mantiene las expectativas ancladas cerca del 2%.",
       heat: "Tu [[heat|riesgo de remoción]] sube. En 100 te despiden. Cooperar lo baja pero cuesta credibilidad: el dilema clásico de la [[independence|independencia]] del banco central.",
+      people: "Estos números son lo que cada persona piensa de ti, y tienen memoria. Los asesores a los que haces caso se abren, una prensa a la que respondes de frente trata mejor tus sorpresas y un Presidente que confía tarda más en buscar tu reemplazo.",
+      hearing: "El mandato del Banco se lo dio el Congreso, no el gobierno. Responder de frente te gana a la comisión y a la prensa; decir lo que quieren oír complace al Presidente en su lugar.",
       qt: "El Banco todavía tiene los bonos que compró en la emergencia. Venderlos ([[qt|ajuste cuantitativo]]) retira dinero, sube las tasas largas y encarece al Tesoro, algo que el gobierno va a sentir.",
       groups: "Una sola tasa, cuatro hogares distintos. A los ahorristas les gustan las tasas reales altas, a los deudores las detestan, a los trabajadores les importa el empleo y a los jubilados la inflación. No hay decisión que deje contentos a todos.",
       debt: "La deuda pública ya es lo bastante alta como para importarte. Cada punto que subes la tasa encarece los intereses del Tesoro, y un gobierno con deuda cara presiona fuerte por bajas. Mira la capa Cuentas públicas del mapa.",
@@ -1989,6 +2010,114 @@ Object.assign(G.es, {
       none: "Todavía no hay resultados. Pega los códigos arriba y presiona Revisar resultados.", done: "Completado"
     },
     report: { print: "Imprimir informe", who: (nm, cl, date) => [nm, cl, date].filter(Boolean).join(" · ") }
+  }
+});
+/* ═══════════════ PEOPLE, HEARINGS AND MEMOIRS (EN/ES) ═══════════════ */
+Object.assign(G.en, {
+  standing: {
+    title: "Where you stand", role: "Your standing", hudBtn: "People",
+    sub: "Everyone you deal with keeps a running opinion of you. It fades towards indifference, but it never resets.",
+    who: { harrow: ["Dr. Harrow", "Keynesian advisor"], weiss: ["Dr. Weiss", "Monetarist advisor"], okafor: ["Dr. Okafor", "Rule-based advisor"],
+      press: ["The press corps", "Who explains you to the country"], pres: ["The President", "Who can end your term"], board: ["Your board", "Who votes on your proposals"] },
+    moods: { ally: "On your side", warm: "Warm", neutral: "Neutral", cool: "Cool", hostile: "Hostile" },
+    lines: {
+      harrow: { ally: "Follows your reasoning even when she disagrees.", warm: "Thinks you take jobs seriously.", neutral: "Reserves judgement.", cool: "Thinks you are too relaxed about unemployment.", hostile: "Says in private that you have forgotten who pays the price." },
+      weiss: { ally: "Calls you the most serious governor in years.", warm: "Approves of your discipline.", neutral: "Watches the money numbers, and you.", cool: "Thinks you drift with the politics.", hostile: "Tells anyone who asks that this will end in inflation." },
+      okafor: { ally: "Treats your decisions as the benchmark.", warm: "Finds you predictable, which he means as praise.", neutral: "Notes every deviation from the rule.", cool: "Thinks you improvise too much.", hostile: "Has stopped expecting you to follow any rule at all." },
+      press: { ally: "Reports your reasoning before your critics'.", warm: "Gives you the benefit of the doubt.", neutral: "Prints what you say, and what it costs.", cool: "Leads with the awkward question.", hostile: "Treats every decision as a scandal waiting to be found." },
+      pres: { ally: "Calls you an asset to the government.", warm: "Is willing to wait for results.", neutral: "Watches the polls and your rate.", cool: "Complains about the Bank in cabinet.", hostile: "Is asking who could replace you." },
+      board: { ally: "Backs you before you finish the sentence.", warm: "Trusts your judgement.", neutral: "Votes on the merits.", cool: "Argues with you in the minutes.", hostile: "Is looking for a majority without you." }
+    },
+    tipAlly: "An advisor who trusts you shares what the staff is hearing before it is published.",
+    hint: { press: "A friendly press softens how your surprises land and helps your standing with the public.",
+      pres: "A President who trusts you is slower to reach for your job.", board: "A board that trusts you gives your proposals more room before voting them down." }
+  },
+  hearing: {
+    title: "Hearing in parliament", role: "Economic affairs committee", chair: "Committee chair",
+    intro: "Governor, thank you for coming. The committee has questions, and the country is watching.",
+    of: (k, n) => `Question ${k} of ${n}`, done: "The committee thanks the Governor.",
+    qs: {
+      h_infl: ["Inflation is not where you promised it would be. Why should anyone believe your next forecast?",
+        ["I own the miss. Here is what we got wrong, and what we are doing about it.", "Prices are moving for reasons no central bank controls.", "Forecasts are always uncertain; I would not read much into one number."]],
+      h_jobs: ["People are losing their jobs while you hold rates high. How do you justify that to them?",
+        ["Bringing inflation down protects those same wages. I will not pretend it is painless.", "Fair point. We will ease sooner than planned.", "Employment is a matter for the government, not the Bank."]],
+      h_indep: ["The government says the Bank is working against it. Who do you actually answer to?",
+        ["To the mandate parliament gave us, and to this committee. Not to any minister.", "We work with the government. There is no point pretending otherwise.", "I am not going to comment on conversations with the President."]],
+      h_debt: ["Every point you add to rates costs the Treasury billions. Do you accept responsibility for that?",
+        ["The cost of borrowing is the price of credibility. Cheap money bought with inflation is not cheap.", "We are conscious of it, and it does weigh on our decisions.", "Debt is the government's business; ours is inflation."]],
+      h_banks: ["Were you asleep while the banks took these risks?",
+        ["We acted with the tools we had, and we are tightening the rules further.", "Supervision failed, and I have asked for changes at the top.", "The banks are supervised within the law. Nothing was hidden from us."]],
+      h_record: ["Governor, how would you describe your own record so far?",
+        ["Mixed, and I will be judged on the numbers, not on my description of them.", "Strong. Inflation and jobs are in better shape than when I arrived.", "I inherited a difficult situation and that is still the main story."]]
+    },
+    mood: "Committee mood", moods: ["Hostile", "Sceptical", "Fair", "Satisfied"]
+  },
+  whisper: { calm: "Between us: the staff see nothing unusual building for next quarter.", costs: "Between us: the staff are hearing about costs rising again. Expect a price shock.",
+    boom: "Between us: orders are running hotter than the published data shows. Demand is coming.", weak: "Between us: the staff think demand is about to fall away. Do not be surprised." },
+  memoir: {
+    title: "From your memoirs", chapter: era => `Chapter: ${era}`,
+    open: { good: "They will write that the numbers came back to target. What I remember is the meetings.",
+      mixed: "The record is mixed, and I have stopped arguing with it.",
+      bad: "It ended badly. The honest account is that I did not see it in time." },
+    ally: nm => `${nm} stood with me when it would have been cheaper not to.`,
+    foe: nm => `${nm} never forgave me, and was not entirely wrong to.`,
+    press: { warm: "The press gave me a fair hearing, which is more than most governors get.", cold: "The papers had made up their minds long before the last meeting." },
+    pres: { warm: "The President and I disagreed in private and held the line in public.", cold: "The President wanted a different governor, and eventually said so out loud." },
+    close: { fired: "They took the office, the car and the title. The mandate was never mine to keep.", done: "I left the office as I found it: unfinished." }
+  }
+});
+
+Object.assign(G.es, {
+  standing: {
+    title: "Cómo te ven", role: "Tu posición", hudBtn: "Personas",
+    sub: "Todos con quienes tratas mantienen una opinión sobre ti. Se desvanece hacia la indiferencia, pero nunca se borra.",
+    who: { harrow: ["Dra. Harrow", "Asesora keynesiana"], weiss: ["Dr. Weiss", "Asesor monetarista"], okafor: ["Dr. Okafor", "Asesor de reglas"],
+      press: ["La prensa", "Quien te explica ante el país"], pres: ["El Presidente", "Quien puede terminar tu mandato"], board: ["Tu directorio", "Quien vota tus propuestas"] },
+    moods: { ally: "De tu lado", warm: "Cercano", neutral: "Neutral", cool: "Frío", hostile: "Hostil" },
+    lines: {
+      harrow: { ally: "Sigue tu razonamiento incluso cuando no coincide.", warm: "Cree que te tomas en serio el empleo.", neutral: "Reserva su juicio.", cool: "Cree que eres demasiado indiferente al desempleo.", hostile: "Dice en privado que olvidaste quién paga el costo." },
+      weiss: { ally: "Te llama el banquero central más serio en años.", warm: "Aprueba tu disciplina.", neutral: "Vigila los agregados monetarios, y a ti.", cool: "Cree que te dejas llevar por la política.", hostile: "Le dice a quien pregunte que esto termina en inflación." },
+      okafor: { ally: "Toma tus decisiones como referencia.", warm: "Te encuentra predecible, y lo dice como elogio.", neutral: "Anota cada desvío de la regla.", cool: "Cree que improvisas demasiado.", hostile: "Ya no espera que sigas ninguna regla." },
+      press: { ally: "Publica tus razones antes que las de tus críticos.", warm: "Te concede el beneficio de la duda.", neutral: "Publica lo que dices y lo que cuesta.", cool: "Abre con la pregunta incómoda.", hostile: "Trata cada decisión como un escándalo por descubrir." },
+      pres: { ally: "Te llama un activo del gobierno.", warm: "Está dispuesto a esperar resultados.", neutral: "Mira las encuestas y tu tasa.", cool: "Se queja del Banco en el gabinete.", hostile: "Anda preguntando quién podría reemplazarte." },
+      board: { ally: "Te respalda antes de que termines la frase.", warm: "Confía en tu criterio.", neutral: "Vota según el caso.", cool: "Te discute en las actas.", hostile: "Busca una mayoría sin ti." }
+    },
+    tipAlly: "Un asesor que confía en ti comparte lo que escucha el equipo antes de que se publique.",
+    hint: { press: "Una prensa amable suaviza cómo caen tus sorpresas y ayuda a tu imagen pública.",
+      pres: "Un Presidente que confía en ti tarda más en buscar tu reemplazo.", board: "Un directorio que confía en ti le da más margen a tus propuestas antes de rechazarlas." }
+  },
+  hearing: {
+    title: "Audiencia en el Congreso", role: "Comisión de asuntos económicos", chair: "Presidencia de la comisión",
+    intro: "Gobernador, gracias por venir. La comisión tiene preguntas y el país está mirando.",
+    of: (k, n) => `Pregunta ${k} de ${n}`, done: "La comisión agradece al Gobernador.",
+    qs: {
+      h_infl: ["La inflación no está donde usted prometió. ¿Por qué habría que creerle el próximo pronóstico?",
+        ["Asumo el error. Esto es lo que calculamos mal y esto es lo que estamos haciendo.", "Los precios se mueven por razones que ningún banco central controla.", "Los pronósticos siempre son inciertos; no leería tanto en un solo dato."]],
+      h_jobs: ["Hay gente perdiendo el empleo mientras usted mantiene tasas altas. ¿Cómo se lo explica?",
+        ["Bajar la inflación protege esos mismos salarios. No voy a fingir que no duele.", "Es un punto justo. Vamos a aflojar antes de lo previsto.", "El empleo es asunto del gobierno, no del Banco."]],
+      h_indep: ["El gobierno dice que el Banco trabaja en su contra. ¿Ante quién responde usted?",
+        ["Ante el mandato que nos dio el Congreso y ante esta comisión. Ante ningún ministro.", "Trabajamos con el gobierno. No tiene sentido fingir lo contrario.", "No voy a comentar mis conversaciones con el Presidente."]],
+      h_debt: ["Cada punto de tasa le cuesta miles de millones al Tesoro. ¿Se hace cargo?",
+        ["El costo de endeudarse es el precio de la credibilidad. El dinero barato pagado con inflación no es barato.", "Somos conscientes y pesa en nuestras decisiones.", "La deuda es asunto del gobierno; lo nuestro es la inflación."]],
+      h_banks: ["¿Estaba usted dormido mientras los bancos tomaban estos riesgos?",
+        ["Actuamos con las herramientas que teníamos y vamos a endurecer las reglas.", "La supervisión falló y pedí cambios en su conducción.", "Los bancos se supervisan conforme a la ley. No nos ocultaron nada."]],
+      h_record: ["Gobernador, ¿cómo describiría su propia gestión hasta aquí?",
+        ["Mixta, y se me juzgará por los números, no por cómo los describo.", "Sólida. La inflación y el empleo están mejor que cuando llegué.", "Heredé una situación difícil y esa sigue siendo la historia principal."]]
+    },
+    mood: "Ánimo de la comisión", moods: ["Hostil", "Escéptica", "Correcta", "Satisfecha"]
+  },
+  whisper: { calm: "Entre nosotros: el equipo no ve nada raro armándose para el próximo trimestre.", costs: "Entre nosotros: el equipo escucha que los costos vuelven a subir. Espera un shock de precios.",
+    boom: "Entre nosotros: los pedidos van más fuertes de lo que muestran los datos publicados. Viene demanda.", weak: "Entre nosotros: el equipo cree que la demanda está por caer. Que no te sorprenda." },
+  memoir: {
+    title: "De tus memorias", chapter: era => `Capítulo: ${era}`,
+    open: { good: "Escribirán que los números volvieron a la meta. Yo recuerdo las reuniones.",
+      mixed: "El balance es mixto y dejé de discutirlo.",
+      bad: "Terminó mal. La versión honesta es que no lo vi a tiempo." },
+    ally: nm => `${nm} me acompañó cuando habría sido más cómodo no hacerlo.`,
+    foe: nm => `${nm} nunca me lo perdonó, y no le faltaba del todo razón.`,
+    press: { warm: "La prensa me dio un trato justo, más de lo que reciben casi todos.", cold: "Los diarios ya habían decidido mucho antes de la última reunión." },
+    pres: { warm: "Con el Presidente discutimos en privado y sostuvimos la línea en público.", cold: "El Presidente quería otro gobernador y terminó diciéndolo en voz alta." },
+    close: { fired: "Se llevaron la oficina, el auto y el título. El mandato nunca fue mío.", done: "Dejé la oficina como la encontré: sin terminar." }
   }
 });
 /* ═══════════════ STORAGE & ENV ═══════════════ */
@@ -2197,6 +2326,7 @@ const GRP_ICON = (() => {
 })();
 const ICON = {
   grp: GRP_ICON,
+  people: `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5v-1.2A4.3 4.3 0 0 1 7.8 14h2.4a4.3 4.3 0 0 1 4.3 4.3v1.2"/><path d="M16 5.6a3.2 3.2 0 0 1 0 5.6M17.5 14.2a4.3 4.3 0 0 1 3 4.1v1.2"/></svg>`,
   map: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5l6-2.5 6 2.5 6-2.5v13.5l-6 2.5-6-2.5-6 2.5z M9 4v13.5 M15 6.5V20"/></svg>`,
   chart: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg>`,
   pause: `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>`,
@@ -2612,7 +2742,7 @@ function applyMode(sc, hard, em, mandate, carry) {
   if (hard) { const f = sc.key === "oil" ? 1.15 : 1.3; ["d", "s"].forEach(k => (sc[k] = sc[k].map(v => v * f))); ["noiseD", "noiseS"].forEach(k => (sc[k] = sc[k].map(v => v * 1.4))); sc.cred = Math.max(0.3, sc.cred - 0.05); }
   if (em) { sc.em = true; sc.cred = Math.max(0.3, sc.cred - 0.08); }                           // emerging-market central banks start less trusted
   sc.mandate = mandate === "dual" ? "dual" : "price";
-  if (carry) { sc.cred = clamp(carry.cred ?? sc.cred, 0.3, 0.9); sc.dept0 = carry.dept; sc.points0 = carry.points; }   // a career: the institution carries forward
+  if (carry) { sc.cred = clamp(carry.cred ?? sc.cred, 0.3, 0.9); sc.dept0 = carry.dept; sc.points0 = carry.points; sc.rel0 = carry.rel; }   // a career: the institution carries forward
   return sc;
 }
 /*FIN-END*/
@@ -2651,7 +2781,7 @@ function boardPrefs(seen, prep) {
 }
 function boardVote(s, sc, prep, move) {
   const prefs = boardPrefs(seenOf(s, sc, s.t), prep);
-  const votes = Object.entries(prefs).map(([id, pref]) => ({ id, pref, yes: Math.abs(pref - move) <= (BOARD_STYLE[id] === "gradualist" ? 0.5 : 0.25) + 1e-9 }));
+  const votes = Object.entries(prefs).map(([id, pref]) => ({ id, pref, yes: Math.abs(pref - move) <= (BOARD_STYLE[id] === "gradualist" ? 0.5 : 0.25) + clamp((relOf(s, "board") - 55) / 250, -0.12, 0.12) + 1e-9 }));
   const yes = 1 + votes.filter(v => v.yes).length, passed = yes >= 3;
   const all = [move, ...votes.map(v => v.pref)].sort((a, b) => a - b);
   return { votes, yes, no: 5 - yes, passed, implemented: passed ? move : all[2] };   // if you lose, the median member decides
@@ -2667,7 +2797,7 @@ const GD = { truce: TRUCE, crash: CRASH };
 const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false, catP: {}, hp: 100, hpg: 0.8, dept: sc.dept0 ? Object.assign(initDept(), sc.dept0) : initDept(), points: sc.points0 ?? BUDGET_START, board: BOARD0.slice(),
   Lm: 0, lam: (MANDATE[sc.mandate] || MANDATE.price).lam, mandate: sc.mandate || "price", macro: false, fogM: 1,
   lev: 0, cg: 6, bust: 0, bustSize: 0, bankCap: 100, reserves: sc.em ? 6 : 12, ssHit: false,
-  debt: debtStart(sc), ri: 3, prim: PRIM0, interest: 1.8, deficit: 2.8, qeStock: 0, grp: { savers: 50, borrowers: 50, workers: 50, retirees: 50 } });
+  rel: sc.rel0 ? Object.assign(REL0(), sc.rel0) : REL0(), debt: debtStart(sc), ri: 3, prim: PRIM0, interest: 1.8, deficit: 2.8, qeStock: 0, grp: { savers: 50, borrowers: 50, workers: 50, retirees: 50 } });
 function prepGame(s, sc) {
   const p = prepare(seenOf(s, sc, s.t), sc), dept = s.dept || initDept();   // advisors, the government and the press all read the published data
   p.gd = p.dilemma ? null : drawdown(s) >= CRASH_DD + 4 * dept.supervision && !s.crashUsed ? "crash" : s.heat >= 55 ? "truce" : null;
@@ -2676,6 +2806,9 @@ function prepGame(s, sc) {
   p.debtPress = debtNow >= LIM.heat;
   p.qe = s.i <= QE_RATE;
   p.qt = !p.qe && (s.qeStock || 0) >= 1;
+  p.em = !!sc.em;
+  p.hearing = (p.t === 6 || p.t === 14 || (p.t === 10 && s.heat >= 40)) && !p.gd;     // parliament calls the Governor in twice a term
+  if (p.hearing) p.hearQs = hearingQs(seenOf(s, sc, s.t), p);
   p.budget = budgetQuarter(p.t); p.canMacro = dept.supervision >= 2;
   p.fxTool = !!sc.em || dept.markets >= 2; p.bustNow = s.bust === 3; p.ssLast = !!s.ssHit;
   return p;
@@ -2688,8 +2821,9 @@ function stepGame(s, sc, prep, inp) {
   const iwNow = sc.iw ? sc.iw[t] : 2.5, iwPrev = sc.iw ? sc.iw[t - 1] : 2.5;
   const pSS = sc.em ? clamp(0.02 + 0.2 * Math.max(0, iwNow - iwPrev) + 0.4 * Math.max(0, 0.55 - s.cred) + ((s.reserves ?? 6) < 3 ? 0.08 : 0), 0, 0.6) : 0;
   const ss = !!(sc.ssRoll && sc.ssRoll[t] < pSS);                               // sudden stop: capital flees an emerging market
-  inp = Object.assign({}, inp, { move: vote && !vote.passed ? vote.implemented : inp.move, toneK: TONEK[dept.comms],
-    hDamp: 1 - 0.1 * dept.markets, eqDamp: 1 - 0.15 * dept.supervision - (macro ? 0.15 : 0) });
+  const relPress = relOf(s, "press"), relPres = relOf(s, "pres");
+  inp = Object.assign({}, inp, { move: vote && !vote.passed ? vote.implemented : inp.move, toneK: TONEK[dept.comms] * (1 + (relPress - 55) / 400),
+    hDamp: (1 - 0.1 * dept.markets) * (1 - (relPress - 55) / 500), eqDamp: 1 - 0.15 * dept.supervision - (macro ? 0.15 : 0) });
   const gdT = prep.gd && inp.choice != null ? GD[prep.gd][inp.choice] || {} : {};
   const doQT = !!inp.qt && prep.qt;
   const q0 = doQT ? QT : QE[(prep.qe ? inp.qe : 0) || 0], qe = Object.assign({}, q0, { d: q0.d * QEK[dept.markets], y: q0.y * QEK[dept.markets] }), ff = finFeed(s, sc);
@@ -2715,7 +2849,7 @@ function stepGame(s, sc, prep, inp) {
   if (qe.heat) hp.push([doQT ? "qt" : "qe", qe.heat]);
   if (vote) { if (!vote.passed) bump(-0.04, 0, "outvoted"); else if (vote.no >= 2) bump(-0.01, 0, "divided"); else if (vote.no === 0) bump(0.005, 0, "united"); }
   if (macro) bump(0, -0.5, "macro");
-  hp.push(["drift", ((s.pop >= 50 ? 10 : 20) + md.heat - s.heat) * 0.2]);
+  hp.push(["drift", ((s.pop >= 50 ? 10 : 20) + md.heat - (relPres - 55) * 0.035 - s.heat) * 0.2]);
   if (prep.pressure === "cut" && inp.move > 0) hp.push(["defied", 5 * prep.level + (n.pop < 38 && prep.level >= 2 ? 10 : 0)]);
   else if (has("resisted")) hp.push(["resisted", 3 * prep.level]);
   if (has("caved")) hp.push(["caved", -10]);
@@ -2761,6 +2895,19 @@ function stepGame(s, sc, prep, inp) {
   if (!n.lost && n.cred < M.credLose) n.lost = "cred";
   if (!n.lost && (n.pop < M.popFire || heat >= 100 || (heat >= 80 && n.pop < 35))) n.lost = "fired";
   if (!n.lost && ss && resv0 < 1) n.lost = "fxcrisis";                              // capital fled and there was nothing left to defend with
+  const hear = prep.hearing && inp.hear ? (prep.hearQs || []).map((id, k) => [id, inp.hear[k] ?? 0]) : [];
+  let hearHeat = 0;
+  hear.forEach(([id, k]) => {
+    const e = (HEAR_Q[id] || [])[k];
+    if (!e) return;
+    bump(e[0], e[1], "hearing");
+    if (e[2]) { hp.push(["hearing", e[2]]); hearHeat += e[2]; }
+  });
+  res.hear = hear;
+  Object.assign(n, relStep(s, n, sc, prep, inp, res, vote, hear));
+  res.relParts = n.relParts; delete n.relParts;
+  if (relOf(n, "press") < 30) bump(-0.01, -0.5, "hostilePress");
+  n.pop = clamp(n.pop + (relOf(n, "press") - 55) * 0.03, 0, 100);
   n.qeStock = Math.max(0, (s.qeStock || 0) * 0.98 + (prep.qe ? inp.qe || 0 : 0) - (doQT ? 1 : 0));
   const monet = prep.dilemma === "financing" && inp.choice === 1;                  // printing money for the Treasury retires debt, and costs trust
   Object.assign(n, fiscalStep(s, n, sc, monet, bustOnset ? 3 + 0.2 * lev : 0));
@@ -2776,7 +2923,7 @@ function stepGame(s, sc, prep, inp) {
   n.grp = groupMood(n);
   const angry = Object.values(n.grp).filter(v => v < 22).length;
   if (angry) hp.push(["street", Math.min(1.5, 0.6 * angry)]);
-  n.heat = clamp(n.heat + Math.min(1.5, 0.6 * angry) + tHeat, 0, 100);
+  n.heat = clamp(n.heat + Math.min(1.5, 0.6 * angry) + tHeat + hearHeat, 0, 100);
   n.heatPeak = Math.max(n.heatPeak || 0, n.heat);
   if (!n.lost && (n.heat >= 100 || (n.heat >= 80 && n.pop < 35))) n.lost = "fired";
   res.heatParts = hp; res.ff = ff; res.qt = doQT;
@@ -2787,6 +2934,54 @@ function ruleBoundGame(sc) {
   while (s.t < M.turns && !s.lost) { const p = prepGame(s, sc); s = stepGame(s, sc, p, { move: p.advisors.taylor, tone: "neutral", choice: 0, qa: null, qe: p.qe && s.x < -0.5 ? 2 : 0, buy: p.budget ? ruleBuys(s) : [] }).state; }
   return s;
 }
+/*REL-START*/
+// People remember. Advisors, the press, the President and your own board each keep a running opinion of you.
+const REL_IDS = ["harrow", "weiss", "okafor", "press", "pres", "board"];
+const REL0 = () => ({ harrow: 55, weiss: 55, okafor: 55, press: 55, pres: 55, board: 55 });
+const ADV_OF = { keynes: "harrow", friedman: "weiss", taylor: "okafor" };
+// A hearing in parliament: three questions, and the committee remembers the answers.
+// Each answer is [credibility, popularity, removal risk, press trust, President's trust].
+const HEAR_Q = {
+  h_infl: [[0.03, -2, 2, 5, -4], [-0.02, 2, -2, -2, 4], [-0.01, 0, 1, -4, 0]],
+  h_jobs: [[0.02, -2, 3, 4, -4], [-0.03, 3, -3, -3, 5], [0, 0, 0, -3, 0]],
+  h_indep: [[0.05, -3, 5, 6, -7], [-0.06, 3, -5, -4, 7], [-0.01, 0, 1, -3, 1]],
+  h_debt: [[0.04, -2, 4, 5, -6], [-0.05, 2, -4, -3, 6], [0, 0, 1, -2, 0]],
+  h_banks: [[0.03, -1, 1, 4, -2], [-0.02, 2, -1, -2, 3], [-0.01, -1, 1, -3, 0]],
+  h_record: [[0.02, 1, -1, 3, 0], [-0.03, 2, -2, -3, 3], [0.01, -2, 2, 2, -2]]
+};
+function hearingQs(s, prep) {                                            // the committee asks about whatever is going wrong
+  const q = [];
+  if (Math.abs(s.pi - 2) > 1) q.push("h_infl");
+  if (s.x < -0.8) q.push("h_jobs");
+  if ((s.debt ?? 60) >= debtLim(prep && prep.em).heat) q.push("h_debt");
+  if ((s.bankCap ?? 100) < 85 || (s.lev || 0) >= 4) q.push("h_banks");
+  if (s.heat >= 45) q.push("h_indep");
+  q.push("h_record", "h_infl", "h_jobs");
+  return [...new Set(q)].slice(0, 3);
+}
+function relStep(s, n, sc, prep, inp, res, vote, hear) {
+  const r = Object.assign(REL0(), s.rel || {}), d = {}, add = (k, v) => (d[k] = (d[k] || 0) + v);
+  const move = n.move ?? inp.move;
+  for (const [school, id] of Object.entries(ADV_OF)) {                   // advisors watch whether you take their advice
+    const rec = prep.advisors[school], gap = Math.abs(move - rec);
+    add(id, gap < 0.01 ? 3 : gap <= 0.25 ? 1.5 : Math.sign(move) === Math.sign(rec) ? -1 : -2.5);
+  }
+  if (inp.qa != null) add("press", [3, -1, -4][inp.qa] ?? 0);            // straight answers build trust, evasion burns it
+  if (res.credParts.some(q => q[0] === "keptWord")) add("press", 2);
+  if (res.credParts.some(q => q[0] === "brokeHawk" || q[0] === "brokeDove")) add("press", -5);
+  if (res.credParts.some(q => q[0] === "caved")) { add("pres", 6); add("press", -3); }
+  if (res.credParts.some(q => q[0] === "resisted")) { add("pres", -5); add("press", 3); }
+  if (prep.pressure === "cut" && move > 0) add("pres", -7);
+  if (prep.dilemma && inp.choice != null) add("pres", inp.choice === 1 ? 5 : -3);
+  if (vote) add("board", vote.passed ? (vote.no === 0 ? 3 : 1) : -5);
+  if (res.stacked) add("board", -6);
+  (hear || []).forEach(([id, k]) => { const e = (HEAR_Q[id] || [])[k]; if (e) { add("press", e[3]); add("pres", e[4]); } });
+  for (const id of REL_IDS) r[id] = clamp(Math.round((r[id] + (d[id] || 0)) * 0.92 + 55 * 0.08), 0, 100);   // opinions drift back to indifference
+  return { rel: r, relParts: d };
+}
+const relOf = (s, id) => ((s && s.rel) || REL0())[id] ?? 55;
+const relMood = v => (v >= 75 ? "ally" : v >= 60 ? "warm" : v > 40 ? "neutral" : v > 25 ? "cool" : "hostile");
+/*REL-END*/
 /*FISC-START*/
 // The Treasury: a stock of debt, what it costs to service, and the politics that follow. High debt makes the Bank's job political.
 // Where each era starts: roughly where public debt stood in 1973, 2007 and 2020. Emerging markets borrow less and pay more.
@@ -3102,7 +3297,7 @@ function renderHUD(s, prev, turn) {
     <div class="meter-tile" id="hPop"><div class="t-row"><span class="t-lab">${esc(gg.hud.pop)}</span><span class="t-num" data-count="${Math.round(from.pop)}|${Math.round(s.pop)}">${Math.round(from.pop)}</span></div><div class="mbar" style="--c:var(--amber)"><i style="width:${from.pop}%" data-to="${s.pop}"></i><em class="danger" style="left:25%"></em><em style="left:50%"></em></div></div>
     <div class="meter-tile" id="hHeat"><div class="t-row"><span class="t-lab">${esc(gg.hud.heat)}</span><span class="t-num" data-count="${Math.round(from.heat || 0)}|${Math.round(s.heat || 0)}">${Math.round(from.heat || 0)}</span></div><div class="mbar" style="--c:var(--red)"><i style="width:${from.heat || 0}%" data-to="${s.heat || 0}"></i><em class="danger" style="left:80%"></em></div></div>
     <div class="meter-tile" id="hDebt"><div class="t-row"><span class="t-lab">${esc(gg.hud.debt)}</span><span class="t-num" data-count="${Math.round(from.debt || 0)}|${Math.round(s.debt || 0)}">${Math.round(from.debt || 0)}</span></div><div class="mbar" style="--c:var(--purple)"><i style="width:${Math.min(100, (s.debt || 0) / 1.5)}%" data-to="${Math.min(100, (s.debt || 0) / 1.5)}"></i><em class="danger" style="left:${Math.min(96, debtLim(game.sc.em).heat / 1.5)}%"></em></div></div>
-    <div class="hud-btns"><button class="icon-btn" id="bMap" aria-label="${esc(gg.map.hudBtn)}" title="${esc(gg.map.hudBtn)}">${ICON.map}</button><button class="icon-btn" id="bCharts" aria-label="${esc(gg.hud.charts)}" title="${esc(gg.hud.charts)}">${ICON.chart}</button><button class="icon-btn" id="bMenu" aria-label="${esc(gg.hud.menu)}" title="${esc(gg.hud.menu)}">${ICON.pause}</button></div></div>`;
+    <div class="hud-btns"><button class="icon-btn" id="bMap" aria-label="${esc(gg.map.hudBtn)}" title="${esc(gg.map.hudBtn)}">${ICON.map}</button><button class="icon-btn" id="bPeople" aria-label="${esc(gg.standing.hudBtn)}" title="${esc(gg.standing.hudBtn)}">${ICON.people}</button><button class="icon-btn" id="bCharts" aria-label="${esc(gg.hud.charts)}" title="${esc(gg.hud.charts)}">${ICON.chart}</button><button class="icon-btn" id="bMenu" aria-label="${esc(gg.hud.menu)}" title="${esc(gg.hud.menu)}">${ICON.pause}</button></div></div>`;
   $("hud").hidden = false;
   const settle = () => {
     $("hud").querySelectorAll("[data-to]").forEach(i => (i.style.width = i.dataset.to + "%"));
@@ -3118,6 +3313,7 @@ function renderHUD(s, prev, turn) {
   $("bCharts").onclick = openCharts;
   $("bMenu").onclick = openMenu;
   $("bMap").onclick = openMap;
+  $("bPeople").onclick = openPeople;
 }
 function pushHeadline(key, src, textFn) {
   if (game.headlines.some(h => h.key === key)) return;
@@ -3233,12 +3429,13 @@ function startLevel(scenario, seed, inputs = [], hard = false, em = false, opts 
 /* ═══════════════ A QUARTER ═══════════════ */
 function beginQuarter() {
   const s = cur(), prep = (game.prep = prepGame(s, game.sc));
-  draft = { move: null, tone: "neutral", choice: null, qe: 0, buy: [], macro: !!s.macro, fx: 0, qt: false };
+  draft = { move: null, tone: "neutral", choice: null, qe: 0, buy: [], macro: !!s.macro, fx: 0, qt: false, hear: null };
   resetStage(); drawRoom(); renderHUD(s, null, prep.t);
   const list = [quarterCard, newsBeat, frontPageBeat, mapBeat];
   if (prep.budget) list.push(budgetBeat);
   calls(s, prep).forEach((c, k) => list.push(() => { callBeat(c, k); coach([c.pres && prep.pressure && "pressure", "calls"]); }));
   if (prep.dilemma || prep.gd) list.push(dilemmaBeat);
+  if (prep.hearing) list.push(hearingBeat);
   list.push(advisorsBeat, decideBeat);
   play(list.map(fn => { const b = () => { fn(); coachFor(fn); }; b.ov = fn === quarterCard; return b; }));
 }
@@ -3346,7 +3543,9 @@ function advisorsBeat() {
   const s = seenNow(), prep = game.prep, t = tr(), gg = g(), keys = ["keynes", "friedman", "taylor"];
   const cards = keys.map((k, n) => {
     const m = prep.advisors[k];
-    return `<article class="adv" style="--n:${n}"><header><b>${esc(t.adv[k].name)}</b><span>${esc(t.adv[k].school)}</span></header><p>${esc(advisorText(k, s, prep))}</p>
+    const rv = relOf(cur(), ADV_OF[k]), wh = advisorWhisper(k);
+    return `<article class="adv" style="--n:${n}"><header><b>${esc(t.adv[k].name)}</b><span>${esc(t.adv[k].school)}</span><span class="rel-chip" style="--c:${relColor(rv)}" title="${esc(g().standing.moods[relMood(rv)])}">${rv}</span></header><p>${esc(advisorText(k, s, prep))}</p>
+      ${wh ? `<p class="whisper">${esc(wh)}</p>` : ""}
       <footer><span class="rec ${m < 0 ? "cut" : m > 0 ? "hike" : ""}">${esc(t.moveName(m))}</span><button class="btn small ghost" data-follow="${m}" data-adv="${k}" aria-pressed="${draft.adv === k}">${esc(draft.adv === k ? gg.followed : gg.follow)}</button></footer></article>`;
   }).join("");
   const mood = k => (k === "friedman" && s.pi > 3.5) || (k === "keynes" && s.x < -2) ? "angry" : prep.advisors[k] === 0 ? "neutral" : "happy";
@@ -3421,7 +3620,7 @@ function announce() {
   const prep = game.prep;
   if (draft.move == null || ((prep.dilemma || prep.gd) && draft.choice == null)) return;
   Sound.stamp(); game.nudge = null;
-  const inp = { move: draft.move, tone: draft.tone, choice: prep.dilemma || prep.gd ? draft.choice : null, qe: prep.qe ? draft.qe || 0 : 0, qa: null, buy: prep.budget ? draft.buy.slice() : [], macro: prep.canMacro ? !!draft.macro : false, fx: prep.fxTool ? draft.fx || 0 : 0, qt: prep.qt ? !!draft.qt : false };
+  const inp = { move: draft.move, tone: draft.tone, choice: prep.dilemma || prep.gd ? draft.choice : null, qe: prep.qe ? draft.qe || 0 : 0, qa: null, buy: prep.budget ? draft.buy.slice() : [], macro: prep.canMacro ? !!draft.macro : false, fx: prep.fxTool ? draft.fx || 0 : 0, qt: prep.qt ? !!draft.qt : false, hear: prep.hearing ? draft.hear : null };
   play([() => presserBeat(inp), () => { qaBeat(inp); coach(["qa"]); }]);
 }
 function afterQA(inp) {
@@ -3488,7 +3687,7 @@ function falloutBeat(r) {
   say({ cast: s.lost ? [{ id: s.govt === "opp" ? "quiroga" : "salas", mood: "angry" }] : [], name: gg.resultTitle, role: quarterLabel(s.t),
     text: s.lost ? `${t.outcome[s.lost]}. ${t.lostWhy[s.lost]}` : "",
     pre: streak >= 2 && !s.lost ? `<div class="streak">${esc(gg.streak(streak))}</div>` : "",
-    extra: `<div class="ledgers">${ledger(t.credHead, cd, r.credParts, t.credWhy, 100, 0)}${ledger(t.popHead, pd, r.popParts, t.popWhy, 1, 1)}${ledger(gg.hud.heat, hd, r.heatParts, gg.heatWhy, 1, 0, true)}</div><p class="verdict-q">${esc(verdict)}</p>` });
+    extra: `${relStrip(r)}<div class="ledgers">${ledger(t.credHead, cd, r.credParts, t.credWhy, 100, 0)}${ledger(t.popHead, pd, r.popParts, t.popWhy, 1, 1)}${ledger(gg.hud.heat, hd, r.heatParts, gg.heatWhy, 1, 0, true)}</div><p class="verdict-q">${esc(verdict)}</p>` });
 }
 
 function electionBeat(r) {
@@ -3547,9 +3746,9 @@ function coach(keys) {
 function coachFor(fn, r) {
   const prep = game.prep, s = cur();
   const at = fn === newsBeat ? ["news"] : fn === frontPageBeat ? ["front"] : fn === mapBeat ? ["map", s.t >= 2 && "fog"] : fn === budgetBeat ? ["budget"]
-    : fn === dilemmaBeat ? ["dilemma"] : fn === advisorsBeat ? ["advisors"]
+    : fn === dilemmaBeat ? ["dilemma"] : fn === advisorsBeat ? ["advisors", "people"]
     : fn === decideBeat ? ["decide", prep.qe && "qe", prep.qt && "qt", prep.fxTool && "fx", prep.canMacro && "macro", "fan", "board", "tone"]
-    : fn === reactionBeat ? ["react", "groups"] : fn === falloutBeat ? [r.dominance && "dominance", (r.state.debt || 0) >= debtLim(game.sc.em).heat && "debt", (r.state.heat || 0) >= 40 && "heat", (r.state.lev || 0) >= 3 && "credit", "ledger"] : [];
+    : fn === reactionBeat ? ["react", "groups"] : fn === hearingBeat ? ["hearing"] : fn === falloutBeat ? [r.dominance && "dominance", (r.state.debt || 0) >= debtLim(game.sc.em).heat && "debt", (r.state.heat || 0) >= 40 && "heat", (r.state.lev || 0) >= 3 && "credit", "ledger"] : [];
   coach(at);
 }
 
@@ -3615,6 +3814,88 @@ function openDebrief(o = {}) {
   $("dbPrint").onclick = () => window.print();
   $("dbGloss").onclick = () => openGlossary(() => openDebrief(o));
 }
+/* ═══════════════ PEOPLE: STANDING, HEARINGS, MEMOIRS ═══════════════ */
+const REL_FACE = { harrow: "harrow", weiss: "weiss", okafor: "okafor", press: "press1", pres: "salas", board: "rios" };
+const relColor = v => (v >= 60 ? "var(--green)" : v > 40 ? "var(--amber)" : "var(--red)");
+
+function relRow(id, v, prev) {
+  const P = g().standing, mood = relMood(v), [nm, role] = P.who[id];
+  const d = prev == null ? "" : `<b class="${v >= prev ? "upc" : "downc"}">${sgn(v - prev, 0)}</b>`;
+  return `<article class="rel"><span class="rel-face">${portraitSVG(REL_FACE[id], mood === "hostile" ? "angry" : mood === "ally" ? "happy" : "neutral")}</span>
+    <div class="rel-head"><b>${esc(nm)}</b><span>${esc(role)}</span></div>
+    <div class="rel-bar"><div class="mbar" style="--c:${relColor(v)}"><i style="width:${v}%"></i></div><span class="rel-num">${v}${d}</span></div>
+    <span class="rel-mood" style="--c:${relColor(v)}">${esc(P.moods[mood])}</span>
+    <p>${esc(P.lines[id][mood])}</p></article>`;
+}
+function openPeople() {
+  if (!game) return;
+  cardToken = null;
+  const P = g().standing, s = cur(), prev = game.hist.length > 1 ? game.hist[game.hist.length - 2] : null;
+  openOverlay(`<div class="scr"><h2 class="scr-title">${esc(P.title)}</h2><p class="credits">${esc(P.sub)}</p>
+    <div class="rel-grid">${REL_IDS.map(id => relRow(id, relOf(s, id), prev ? relOf(prev, id) : null)).join("")}</div>
+    <p class="note">${esc([P.hint.press, P.hint.pres, P.hint.board].join(" "))}</p>
+    <button class="btn big" id="pplClose" data-hot>${esc(g().close)}</button></div>`);
+  $("pplClose").onclick = resume;
+}
+// A quiet word from an advisor who trusts you: what the staff is hearing about next quarter.
+function advisorWhisper(school) {
+  const id = ADV_OF[school];
+  if (relOf(cur(), id) < 70) return "";
+  const t = game.prep.t, nx = (game.sc.d[t + 1] || 0) + (game.sc.s[t + 1] || 0);
+  if (Math.abs(nx) < 0.35) return g().whisper.calm;
+  return (game.sc.s[t + 1] || 0) > 0.3 ? g().whisper.costs : (game.sc.d[t + 1] || 0) > 0.3 ? g().whisper.boom : g().whisper.weak;
+}
+
+/* ── the hearing ── */
+function hearingBeat() {
+  const prep = game.prep;
+  draft.hear = prep.hearQs.map(() => 1);
+  const H = g().hearing;
+  let k = 0;
+  const ask = () => {
+    const id = prep.hearQs[k], [q, answers] = H.qs[id];
+    const mood = draft.hear.slice(0, k).reduce((a, v, j) => a + (HEAR_Q[prep.hearQs[j]][v][3] || 0), 0);
+    const level = clamp(Math.round((mood + 8) / 5.5), 0, 3);
+    say({ cast: [{ id: "quiroga", mood: k && mood < 0 ? "angry" : "neutral" }, { id: "press1", mood: "neutral" }], name: H.title, role: `${H.role} · ${H.of(k + 1, prep.hearQs.length)}`,
+      text: k === 0 ? `${H.intro} ${q}` : q, contDisabled: true,
+      pre: k ? `<div class="hear-mood"><span class="sec-lab">${esc(H.mood)}</span><span class="pill ${level >= 2 ? "" : "hot"}">${esc(H.moods[level])}</span></div>` : "",
+      extra: `<div class="choices qa">${answers.map((a, j) => `<button class="choice" data-key="${j + 1}" data-hear="${j}"><span class="ck">${j + 1}</span><span>${esc(a)}</span></button>`).join("")}</div>` });
+    $("contBtn").hidden = true;
+    $("panel").querySelectorAll("[data-hear]").forEach(b => (b.onclick = () => {
+      draft.hear[k] = +b.dataset.hear; Sound.stamp();
+      k++;
+      if (k < prep.hearQs.length) ask();
+      else { flash(1); next(); }
+    }));
+  };
+  ask();
+}
+
+/* ── memoirs ── */
+function memoirHTML(s, era) {
+  const M_ = g().memoir, P = g().standing, rel = s.rel || REL0();
+  const people = ["harrow", "weiss", "okafor", "board"].map(id => [id, relOf(s, id)]);
+  const best = people.slice().sort((a, b) => b[1] - a[1])[0], worst = people.slice().sort((a, b) => a[1] - b[1])[0];
+  const open = s.lost ? M_.open.bad : Math.abs(s.pi - 2) < 1 && s.cred >= 0.7 ? M_.open.good : M_.open.mixed;
+  const lines = [open];
+  if (best[1] >= 65) lines.push(M_.ally(P.who[best[0]][0]));
+  if (worst[1] <= 35) lines.push(M_.foe(P.who[worst[0]][0]));
+  lines.push(relOf(s, "press") >= 55 ? M_.press.warm : M_.press.cold);
+  lines.push(relOf(s, "pres") >= 55 ? M_.pres.warm : M_.pres.cold);
+  lines.push(s.lost === "fired" ? M_.close.fired : M_.close.done);
+  return `<div class="memoir"><span class="sec-lab">${esc(era ? M_.chapter(era) : M_.title)}</span>${lines.map(l => `<p>${esc(l)}</p>`).join("")}</div>`;
+}
+
+// After the decision: who moved, and by how much.
+function relStrip(r) {
+  const P = g().standing, parts = r.relParts || {};
+  const moved = REL_IDS.filter(id => Math.abs(parts[id] || 0) >= 1);
+  if (!moved.length) return "";
+  return `<div class="rel-strip"><span class="sec-lab">${esc(P.role)}</span>${moved.map(id => {
+    const v = relOf(r.state, id), dv = Math.round(parts[id]);
+    return `<span>${esc(P.who[id][0])} <b style="color:${relColor(v)}">${v}</b><em class="${dv >= 0 ? "upc" : "downc"}">${sgn(dv, 0)}</em></span>`;
+  }).join("")}</div>`;
+}
 /* ═══════════════ END OF LEVEL ═══════════════ */
 function evalAchievements(score, rule) {
   const R = game.reports, s = cur(), got = [], finished = !s.lost && s.t >= M.turns;
@@ -3671,6 +3952,7 @@ function endLevel(restored) {
     </dl>
     <p class="note">${esc(gg.starsNote)}</p>
     ${fresh.length ? `<div class="achs"><span class="sec-lab">${esc(gg.newAch)}</span>${fresh.map(a => `<div class="ach"><b>${esc(gg.ach[a][0])}</b><small>${esc(gg.ach[a][1])}</small></div>`).join("")}</div>` : ""}
+    ${memoirHTML(s)}
     ${handInHTML()}
     <div class="end-charts">${["infl", "mkt", "pol"].map(k => chartCard(k, qL, true)).join("")}</div>
     ${game.cfg.career ? `<div class="btns"><button class="btn big" id="eCareer" data-hot>${esc(gg.career.continueStory)} →</button><button class="btn ghost" id="eDebrief">${esc(gg.debrief.btn)}</button></div>` : `<div class="btns">
@@ -3817,10 +4099,10 @@ function careerRecord(s, total, stars) {
   const cr = careerNow(); if (!cr || cr.recorded === cr.era) return;
   const [from, to] = eraYears(cr.era);
   cr.gov.terms.push({ era: cr.era, score: total, stars, cred: s.cred, outcome: s.lost || "served", from, to });
-  cr.results.push({ era: cr.era, governor: cr.gov.name, score: total, stars, outcome: s.lost || "served" });
+  cr.results.push({ era: cr.era, governor: cr.gov.name, score: total, stars, outcome: s.lost || "served", mem: { lost: s.lost, pi: s.pi, cred: s.cred, rel: Object.assign({}, s.rel) } });
   const next = CAREER_ERAS[Math.min(cr.era + 1, CAREER_ERAS.length - 1)];
   const base = SCEN[next].cred - (cr.em ? 0.08 : 0) - (cr.hard ? 0.05 : 0);
-  cr.carry = { dept: Object.assign({}, s.dept || initDept()), cred: +clamp(0.5 * base + 0.5 * s.cred - (s.lost ? 0.1 : 0), 0.3, 0.9).toFixed(3), points: 3 + stars };
+  cr.carry = { rel: Object.assign({}, s.rel), dept: Object.assign({}, s.dept || initDept()), cred: +clamp(0.5 * base + 0.5 * s.cred - (s.lost ? 0.1 : 0), 0.3, 0.9).toFixed(3), points: 3 + stars };
   cr.last = { lost: s.lost, cred: s.cred, heat: s.heat, pop: s.pop, govt: s.govt };
   cr.recorded = cr.era;
   persist();
@@ -3835,6 +4117,12 @@ function finishGovernor(gov, ended) {
   return rec;
 }
 
+// What people carry into the next era: half of it for a governor who stays, almost nothing for a successor.
+const carryRel = (rel, sameGov) => {
+  const out = REL0();
+  for (const id of REL_IDS) out[id] = clamp(Math.round(55 + (((rel || {})[id] ?? 55) - 55) * (sameGov ? 0.5 : 0.15)), 0, 100);
+  return out;
+};
 function careerAfterTerm() {
   const cr = careerNow(); if (!cr || !cr.last) return levelSelect();
   const gg = g(), C = gg.career, last = cr.last, finalEra = cr.era >= CAREER_ERAS.length - 1;
@@ -3855,6 +4143,7 @@ function careerAfterTerm() {
     if (endsTenure || finalEra) cr.govs.push(finishGovernor(cr.gov, kind === "ousted" ? last.lost : finalEra ? "retired" : "notReappointed"));
     if (finalEra) { persist(); return careerFinish(); }
     if (endsTenure) cr.gov = { name: ($("succName").value || "").trim().slice(0, 28) || suggestion, terms: [] };
+    if (cr.carry) cr.carry.rel = carryRel(cr.carry.rel, !endsTenure);          // a new governor is not owed the old one's friendships
     cr.era++; cr.last = null; persist();
     careerInterlude();
   };
@@ -3893,6 +4182,7 @@ function careerFinish() {
     <div class="tbl-wrap"><table class="hof"><thead><tr><th>${esc(C.eraCol)}</th><th>${esc(C.cols[0])}</th><th>${esc(C.cols[3])}</th><th>★</th><th>${esc(C.cols[5])}</th></tr></thead>
       <tbody>${results.map(r => `<tr><td>${esc(C.eras[r.era])}</td><td>${esc(r.governor)}</td><td>${r.score}</td><td>${r.stars}</td><td>${esc(C.ended[r.outcome] || r.outcome)}</td></tr>`).join("")}</tbody></table></div>
     <div class="score"><span>${esc(C.total)}</span><b>${total}</b></div>
+    ${results.filter(r => r.mem).map(r => memoirHTML(r.mem, `${C.eras[r.era]} · ${r.governor}`)).join("")}
     ${fresh.length ? `<div class="achs"><span class="sec-lab">${esc(gg.newAch)}</span>${fresh.map(a => `<div class="ach"><b>${esc(gg.ach[a][0])}</b><small>${esc(gg.ach[a][1])}</small></div>`).join("")}</div>` : ""}
     <div class="btns"><button class="btn big" id="cfHall" data-hot>${esc(C.hall)}</button><button class="btn ghost" id="cfLevels">${esc(gg.toLevels)}</button></div>
   </div>`);
@@ -4044,9 +4334,9 @@ const classLink = code => (/^https?:$/.test(location.protocol) && !/claude/.test
 
 // Decisions, packed small so a whole term fits in a code a student can paste.
 const TONES = ["dovish", "neutral", "hawkish"], DEPT_L = { stats: "s", research: "r", comms: "c", supervision: "v", markets: "m" };
-const packInp = i => [Math.round(i.move * 4), TONES.indexOf(i.tone), i.choice ?? -1, i.qa ?? -1, i.qe || 0, i.fx || 0, i.macro ? 1 : 0, (i.buy || []).map(k => DEPT_L[k]).join(""), i.qt ? 1 : 0];
+const packInp = i => [Math.round(i.move * 4), TONES.indexOf(i.tone), i.choice ?? -1, i.qa ?? -1, i.qe || 0, i.fx || 0, i.macro ? 1 : 0, (i.buy || []).map(k => DEPT_L[k]).join(""), i.qt ? 1 : 0, (i.hear || []).join("")];
 const unpackInp = a => ({ move: a[0] / 4, tone: TONES[a[1]] || "neutral", choice: a[2] < 0 ? null : a[2], qa: a[3] < 0 ? null : a[3], qe: a[4] || 0, fx: a[5] || 0, macro: !!a[6],
-  qt: !!a[8], buy: [...(a[7] || "")].map(c => Object.keys(DEPT_L).find(k => DEPT_L[k] === c)).filter(Boolean) });
+  qt: !!a[8], hear: a[9] ? [...String(a[9])].map(Number) : null, buy: [...(a[7] || "")].map(c => Object.keys(DEPT_L).find(k => DEPT_L[k] === c)).filter(Boolean) });
 
 // A teacher's scenario: the model part builds the shocks, this adds its words to both languages.
 function installCustom(spec) {

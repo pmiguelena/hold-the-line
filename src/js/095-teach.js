@@ -26,9 +26,9 @@ function coach(keys) {
 function coachFor(fn, r) {
   const prep = game.prep, s = cur();
   const at = fn === newsBeat ? ["news"] : fn === frontPageBeat ? ["front"] : fn === mapBeat ? ["map", s.t >= 2 && "fog"] : fn === budgetBeat ? ["budget"]
-    : fn === dilemmaBeat ? ["dilemma"] : fn === advisorsBeat ? ["advisors"]
+    : fn === dilemmaBeat ? ["dilemma"] : fn === advisorsBeat ? ["advisors", "people"]
     : fn === decideBeat ? ["decide", prep.qe && "qe", prep.qt && "qt", prep.fxTool && "fx", prep.canMacro && "macro", "fan", "board", "tone"]
-    : fn === reactionBeat ? ["react", "groups"] : fn === falloutBeat ? [r.dominance && "dominance", (r.state.debt || 0) >= debtLim(game.sc.em).heat && "debt", (r.state.heat || 0) >= 40 && "heat", (r.state.lev || 0) >= 3 && "credit", "ledger"] : [];
+    : fn === reactionBeat ? ["react", "groups"] : fn === hearingBeat ? ["hearing"] : fn === falloutBeat ? [r.dominance && "dominance", (r.state.debt || 0) >= debtLim(game.sc.em).heat && "debt", (r.state.heat || 0) >= 40 && "heat", (r.state.lev || 0) >= 3 && "credit", "ledger"] : [];
   coach(at);
 }
 

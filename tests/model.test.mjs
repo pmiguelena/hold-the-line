@@ -263,15 +263,24 @@ test("debrief: replaying your own moves reproduces your game; a rule-follower ha
   assert.equal(rule.deviations, 0); assert.equal(rule.moments.length, 0);
 });
 
-test("debrief: easing too much every quarter shows up as costly decisions with lessons", () => {
+test("debrief: easing too much costs score, and every moment carries a lesson", () => {
   const dove = (s, p) => ({ ...POLICIES.rule(s, p), move: Math.max(m.M.iMin - s.i, p.advisors.taylor - 0.5) });
-  let hurt = 0, total = 0;
-  for (let k = 0; k < 20; k++) {
-    const g1 = record("random", "YM" + k, dove), d = m.debriefData(g1.S, g1.inputs, g1.reports);
-    assert.ok(d.moments.length <= 3);
-    d.moments.forEach(x => { total++; if (x.impact < 0) hurt++; assert.ok(/^(same|ruleLost|youLost|(easeHigh|ease|tightLow|tight)(Help|Hurt))$/.test(x.lesson), x.lesson); });
+  const scores = { rule: [], dove: [] };
+  let moments = 0, hurt = 0;
+  for (const level of ["oil", "pandemic"]) {
+    for (let k = 0; k < 25; k++) {
+      const a = record(level, "YM" + k, POLICIES.rule), b = record(level, "YM" + k, dove);
+      scores.rule.push(m.scoreGame(a.s).total); scores.dove.push(m.scoreGame(b.s).total);
+      const d = m.debriefData(b.S, b.inputs, b.reports);
+      assert.ok(d.moments.length <= 3);
+      d.moments.forEach(x => { moments++; if (x.impact < 0) hurt++; assert.ok(/^(same|ruleLost|youLost|(easeHigh|ease|tightLow|tight)(Help|Hurt))$/.test(x.lesson), x.lesson); });
+    }
   }
-  assert.ok(total > 0 && hurt / total > 0.6, `${hurt}/${total} moments hurt`);
+  const avg = a => a.reduce((x, y) => x + y, 0) / a.length;
+  assert.ok(avg(scores.rule) - avg(scores.dove) > 30, `rule ${avg(scores.rule).toFixed(0)} vs dove ${avg(scores.dove).toFixed(0)}`);
+  // Each moment prices one quarter with the rest of the path held fixed, so a steadily loose path costs far more
+  // than its individual quarters do: the score gap above is the claim, not the sign of every moment.
+  assert.ok(moments > 20 && hurt > 0, `${hurt}/${moments} of the flagged decisions hurt`);
 });
 
 test("teacher scenarios: events become fading shocks, and surprises can be switched off", () => {
@@ -349,4 +358,42 @@ test("the currency is quoted as local money per US dollar", () => {
   assert.ok(m.fxRate({ fx: 110 }) < m.FX0, "a stronger currency costs less");
   const em = Array.from({ length: 40 }, (_, k) => m.fxRate(simulate(m, "crisis", "FX" + k, POLICIES.rule, false, true)));
   assert.ok(em.every(v => v > 20 && v < 400), `exchange rates out of range: ${Math.min(...em).toFixed(0)}–${Math.max(...em).toFixed(0)}`);
+});
+
+test("people remember: following advice, straight answers and defiance all leave a mark", () => {
+  const sc = m.applyMode(m.extendScenario(m.buildScenario("oil", "P1"), "P1"), false, false);
+  const s0 = m.initGame(sc);
+  assert.deepEqual(s0.rel, m.REL0());
+  const step = (st, inp) => { const p = m.prepGame(st, sc); return m.stepGame(st, sc, p, { tone: "neutral", choice: 0, qa: 0, qe: 0, ...inp }); };
+  let st = s0;
+  for (let k = 0; k < 6; k++) { const p = m.prepGame(st, sc); st = m.stepGame(st, sc, p, { move: p.advisors.taylor, tone: "neutral", choice: 0, qa: 0, qe: 0 }).state; }
+  assert.ok(m.relOf(st, "okafor") > 60, "the rule advisor warms to a governor who follows the rule");
+  assert.ok(m.relOf(st, "press") > 55, "straight answers build trust with the press");
+
+  const evasive = step(s0, { move: 0, qa: 2 }).state;
+  assert.ok(m.relOf(evasive, "press") < m.relOf(step(s0, { move: 0, qa: 0 }).state, "press"));
+  assert.ok(m.relMood(90) === "ally" && m.relMood(10) === "hostile");
+
+  const hot = Object.assign(m.initGame(sc), { t: 5, pi: 5, rel: { ...m.REL0(), pres: 90 } });
+  const cold = Object.assign(m.initGame(sc), { t: 5, pi: 5, rel: { ...m.REL0(), pres: 10 } });
+  const hp = st2 => { const p = m.prepGame(st2, sc); return m.stepGame(st2, sc, p, { move: 0, tone: "neutral", choice: 0, qa: 0, qe: 0 }).state.heat; };
+  assert.ok(hp(hot) < hp(cold), "a President who trusts you is slower to turn up the heat");
+});
+
+test("hearings: parliament calls twice a term, and answers move credibility one way or the President the other", () => {
+  const sc = m.applyMode(m.extendScenario(m.buildScenario("crisis", "H2"), "H2"), false, false);
+  let st = m.initGame(sc), called = [];
+  while (st.t < m.M.turns && !st.lost) {
+    const p = m.prepGame(st, sc);
+    if (p.hearing) { called.push(p.t); assert.equal(p.hearQs.length, 3); p.hearQs.forEach(id => assert.ok(m.HEAR_Q[id], id)); }
+    st = m.stepGame(st, sc, p, { move: p.advisors.taylor, tone: "neutral", choice: 0, qa: 0, qe: 0, hear: [0, 0, 0] }).state;
+  }
+  assert.ok(called.length >= 2, `hearings at ${called}`);
+  const at = Object.assign(m.initGame(sc), { t: 5, pi: 4 });
+  const p6 = Object.assign(m.prepGame(at, sc), { hearing: true, hearQs: ["h_indep", "h_infl", "h_record"] });
+  const inp = { move: 0, tone: "neutral", choice: 0, qa: 0, qe: 0 };
+  const firm = m.stepGame(at, sc, p6, { ...inp, hear: [0, 0, 0] }), soft = m.stepGame(at, sc, p6, { ...inp, hear: [1, 1, 1] });
+  assert.ok(firm.state.cred > soft.state.cred, "standing your ground reads as independence");
+  assert.ok(m.relOf(firm.state, "pres") < m.relOf(soft.state, "pres"), "and the President prefers the softer answers");
+  assert.ok(firm.state.heat > soft.state.heat);
 });

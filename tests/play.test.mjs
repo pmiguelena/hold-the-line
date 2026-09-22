@@ -104,12 +104,38 @@ test("phase 8 on screen: debt meter, household panel and the sell-holdings contr
   assert.ok(!/NaN|undefined/.test(d.getElementById("overlay").textContent));
 });
 
+test("people on screen: standing, a hearing, an advisor's whisper and the memoir", () => {
+  const { d, errors } = boot();
+  const r = playThrough(d, { level: "oil", lang: "en", advisor: 2, qa: 0 });
+  assert.ok([6, 9].includes(r.hearQs), `hearings of three questions each, got ${r.hearQs} questions`);   // a third is called if the politics get hot
+  assert.ok(d.querySelector(".memoir"), "the end screen closes with a memoir");
+  assert.deepEqual(errors, []);
+});
+
+test("the standing screen opens mid-game with every character", () => {
+  const { d, errors } = boot();
+  d.getElementById("tStart").click();
+  d.querySelector('[data-level="crisis"]').click();
+  d.getElementById("skipBtn").click();
+  for (let k = 0; k < 40 && !d.querySelector("#panel .decide"); k++) {
+    const ov = d.getElementById("overlay");
+    if (!ov.hidden) ov.querySelector("[data-hot]").click();
+    else { const P = d.getElementById("panel"); if (P.querySelector(".choices")) P.querySelector('[data-choice="0"]').click(); d.getElementById("contBtn").click(); }
+  }
+  d.getElementById("bPeople").click();
+  assert.equal(d.querySelectorAll("#overlay .rel").length, 6);
+  assert.ok(!/NaN|undefined/.test(d.getElementById("overlay").textContent));
+  d.getElementById("pplClose").click();
+  assert.deepEqual(errors, []);
+});
+
 test("career mode: four eras, reappointment, carry-over and the hall of fame", () => {
   const { d, w, errors } = boot();
   const r = playThrough(d, { career: true, lang: "en", gov: "Ada Rate" });
   assert.deepEqual(errors, []);
   assert.ok(r.terms.length >= 1 && r.terms.length <= 4, `terms: ${r.terms.length}`);
   assert.match(r.summary, /Ada Rate/);
+  assert.match(r.summary, /memoirs|Chapter/i, "the career summary closes with memoir chapters");
   assert.match(r.hall, /Hall of fame/);
   assert.match(r.hall, /Ada Rate/);
   const store = JSON.parse(w.localStorage.getItem("holdtheline.v1"));
