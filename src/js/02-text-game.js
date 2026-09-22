@@ -1,6 +1,29 @@
 /* ═══════════════ GAME TEXT ═══════════════ */
 const G = {};
 G.en = {
+  map: {
+    title: "The economy", role: "Staff briefing", rateChip: "Policy rate", hudBtn: "Economy map",
+    layers: { prices: "Prices", activity: "Activity", jobs: "Jobs", credit: "Credit" },
+    dist: { farms: "Farms", housing: "Housing", shops: "Shops & services", finance: "Financial district", industry: "Industry & port", energy: "Energy", gov: "Bank & Palace" },
+    sub: { housing: "House prices, a year", shops: "Lending growth", industry: "Lending growth", finance: "Bank health" },
+    cat: { food: "Food", energy: "Energy", housing: "Housing", goods: "Goods", services: "Services" },
+    secName: { farms: "Farming", construction: "Construction", industry: "Industry", shops: "Retail and services", finance: "Finance" },
+    legend: {
+      prices: [["cold", "below 1%"], ["good", "1–3%"], ["warn", "3–5%"], ["bad", "above 5%"]],
+      activity: [["bad", "deep slump or overheating"], ["warn", "slack or running hot"], ["good", "close to normal"]],
+      jobs: [["good", "unemployment below 5%"], ["warn", "5–6.5%"], ["bad", "above 6.5%"]],
+      credit: [["good", "healthy"], ["warn", "slow or frothy"], ["bad", "crunch, bust or boom"]]
+    },
+    drivers: (c, v) => `${c} is driving inflation, running at ${v}.`,
+    drag: (c, v) => `${c} prices are holding inflation down, at ${v}.`,
+    broadCalm: "Price pressures are broad and moderate.",
+    broad: v => `Price pressures are broad: inflation is ${v} across most of the basket.`,
+    weak: (sec, v) => `${sec} is contracting (activity ${v}).`,
+    hot: (sec, v) => `${sec} is overheating (activity ${v}).`,
+    bankStress: v => `Banks are under stress: health index ${v}.`,
+    housingBoom: v => `House prices are booming, ${v} over a year.`,
+    housingBust: v => `House prices are falling, ${v} over a year.`
+  },
   diff: { normal: "Normal", hard: "Hard" },
   continueGame: (name, q) => `Continue: ${name}, quarter ${q}`,
   estTip: "First estimate: the statistics office will revise it next quarter.",
@@ -191,6 +214,29 @@ G.en = {
 
 
 G.es = {
+  map: {
+    title: "La economía", role: "Informe del staff", rateChip: "Tasa de política", hudBtn: "Mapa de la economía",
+    layers: { prices: "Precios", activity: "Actividad", jobs: "Empleo", credit: "Crédito" },
+    dist: { farms: "Campo", housing: "Vivienda", shops: "Comercio y servicios", finance: "Distrito financiero", industry: "Industria y puerto", energy: "Energía", gov: "Banco y Palacio" },
+    sub: { housing: "Precio de viviendas, anual", shops: "Crecimiento del crédito", industry: "Crecimiento del crédito", finance: "Salud bancaria" },
+    cat: { food: "Alimentos", energy: "Energía", housing: "Vivienda", goods: "Bienes", services: "Servicios" },
+    secName: { farms: "El agro", construction: "La construcción", industry: "La industria", shops: "El comercio y los servicios", finance: "Las finanzas" },
+    legend: {
+      prices: [["cold", "menos de 1%"], ["good", "1–3%"], ["warn", "3–5%"], ["bad", "más de 5%"]],
+      activity: [["bad", "recesión profunda o recalentamiento"], ["warn", "holgura o ritmo alto"], ["good", "cerca de lo normal"]],
+      jobs: [["good", "desempleo bajo 5%"], ["warn", "5–6,5%"], ["bad", "más de 6,5%"]],
+      credit: [["good", "sano"], ["warn", "lento o espumoso"], ["bad", "sequía, desplome o burbuja"]]
+    },
+    drivers: (c, v) => `${c} empuja la inflación: corre a ${v}.`,
+    drag: (c, v) => `Los precios de ${c.toLowerCase()} contienen la inflación, en ${v}.`,
+    broadCalm: "Las presiones de precios son generales y moderadas.",
+    broad: v => `Las presiones son generales: la inflación ronda ${v} en casi toda la canasta.`,
+    weak: (sec, v) => `${sec} se contrae (actividad ${v}).`,
+    hot: (sec, v) => `${sec} se recalienta (actividad ${v}).`,
+    bankStress: v => `Los bancos están bajo tensión: índice de salud ${v}.`,
+    housingBoom: v => `Los precios de las viviendas se disparan: ${v} en un año.`,
+    housingBust: v => `Los precios de las viviendas caen: ${v} en un año.`
+  },
   diff: { normal: "Normal", hard: "Difícil" },
   continueGame: (name, q) => `Continuar: ${name}, trimestre ${q}`,
   estTip: "Primera estimación: el instituto de estadística la revisará el próximo trimestre.",

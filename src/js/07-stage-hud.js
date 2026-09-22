@@ -78,7 +78,7 @@ function renderHUD(s, prev, turn) {
     <div class="meter-tile" id="hCred"><div class="t-row"><span class="t-lab">${esc(gg.hud.cred)}</span><span class="t-num" data-count="${Math.round(from.cred * 100)}|${Math.round(s.cred * 100)}">${Math.round(from.cred * 100)}</span></div><div class="mbar" style="--c:var(--green)"><i style="width:${from.cred * 100}%" data-to="${s.cred * 100}"></i><em class="danger" style="left:12%"></em></div></div>
     <div class="meter-tile" id="hPop"><div class="t-row"><span class="t-lab">${esc(gg.hud.pop)}</span><span class="t-num" data-count="${Math.round(from.pop)}|${Math.round(s.pop)}">${Math.round(from.pop)}</span></div><div class="mbar" style="--c:var(--amber)"><i style="width:${from.pop}%" data-to="${s.pop}"></i><em class="danger" style="left:25%"></em><em style="left:50%"></em></div></div>
     <div class="meter-tile" id="hHeat"><div class="t-row"><span class="t-lab">${esc(gg.hud.heat)}</span><span class="t-num" data-count="${Math.round(from.heat || 0)}|${Math.round(s.heat || 0)}">${Math.round(from.heat || 0)}</span></div><div class="mbar" style="--c:var(--red)"><i style="width:${from.heat || 0}%" data-to="${s.heat || 0}"></i><em class="danger" style="left:80%"></em></div></div>
-    <div class="hud-btns"><button class="icon-btn" id="bCharts" aria-label="${esc(gg.hud.charts)}" title="${esc(gg.hud.charts)}">${ICON.chart}</button><button class="icon-btn" id="bMenu" aria-label="${esc(gg.hud.menu)}" title="${esc(gg.hud.menu)}">${ICON.pause}</button></div></div>`;
+    <div class="hud-btns"><button class="icon-btn" id="bMap" aria-label="${esc(gg.map.hudBtn)}" title="${esc(gg.map.hudBtn)}">${ICON.map}</button><button class="icon-btn" id="bCharts" aria-label="${esc(gg.hud.charts)}" title="${esc(gg.hud.charts)}">${ICON.chart}</button><button class="icon-btn" id="bMenu" aria-label="${esc(gg.hud.menu)}" title="${esc(gg.hud.menu)}">${ICON.pause}</button></div></div>`;
   $("hud").hidden = false;
   const settle = () => {
     $("hud").querySelectorAll("[data-to]").forEach(i => (i.style.width = i.dataset.to + "%"));
@@ -93,6 +93,7 @@ function renderHUD(s, prev, turn) {
   requestAnimationFrame(() => setTimeout(settle, 40));
   $("bCharts").onclick = openCharts;
   $("bMenu").onclick = openMenu;
+  $("bMap").onclick = openMap;
 }
 function pushHeadline(key, src, textFn) {
   if (game.headlines.some(h => h.key === key)) return;

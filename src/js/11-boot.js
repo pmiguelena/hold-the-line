@@ -8,7 +8,7 @@ document.addEventListener("keydown", e => {
   }
   if (/^[1-9]$/.test(e.key)) { const b = scope.querySelector(`[data-key="${e.key}"]:not(:disabled)`); if (b) { e.preventDefault(); b.click(); } return; }
   if (!ovOpen && game && game.nudge && (e.key === "ArrowLeft" || e.key === "ArrowRight")) { e.preventDefault(); game.nudge(e.key === "ArrowLeft" ? -1 : 1); return; }
-  if (e.key === "Escape" && screen === "game") { if (ovOpen) { if ($("mResume") || $("chClose")) resume(); } else openMenu(); }
+  if (e.key === "Escape" && screen === "game") { if (ovOpen) { if ($("mResume") || $("chClose") || $("mapClose")) resume(); } else openMenu(); }
 });
 
 function start(data) {

@@ -3,7 +3,7 @@ function beginQuarter() {
   const s = cur(), prep = (game.prep = prepGame(s, game.sc));
   draft = { move: null, tone: "neutral", choice: null, qe: 0 };
   resetStage(); drawRoom(); renderHUD(s, null, prep.t);
-  const list = [quarterCard, newsBeat, frontPageBeat];
+  const list = [quarterCard, newsBeat, frontPageBeat, mapBeat];
   calls(s, prep).forEach((c, k) => list.push(() => callBeat(c, k)));
   if (prep.dilemma || prep.gd) list.push(dilemmaBeat);
   list.push(advisorsBeat, decideBeat);
@@ -38,6 +38,13 @@ function newsBeat() {
   pushHeadline(`q${prep.t}-lead`, lead.breaking ? "ch9" : "wire", () => { const h = seenOf(game.hist[prep.t - 1], game.sc, prep.t - 1); return leadStory(h, prepGame(game.hist[prep.t - 1], game.sc)).head; });
   if (lead.breaking) { Sound.sting(); if (Math.abs(game.sc.d[prep.t] || 0) + Math.abs(game.sc.s[prep.t] || 0) >= 1.5) shake(); }
   say({ name: gg.anchor, role: `${gg.anchorRole} · ${lead.breaking ? t.breaking : t.dataRelease}`, text: `${lead.head}. ${lead.dek}` });
+}
+
+function mapBeat() {
+  const s = seenNow(), gg = g();
+  const layer = game.mapLayer || (Math.abs(s.pi - 2) > 1 ? "prices" : "activity");
+  say({ cast: [], name: gg.map.title, role: `${gg.map.role} · ${quarterLabel(game.prep.t)}`, extra: `<div id="mapBox"></div>` });
+  mountMap($("mapBox"), s, layer);
 }
 
 function frontPageBeat() {

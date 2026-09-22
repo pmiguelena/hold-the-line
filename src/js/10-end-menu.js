@@ -93,6 +93,15 @@ function openCharts() {
     <button class="btn big" id="chClose" data-hot>${esc(gg.close)}</button></div>`);
   $("chClose").onclick = resume;
 }
+function openMap() {
+  if (!game) return;
+  cardToken = null;
+  const gg = g(), s = seenOf(cur(), game.sc, cur().t);
+  openOverlay(`<div class="scr"><h2 class="scr-title">${esc(gg.map.title)}</h2><div id="mapOv" class="map-ov"></div>
+    <button class="btn big" id="mapClose" data-hot>${esc(gg.close)}</button></div>`);
+  mountMap($("mapOv"), s, game.mapLayer || "prices");
+  $("mapClose").onclick = resume;
+}
 function resume() { closeOverlay(); const b = beats[beatIdx]; if (b && b.ov) b(); }
 function openMenu() {
   if (!game) return;

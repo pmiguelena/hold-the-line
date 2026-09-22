@@ -21,6 +21,7 @@ for (const p of plays) {
       assert.equal(r.fronts, 18);
       assert.equal(r.reactions, 18);
       assert.equal(r.fans, 18, "the staff forecast should appear at every decision");
+      assert.equal(r.maps, 18, "the economy map briefing should appear every quarter");
     }
   });
 }
@@ -59,6 +60,13 @@ test("charts and pause menu open mid-game", () => {
       d.getElementById("contBtn").click();
     }
   }
+  d.getElementById("bMap").click();
+  for (const layer of ["prices", "activity", "jobs", "credit"]) {
+    d.querySelector(`#mapOv [data-layer="${layer}"]`).click();
+    assert.equal(d.querySelector("#mapOv .emap").dataset.map, layer);
+    assert.ok(!/NaN|undefined/.test(d.getElementById("mapOv").innerHTML), `bad value on the ${layer} layer`);
+  }
+  d.getElementById("mapClose").click();
   d.getElementById("bCharts").click();
   assert.equal(d.querySelectorAll("#overlay svg.chart").length, 5);
   d.getElementById("chClose").click();

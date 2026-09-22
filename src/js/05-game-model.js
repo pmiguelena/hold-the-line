@@ -56,6 +56,41 @@ function finStep(s, n, prep, inp, sc, t, gdT, qe) {
     eqPeak: Math.max(s.eqPeak, eq), eqRet, fxRet };
 }
 const drawdown = s => 100 * (1 - (s.eq || 100) / (s.eqPeak || 100));
+// Inside the aggregates: price categories and sectors. A decomposition for the map; it never feeds back into the core model.
+const CPI_W = { food: 0.2, energy: 0.1, housing: 0.25, goods: 0.2, services: 0.25 };
+const SEC_W = { farms: 0.12, construction: 0.1, industry: 0.2, shops: 0.48, finance: 0.1 };
+const SEC_U = { farms: 6.2, construction: 6.5, industry: 5.4, shops: 4.8, finance: 3.4 };
+const NEWS_CAT = { oil1: "energy", oil2: "energy", oil4: "energy", pa3: "goods", pa4: "energy", pa5: "goods",
+  ev_drought: "food", ev_oil: "energy", ev_tech: "goods", ev_commod: "energy" };
+function supplyMix(sc, t) {
+  for (let k = t; k >= Math.max(1, t - 3); k--) { const c = NEWS_CAT[sc.news[k]]; if (c) return { [c]: 1 }; }
+  return { energy: 0.4, food: 0.3, goods: 0.3 };
+}
+function econDetail(s) {
+  const P = s.catP || {}, fxDev = 100 * ((s.fx || 100) / (s.fxA || 100) - 1), eqGap = 100 * ((s.eq || 100) / (s.eqA || 100) - 1);
+  const dev = {
+    food: (P.food || 0) / CPI_W.food,
+    energy: (P.energy || 0) / CPI_W.energy - 0.15 * fxDev,          // a weaker currency makes imported energy dearer
+    housing: 0.35 * s.x + 0.12 * (s.hpg || 0),
+    goods: (P.goods || 0) / CPI_W.goods - 0.1 * fxDev,
+    services: 0.45 * s.x + 0.3 * (s.pe - 2)                          // wages: tight labour markets and expectations
+  };
+  const dm = Object.keys(CPI_W).reduce((a, c) => a + CPI_W[c] * dev[c], 0), cat = {};
+  for (const c in CPI_W) cat[c] = s.pi + dev[c] - dm;                 // weighted categories average back to headline inflation
+  const y = s.y10 || Y10_NEUTRAL, gap = {
+    farms: 0.5 * s.x - 3 * (P.food || 0),
+    construction: 1.6 * s.x - 0.9 * (y - Y10_NEUTRAL) + 0.25 * (s.hpg || 0),
+    industry: s.x - 0.12 * fxDev,
+    shops: s.x + 0.015 * eqGap,
+    finance: eqGap / 6
+  };
+  const gm = Object.keys(SEC_W).reduce((a, k) => a + SEC_W[k] * gap[k], 0), sec = {}, jobs = {};
+  for (const k in SEC_W) { sec[k] = s.x + gap[k] - gm; jobs[k] = Math.max(1, SEC_U[k] - 0.5 * sec[k]); }
+  const dd = drawdown(s);
+  return { cat, sec, jobs, fxDev, eqGap, hpYoY: 4 * (s.hpg || 0),
+    credit: 6 + 1.5 * s.x - 1.2 * (s.i - 3) - 0.15 * dd + 0.3 * (s.hpg || 0),
+    bank: clamp(80 - 1.2 * dd - 6 * Math.max(0, y - 5) - 4 * Math.max(0, -s.x - 1) + 40 * ((s.cred || 0.8) - 0.75), 5, 100) };
+}
 // Data fog: inflation and growth arrive as first estimates, get revised a quarter later, and are final after two.
 // Financial markets are observed in real time.
 const FOG = { pi: 0.3, x: 0.6 };
@@ -115,7 +150,7 @@ const DIL_HEAT = { financing: [18, -10], hearing: [10, -8], bank: [0, 0], leak: 
 const QA_HEAT = { q_markets: [0, -2, 0], q_pressure: [3, 0, -1], q_election: [4, -2, 0], q_jobs: [0, -2, 3], q_infl: [0, -2, 0], q_rift: [4, -4, 2], q_generic: [0, -1, 0] };
 const TRUCE = [{ cred: 0.02, heat: 5 }, { cred: -0.05, pop: 2, heat: -25 }];
 const GD = { truce: TRUCE, crash: CRASH };
-const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false });
+const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false, catP: {}, hp: 100, hpg: 0.8 });
 function prepGame(s, sc) {
   const p = prepare(seenOf(s, sc, s.t), sc);        // advisors, the government and the press all read the published data
   p.gd = p.dilemma ? null : drawdown(s) >= CRASH_DD && !s.crashUsed ? "crash" : s.heat >= 55 ? "truce" : null;
@@ -151,6 +186,11 @@ function stepGame(s, sc, prep, inp) {
   if (res.election === "defeated") { hp.push(["newGov", 12 - heat]); heat = 12; }
   n.heat = heat; n.heatPeak = Math.max(s.heatPeak || 0, heat);
   Object.assign(n, finStep(s, n, prep, inp, sc, t, gdT, qe));
+  const shock = (sSave || 0) + (sc.noiseS[t] || 0), mix = supplyMix(sc, t), P0 = s.catP || {};
+  n.catP = {};
+  for (const c of ["food", "energy", "goods"]) n.catP[c] = 0.2 * (P0[c] || 0) + shock * (mix[c] || 0);
+  n.hpg = clamp(0.8 + 1.0 * n.x - 0.9 * (n.y10 - Y10_NEUTRAL) + 1.5 * (dSave || 0) + 0.5 * (n.x - s.x), -8, 8);   // house prices, % a quarter
+  n.hp = (s.hp || 100) * (1 + n.hpg / 100);
   n.crashUsed = s.crashUsed || prep.gd === "crash";
   if (n.lost === "fired" && n.pop >= M.popFire) n.lost = null;               // the model's instant firing becomes heat instead
   if (!n.lost && n.cred < M.credLose) n.lost = "cred";

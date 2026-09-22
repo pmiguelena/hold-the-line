@@ -69,6 +69,32 @@ test("staff forecast: hiking now lowers projected inflation versus holding", () 
   assert.ok(hike[0].x < hold[0].x, "a hike should cool output first");
 });
 
+test("price categories always average back to headline inflation", () => {
+  for (const level of LEVELS) {
+    const S = m.extendScenario(m.buildScenario(level, "CAT"), "CAT");
+    let s = m.initGame(S);
+    while (s.t < m.M.turns && !s.lost) {
+      const p = m.prepGame(s, S); s = m.stepGame(s, S, p, POLICIES.rule(s, p)).state;
+      const E = m.econDetail(s), avg = Object.keys(m.CPI_W).reduce((a, c) => a + m.CPI_W[c] * E.cat[c], 0);
+      assert.ok(Math.abs(avg - s.pi) < 1e-9, `${level} q${s.t}: basket ${avg} vs headline ${s.pi}`);
+    }
+  }
+});
+
+test("the map tells the right story: energy leads in 1973, construction suffers in 2008", () => {
+  const peak = (level, f) => {
+    const S = m.extendScenario(m.buildScenario(level, "STORY"), "STORY");
+    let s = m.initGame(S), best = -Infinity;
+    for (let t = 0; t < 6; t++) { const p = m.prepGame(s, S); s = m.stepGame(s, S, p, POLICIES.rule(s, p)).state; best = Math.max(best, f(m.econDetail(s), s)); }
+    return best;
+  };
+  assert.ok(peak("oil", (E, s) => E.cat.energy - s.pi) > 3, "energy should run well above headline in the oil shock");
+  const S = m.extendScenario(m.buildScenario("crisis", "STORY"), "STORY");
+  let s = m.initGame(S), worst = Infinity;
+  for (let t = 0; t < 6; t++) { const p = m.prepGame(s, S); s = m.stepGame(s, S, p, POLICIES.rule(s, p)).state; const E = m.econDetail(s); worst = Math.min(worst, E.sec.construction - s.x); }
+  assert.ok(worst < -0.5, "construction should fall more than the economy in the 2008 crisis");
+});
+
 test("financial variables stay in plausible ranges", () => {
   for (const level of LEVELS) for (const s of run(level, "rule", 40)) {
     assert.ok(s.eq > 30 && s.eq < 300, `${level} stocks ${s.eq}`);

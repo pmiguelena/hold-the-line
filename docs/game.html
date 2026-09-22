@@ -386,6 +386,21 @@ svg.chart{width:100%;height:auto;display:block}
 @media (max-width:640px){.fan-wrap{grid-template-columns:minmax(0,1fr)}}
 .fan{border-radius:12px;background:rgba(255,255,255,.03);box-shadow:inset 0 0 0 1px var(--line);padding:8px 10px 4px}
 .fan svg{display:block;width:100%;height:auto}
+.emap{display:grid;gap:10px;min-width:0}
+.emap-tabs{display:flex;flex-wrap:wrap;gap:6px}
+.emap-tabs button{border:0;border-radius:99px;padding:7px 14px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px var(--line);color:var(--muted);font:700 13px var(--f-ui);letter-spacing:.04em}
+.emap-tabs button:hover{background:rgba(255,255,255,.11);color:var(--text)}
+.emap-tabs button[aria-pressed="true"]{background:var(--text);color:#0E1526}
+.emap-sum{margin:0;font:400 16.5px/1.45 var(--f-news);color:#D5DAE6}
+.emap-svg{border-radius:14px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line);animation:fade .35s both}
+.emap-svg svg{display:block;width:100%;height:auto}
+.emap-list{display:none;flex-wrap:wrap;gap:6px}
+.emap-item{display:inline-flex;gap:6px;align-items:baseline;padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1.5px var(--c);font:500 13px var(--f-ui);color:var(--muted)}
+.emap-item b{color:var(--text);font-weight:800}
+@media (max-width:640px){.emap-list{display:flex}}
+.emap-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font:500 12.5px var(--f-ui);color:var(--muted)}
+.emap-legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+.map-ov{width:100%;text-align:left}
 </style>
 </head>
 <body>
@@ -927,6 +942,29 @@ const T = {
 /* ═══════════════ GAME TEXT ═══════════════ */
 const G = {};
 G.en = {
+  map: {
+    title: "The economy", role: "Staff briefing", rateChip: "Policy rate", hudBtn: "Economy map",
+    layers: { prices: "Prices", activity: "Activity", jobs: "Jobs", credit: "Credit" },
+    dist: { farms: "Farms", housing: "Housing", shops: "Shops & services", finance: "Financial district", industry: "Industry & port", energy: "Energy", gov: "Bank & Palace" },
+    sub: { housing: "House prices, a year", shops: "Lending growth", industry: "Lending growth", finance: "Bank health" },
+    cat: { food: "Food", energy: "Energy", housing: "Housing", goods: "Goods", services: "Services" },
+    secName: { farms: "Farming", construction: "Construction", industry: "Industry", shops: "Retail and services", finance: "Finance" },
+    legend: {
+      prices: [["cold", "below 1%"], ["good", "1–3%"], ["warn", "3–5%"], ["bad", "above 5%"]],
+      activity: [["bad", "deep slump or overheating"], ["warn", "slack or running hot"], ["good", "close to normal"]],
+      jobs: [["good", "unemployment below 5%"], ["warn", "5–6.5%"], ["bad", "above 6.5%"]],
+      credit: [["good", "healthy"], ["warn", "slow or frothy"], ["bad", "crunch, bust or boom"]]
+    },
+    drivers: (c, v) => `${c} is driving inflation, running at ${v}.`,
+    drag: (c, v) => `${c} prices are holding inflation down, at ${v}.`,
+    broadCalm: "Price pressures are broad and moderate.",
+    broad: v => `Price pressures are broad: inflation is ${v} across most of the basket.`,
+    weak: (sec, v) => `${sec} is contracting (activity ${v}).`,
+    hot: (sec, v) => `${sec} is overheating (activity ${v}).`,
+    bankStress: v => `Banks are under stress: health index ${v}.`,
+    housingBoom: v => `House prices are booming, ${v} over a year.`,
+    housingBust: v => `House prices are falling, ${v} over a year.`
+  },
   diff: { normal: "Normal", hard: "Hard" },
   continueGame: (name, q) => `Continue: ${name}, quarter ${q}`,
   estTip: "First estimate: the statistics office will revise it next quarter.",
@@ -1117,6 +1155,29 @@ G.en = {
 
 
 G.es = {
+  map: {
+    title: "La economía", role: "Informe del staff", rateChip: "Tasa de política", hudBtn: "Mapa de la economía",
+    layers: { prices: "Precios", activity: "Actividad", jobs: "Empleo", credit: "Crédito" },
+    dist: { farms: "Campo", housing: "Vivienda", shops: "Comercio y servicios", finance: "Distrito financiero", industry: "Industria y puerto", energy: "Energía", gov: "Banco y Palacio" },
+    sub: { housing: "Precio de viviendas, anual", shops: "Crecimiento del crédito", industry: "Crecimiento del crédito", finance: "Salud bancaria" },
+    cat: { food: "Alimentos", energy: "Energía", housing: "Vivienda", goods: "Bienes", services: "Servicios" },
+    secName: { farms: "El agro", construction: "La construcción", industry: "La industria", shops: "El comercio y los servicios", finance: "Las finanzas" },
+    legend: {
+      prices: [["cold", "menos de 1%"], ["good", "1–3%"], ["warn", "3–5%"], ["bad", "más de 5%"]],
+      activity: [["bad", "recesión profunda o recalentamiento"], ["warn", "holgura o ritmo alto"], ["good", "cerca de lo normal"]],
+      jobs: [["good", "desempleo bajo 5%"], ["warn", "5–6,5%"], ["bad", "más de 6,5%"]],
+      credit: [["good", "sano"], ["warn", "lento o espumoso"], ["bad", "sequía, desplome o burbuja"]]
+    },
+    drivers: (c, v) => `${c} empuja la inflación: corre a ${v}.`,
+    drag: (c, v) => `Los precios de ${c.toLowerCase()} contienen la inflación, en ${v}.`,
+    broadCalm: "Las presiones de precios son generales y moderadas.",
+    broad: v => `Las presiones son generales: la inflación ronda ${v} en casi toda la canasta.`,
+    weak: (sec, v) => `${sec} se contrae (actividad ${v}).`,
+    hot: (sec, v) => `${sec} se recalienta (actividad ${v}).`,
+    bankStress: v => `Los bancos están bajo tensión: índice de salud ${v}.`,
+    housingBoom: v => `Los precios de las viviendas se disparan: ${v} en un año.`,
+    housingBust: v => `Los precios de las viviendas caen: ${v} en un año.`
+  },
   diff: { normal: "Normal", hard: "Difícil" },
   continueGame: (name, q) => `Continuar: ${name}, trimestre ${q}`,
   estTip: "Primera estimación: el instituto de estadística la revisará el próximo trimestre.",
@@ -1504,6 +1565,7 @@ const PROPS = {
 
 /* ═══════════════ ICONS ═══════════════ */
 const ICON = {
+  map: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5l6-2.5 6 2.5 6-2.5v13.5l-6 2.5-6-2.5-6 2.5z M9 4v13.5 M15 6.5V20"/></svg>`,
   chart: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg>`,
   pause: `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>`,
   heart: `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 20s-7-4.4-9-8.8A4.8 4.8 0 0 1 12 7a4.8 4.8 0 0 1 9 4.2C19 15.6 12 20 12 20z"/></svg>`,
@@ -1594,6 +1656,123 @@ function chartSVG(o, qLabel) {
 }
 
 
+/* ═══════════════ ECONOMY MAP ═══════════════ */
+// A top-down map of the country. Each district is a part of the economy; layers recolor it like SimCity overlays.
+const MAP_TONE = { good: "#3FB68B", warn: "#F2B650", bad: "#E5484D", cold: "#5B9BD5", none: "#34405E" };
+const DISTRICTS = {
+  farms:    { d: "M28 36 L250 28 L262 168 L36 184 Z", chip: [145, 132] },
+  housing:  { d: "M285 30 L398 26 L402 152 L292 160 Z", chip: [344, 118] },
+  shops:    { d: "M462 36 L612 46 L604 188 L466 180 Z", chip: [535, 142] },
+  finance:  { d: "M636 40 L772 48 L766 196 L630 192 Z", chip: [701, 152] },
+  industry: { d: "M34 206 L386 190 L392 300 L40 306 Z", chip: [140, 272] },
+  energy:   { d: "M446 206 L532 200 L538 292 L452 298 Z", chip: [492, 268] },
+  gov:      { d: "M560 222 L770 226 L764 300 L556 296 Z", chip: [712, 276] }
+};
+// Which number each district shows on each layer.
+const MAP_LAYERS = {
+  prices:   { farms: E => E.cat.food, housing: E => E.cat.housing, shops: E => E.cat.services, industry: E => E.cat.goods, energy: E => E.cat.energy },
+  activity: { farms: E => E.sec.farms, housing: E => E.sec.construction, shops: E => E.sec.shops, industry: E => E.sec.industry, energy: E => E.sec.industry, finance: E => E.sec.finance },
+  jobs:     { farms: E => E.jobs.farms, housing: E => E.jobs.construction, shops: E => E.jobs.shops, industry: E => E.jobs.industry, energy: E => E.jobs.industry, finance: E => E.jobs.finance },
+  credit:   { housing: E => E.hpYoY, shops: E => E.credit, industry: E => E.credit, finance: E => E.bank }
+};
+function mapTone(layer, key, v) {
+  if (v == null) return "none";
+  if (layer === "prices") return v < 1 ? "cold" : v <= 3 ? "good" : v <= 5 ? "warn" : "bad";
+  if (layer === "activity") return v < -2.5 || v > 3 ? "bad" : v < -1 || v > 1.5 ? "warn" : "good";
+  if (layer === "jobs") return v < 5 ? "good" : v < 6.5 ? "warn" : "bad";
+  if (key === "finance") return v >= 70 ? "good" : v >= 50 ? "warn" : "bad";           // bank health
+  return v < 0 ? "bad" : v < 3 ? "warn" : v <= 10 ? "good" : v <= 14 ? "warn" : "bad";   // lending and house prices
+}
+function mapFmt(layer, key, v) {
+  if (layer === "prices" || layer === "jobs") return pc(v, 1);
+  if (layer === "activity") return `${sgn(v, 1)}%`;
+  return key === "finance" ? String(Math.round(v)) : `${sgn(v, 0)}%`;
+}
+function mapIcons(E) {
+  const w = "#EEF1F7";
+  let o = "";
+  for (let k = 0; k < 7; k++) o += `<path d="M${48 + k * 28} 60 L${70 + k * 28} 162" stroke="${w}" stroke-opacity=".13" stroke-width="7" stroke-linecap="round"/>`;
+  o += `<path d="M58 44 h34 v22 h-34z M54 46 L75 32 L96 46" fill="#8E3B3B" opacity=".85"/>`;                                  // barn
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) {
+    const x = 300 + c * 30, y = 40 + r * 32;
+    o += `<path d="M${x} ${y + 12} L${x + 11} ${y} L${x + 22} ${y + 12} V${y + 26} H${x} Z" fill="${w}" opacity=".22"/>`;
+  }
+  if (E.sec.construction > 0.5) o += `<path d="M386 34 V100 M362 40 H400 M386 40 L366 58" stroke="#F2B650" stroke-width="3" fill="none"/>`;   // crane
+  for (let k = 0; k < 4; k++) {
+    const x = 476 + k * 32;
+    o += `<rect x="${x}" y="60" width="26" height="30" rx="2" fill="${w}" opacity=".2"/><path d="M${x - 2} 60 h30 l-3 8 h-24z" fill="${["#E5484D", "#F2B650", "#5B9BD5", "#3FB68B"][k]}" opacity=".85"/>`;
+  }
+  [[650, 56, 90], [676, 74, 72], [702, 46, 100], [728, 84, 62]].forEach(([x, y, h]) => {
+    o += `<rect x="${x}" y="${y}" width="20" height="${h}" rx="2" fill="${w}" opacity=".18"/>`;
+    for (let yy = y + 8; yy < y + h - 6; yy += 12) o += `<rect x="${x + 5}" y="${yy}" width="10" height="4" fill="#F7C66B" opacity="${E.eqGap > -5 ? 0.7 : 0.25}"/>`;
+  });
+  o += `<path d="M60 262 V228 L84 216 V228 L108 216 V228 L132 216 V228 L156 216 V262 Z" fill="${w}" opacity=".2"/><rect x="164" y="204" width="10" height="58" fill="${w}" opacity=".25"/>`;
+  const puffs = clamp(Math.round(2 + E.sec.industry), 0, 5);                                                                  // smoke = industrial activity
+  for (let k = 0; k < puffs; k++) o += `<circle cx="${172 + k * 9}" cy="${196 - k * 10}" r="${6 + k * 2}" fill="${w}" opacity="${0.16 - k * 0.02}"/>`;
+  o += `<path d="M300 292 V226 M300 232 H346 M340 232 V252" stroke="#F2B650" stroke-width="3" fill="none"/><path d="M340 292 V238 M340 244 H372" stroke="#F2B650" stroke-width="3" fill="none" opacity=".7"/>`;
+  o += `<path d="M300 340 h64 l-8 12 h-50z" fill="${w}" opacity=".35"/><rect x="316" y="330" width="22" height="10" fill="#E5484D" opacity=".7"/>`;
+  o += `<path d="M462 280 C 466 250 462 236 470 222 H500 C 508 236 504 250 508 280 Z" fill="${w}" opacity=".22"/><path d="M516 218 L522 280 M512 232 H528" stroke="${w}" stroke-opacity=".3" stroke-width="2"/>`;
+  o += `<path d="M578 262 H640 V268 H578 Z M582 240 V262 M594 240 V262 M606 240 V262 M618 240 V262 M630 240 V262 M576 240 L609 228 L642 240 Z" fill="#E9E1CC" stroke="#E9E1CC" stroke-width="3" opacity=".6"/>`;
+  o += `<path d="M660 268 V246 H690 V268 Z M662 246 C 662 230 688 230 688 246" fill="#E9E1CC" opacity=".45"/><path d="M675 232 V222 H684 V228 H675" fill="#E5484D" opacity=".8"/>`;
+  return o;
+}
+function mapSVG(s, E, layer) {
+  const L = MAP_LAYERS[layer], gm = g().map;
+  let o = `<svg viewBox="0 0 800 380" role="img" aria-label="${esc(gm.title + ": " + gm.layers[layer])}">
+    <rect width="800" height="380" fill="#15243A"/>
+    <path d="M0 110 H800 M0 200 H800 M200 0 V330 M620 0 V330" stroke="#22354F" stroke-width="3"/>
+    <path d="M0 318 C 120 305 220 330 340 318 S 560 305 800 322 L800 380 L0 380 Z" fill="#10294A"/>
+    <path d="M40 350 q10 -6 20 0 t20 0 M500 346 q10 -6 20 0 t20 0 M660 360 q10 -6 20 0 t20 0" stroke="#5B9BD5" stroke-opacity=".35" fill="none" stroke-width="2"/>
+    <path d="M430 0 C 420 60 450 110 425 170 S 400 260 415 322" stroke="#1E4A78" stroke-width="18" fill="none" stroke-linecap="round"/>`;
+  for (const [key, dd] of Object.entries(DISTRICTS)) {
+    const f = L[key], v = f ? f(E) : null, c = MAP_TONE[key === "gov" ? "none" : mapTone(layer, key, v)];
+    o += `<path d="${dd.d}" fill="${c}" fill-opacity="${v == null ? 0.35 : 0.5}" stroke="${c}" stroke-opacity=".9" stroke-width="3" stroke-linejoin="round"/>`;
+  }
+  o += mapIcons(E);
+  for (const [key, dd] of Object.entries(DISTRICTS)) {
+    const f = L[key], v = key === "gov" ? s.i : f ? f(E) : null;
+    if (v == null) continue;                                     // no reading on this layer: leave the district unlabelled
+    const tone = key === "gov" ? "none" : mapTone(layer, key, v), val = key === "gov" ? pc(s.i) : v == null ? "—" : mapFmt(layer, key, v);
+    const name = layer === "credit" && gm.sub[key] ? gm.sub[key] : key === "gov" ? gm.rateChip : gm.dist[key];
+    const [cx, cy] = dd.chip, wd = Math.max(96, 7.2 * name.length + 14);
+    o += `<g transform="translate(${cx - wd / 2} ${cy - 24})"><rect width="${wd}" height="42" rx="9" fill="#0B1222" fill-opacity=".9" stroke="${MAP_TONE[tone]}" stroke-width="2"/>
+      <text x="${wd / 2}" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#9AA4BD" font-family="Archivo, sans-serif">${esc(name)}</text>
+      <text x="${wd / 2}" y="34" text-anchor="middle" font-size="17" font-weight="800" fill="#EEF1F7" font-family="Archivo, sans-serif">${esc(val)}</text></g>`;
+  }
+  return o + `</svg>`;
+}
+function mapSummary(s, E) {
+  const m = g().map, out = [];
+  const cats = Object.keys(E.cat).sort((a, b) => E.cat[b] - E.cat[a]);
+  if (E.cat[cats[0]] - s.pi > 1.2) out.push(m.drivers(m.cat[cats[0]], pc(E.cat[cats[0]], 1)));
+  else if (E.cat[cats[cats.length - 1]] - s.pi < -1.5) out.push(m.drag(m.cat[cats[cats.length - 1]], pc(E.cat[cats[cats.length - 1]], 1)));
+  else out.push(Math.abs(s.pi - 2) < 1 ? m.broadCalm : m.broad(pc(s.pi, 1)));
+  const secs = Object.keys(E.sec).sort((a, b) => E.sec[a] - E.sec[b]), lo = secs[0], hi = secs[secs.length - 1];
+  if (E.sec[lo] < -1.5) out.push(m.weak(m.secName[lo], `${sgn(E.sec[lo], 1)}%`));
+  if (E.sec[hi] > 2) out.push(m.hot(m.secName[hi], `${sgn(E.sec[hi], 1)}%`));
+  if (E.bank < 50) out.push(m.bankStress(Math.round(E.bank)));
+  else if (E.hpYoY > 10) out.push(m.housingBoom(`${sgn(E.hpYoY, 0)}%`));
+  else if (E.hpYoY < -6) out.push(m.housingBust(`${sgn(E.hpYoY, 0)}%`));
+  return out.join(" ");
+}
+function mapHTML(s, layer) {
+  const E = econDetail(s), gm = g().map, L = MAP_LAYERS[layer];
+  const list = Object.keys(DISTRICTS).filter(k => k !== "gov" && L[k]).map(k => {
+    const v = L[k](E), tone = mapTone(layer, k, v);
+    return `<span class="emap-item" style="--c:${MAP_TONE[tone]}"><b>${esc(mapFmt(layer, k, v))}</b>${esc(layer === "credit" && gm.sub[k] ? gm.sub[k] : gm.dist[k])}</span>`;
+  }).join("");
+  return `<div class="emap" data-map="${layer}">
+    <div class="emap-tabs" role="group">${Object.keys(MAP_LAYERS).map(k => `<button data-layer="${k}" aria-pressed="${k === layer}">${esc(gm.layers[k])}</button>`).join("")}</div>
+    <p class="emap-sum">${esc(mapSummary(s, E))}</p>
+    <div class="emap-svg">${mapSVG(s, E, layer)}</div>
+    <div class="emap-list">${list}</div>
+    <div class="emap-legend">${gm.legend[layer].map(([t, lab]) => `<span style="--c:${MAP_TONE[t]}">${esc(lab)}</span>`).join("")}</div>
+  </div>`;
+}
+function mountMap(box, s, layer) {
+  box.innerHTML = mapHTML(s, layer);
+  box.querySelectorAll("[data-layer]").forEach(b => (b.onclick = () => { if (game) game.mapLayer = b.dataset.layer; Sound.select(); mountMap(box, s, b.dataset.layer); }));
+}
 /* ═══════════════ GAME STATE ═══════════════ */
 let game = null, draft = null, screen = "title";
 const cur = () => game.hist[game.hist.length - 1];
@@ -1652,6 +1831,41 @@ function finStep(s, n, prep, inp, sc, t, gdT, qe) {
     eqPeak: Math.max(s.eqPeak, eq), eqRet, fxRet };
 }
 const drawdown = s => 100 * (1 - (s.eq || 100) / (s.eqPeak || 100));
+// Inside the aggregates: price categories and sectors. A decomposition for the map; it never feeds back into the core model.
+const CPI_W = { food: 0.2, energy: 0.1, housing: 0.25, goods: 0.2, services: 0.25 };
+const SEC_W = { farms: 0.12, construction: 0.1, industry: 0.2, shops: 0.48, finance: 0.1 };
+const SEC_U = { farms: 6.2, construction: 6.5, industry: 5.4, shops: 4.8, finance: 3.4 };
+const NEWS_CAT = { oil1: "energy", oil2: "energy", oil4: "energy", pa3: "goods", pa4: "energy", pa5: "goods",
+  ev_drought: "food", ev_oil: "energy", ev_tech: "goods", ev_commod: "energy" };
+function supplyMix(sc, t) {
+  for (let k = t; k >= Math.max(1, t - 3); k--) { const c = NEWS_CAT[sc.news[k]]; if (c) return { [c]: 1 }; }
+  return { energy: 0.4, food: 0.3, goods: 0.3 };
+}
+function econDetail(s) {
+  const P = s.catP || {}, fxDev = 100 * ((s.fx || 100) / (s.fxA || 100) - 1), eqGap = 100 * ((s.eq || 100) / (s.eqA || 100) - 1);
+  const dev = {
+    food: (P.food || 0) / CPI_W.food,
+    energy: (P.energy || 0) / CPI_W.energy - 0.15 * fxDev,          // a weaker currency makes imported energy dearer
+    housing: 0.35 * s.x + 0.12 * (s.hpg || 0),
+    goods: (P.goods || 0) / CPI_W.goods - 0.1 * fxDev,
+    services: 0.45 * s.x + 0.3 * (s.pe - 2)                          // wages: tight labour markets and expectations
+  };
+  const dm = Object.keys(CPI_W).reduce((a, c) => a + CPI_W[c] * dev[c], 0), cat = {};
+  for (const c in CPI_W) cat[c] = s.pi + dev[c] - dm;                 // weighted categories average back to headline inflation
+  const y = s.y10 || Y10_NEUTRAL, gap = {
+    farms: 0.5 * s.x - 3 * (P.food || 0),
+    construction: 1.6 * s.x - 0.9 * (y - Y10_NEUTRAL) + 0.25 * (s.hpg || 0),
+    industry: s.x - 0.12 * fxDev,
+    shops: s.x + 0.015 * eqGap,
+    finance: eqGap / 6
+  };
+  const gm = Object.keys(SEC_W).reduce((a, k) => a + SEC_W[k] * gap[k], 0), sec = {}, jobs = {};
+  for (const k in SEC_W) { sec[k] = s.x + gap[k] - gm; jobs[k] = Math.max(1, SEC_U[k] - 0.5 * sec[k]); }
+  const dd = drawdown(s);
+  return { cat, sec, jobs, fxDev, eqGap, hpYoY: 4 * (s.hpg || 0),
+    credit: 6 + 1.5 * s.x - 1.2 * (s.i - 3) - 0.15 * dd + 0.3 * (s.hpg || 0),
+    bank: clamp(80 - 1.2 * dd - 6 * Math.max(0, y - 5) - 4 * Math.max(0, -s.x - 1) + 40 * ((s.cred || 0.8) - 0.75), 5, 100) };
+}
 // Data fog: inflation and growth arrive as first estimates, get revised a quarter later, and are final after two.
 // Financial markets are observed in real time.
 const FOG = { pi: 0.3, x: 0.6 };
@@ -1711,7 +1925,7 @@ const DIL_HEAT = { financing: [18, -10], hearing: [10, -8], bank: [0, 0], leak: 
 const QA_HEAT = { q_markets: [0, -2, 0], q_pressure: [3, 0, -1], q_election: [4, -2, 0], q_jobs: [0, -2, 3], q_infl: [0, -2, 0], q_rift: [4, -4, 2], q_generic: [0, -1, 0] };
 const TRUCE = [{ cred: 0.02, heat: 5 }, { cred: -0.05, pop: 2, heat: -25 }];
 const GD = { truce: TRUCE, crash: CRASH };
-const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false });
+const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false, catP: {}, hp: 100, hpg: 0.8 });
 function prepGame(s, sc) {
   const p = prepare(seenOf(s, sc, s.t), sc);        // advisors, the government and the press all read the published data
   p.gd = p.dilemma ? null : drawdown(s) >= CRASH_DD && !s.crashUsed ? "crash" : s.heat >= 55 ? "truce" : null;
@@ -1747,6 +1961,11 @@ function stepGame(s, sc, prep, inp) {
   if (res.election === "defeated") { hp.push(["newGov", 12 - heat]); heat = 12; }
   n.heat = heat; n.heatPeak = Math.max(s.heatPeak || 0, heat);
   Object.assign(n, finStep(s, n, prep, inp, sc, t, gdT, qe));
+  const shock = (sSave || 0) + (sc.noiseS[t] || 0), mix = supplyMix(sc, t), P0 = s.catP || {};
+  n.catP = {};
+  for (const c of ["food", "energy", "goods"]) n.catP[c] = 0.2 * (P0[c] || 0) + shock * (mix[c] || 0);
+  n.hpg = clamp(0.8 + 1.0 * n.x - 0.9 * (n.y10 - Y10_NEUTRAL) + 1.5 * (dSave || 0) + 0.5 * (n.x - s.x), -8, 8);   // house prices, % a quarter
+  n.hp = (s.hp || 100) * (1 + n.hpg / 100);
   n.crashUsed = s.crashUsed || prep.gd === "crash";
   if (n.lost === "fired" && n.pop >= M.popFire) n.lost = null;               // the model's instant firing becomes heat instead
   if (!n.lost && n.cred < M.credLose) n.lost = "cred";
@@ -1982,7 +2201,7 @@ function renderHUD(s, prev, turn) {
     <div class="meter-tile" id="hCred"><div class="t-row"><span class="t-lab">${esc(gg.hud.cred)}</span><span class="t-num" data-count="${Math.round(from.cred * 100)}|${Math.round(s.cred * 100)}">${Math.round(from.cred * 100)}</span></div><div class="mbar" style="--c:var(--green)"><i style="width:${from.cred * 100}%" data-to="${s.cred * 100}"></i><em class="danger" style="left:12%"></em></div></div>
     <div class="meter-tile" id="hPop"><div class="t-row"><span class="t-lab">${esc(gg.hud.pop)}</span><span class="t-num" data-count="${Math.round(from.pop)}|${Math.round(s.pop)}">${Math.round(from.pop)}</span></div><div class="mbar" style="--c:var(--amber)"><i style="width:${from.pop}%" data-to="${s.pop}"></i><em class="danger" style="left:25%"></em><em style="left:50%"></em></div></div>
     <div class="meter-tile" id="hHeat"><div class="t-row"><span class="t-lab">${esc(gg.hud.heat)}</span><span class="t-num" data-count="${Math.round(from.heat || 0)}|${Math.round(s.heat || 0)}">${Math.round(from.heat || 0)}</span></div><div class="mbar" style="--c:var(--red)"><i style="width:${from.heat || 0}%" data-to="${s.heat || 0}"></i><em class="danger" style="left:80%"></em></div></div>
-    <div class="hud-btns"><button class="icon-btn" id="bCharts" aria-label="${esc(gg.hud.charts)}" title="${esc(gg.hud.charts)}">${ICON.chart}</button><button class="icon-btn" id="bMenu" aria-label="${esc(gg.hud.menu)}" title="${esc(gg.hud.menu)}">${ICON.pause}</button></div></div>`;
+    <div class="hud-btns"><button class="icon-btn" id="bMap" aria-label="${esc(gg.map.hudBtn)}" title="${esc(gg.map.hudBtn)}">${ICON.map}</button><button class="icon-btn" id="bCharts" aria-label="${esc(gg.hud.charts)}" title="${esc(gg.hud.charts)}">${ICON.chart}</button><button class="icon-btn" id="bMenu" aria-label="${esc(gg.hud.menu)}" title="${esc(gg.hud.menu)}">${ICON.pause}</button></div></div>`;
   $("hud").hidden = false;
   const settle = () => {
     $("hud").querySelectorAll("[data-to]").forEach(i => (i.style.width = i.dataset.to + "%"));
@@ -1997,6 +2216,7 @@ function renderHUD(s, prev, turn) {
   requestAnimationFrame(() => setTimeout(settle, 40));
   $("bCharts").onclick = openCharts;
   $("bMenu").onclick = openMenu;
+  $("bMap").onclick = openMap;
 }
 function pushHeadline(key, src, textFn) {
   if (game.headlines.some(h => h.key === key)) return;
@@ -2100,7 +2320,7 @@ function beginQuarter() {
   const s = cur(), prep = (game.prep = prepGame(s, game.sc));
   draft = { move: null, tone: "neutral", choice: null, qe: 0 };
   resetStage(); drawRoom(); renderHUD(s, null, prep.t);
-  const list = [quarterCard, newsBeat, frontPageBeat];
+  const list = [quarterCard, newsBeat, frontPageBeat, mapBeat];
   calls(s, prep).forEach((c, k) => list.push(() => callBeat(c, k)));
   if (prep.dilemma || prep.gd) list.push(dilemmaBeat);
   list.push(advisorsBeat, decideBeat);
@@ -2135,6 +2355,13 @@ function newsBeat() {
   pushHeadline(`q${prep.t}-lead`, lead.breaking ? "ch9" : "wire", () => { const h = seenOf(game.hist[prep.t - 1], game.sc, prep.t - 1); return leadStory(h, prepGame(game.hist[prep.t - 1], game.sc)).head; });
   if (lead.breaking) { Sound.sting(); if (Math.abs(game.sc.d[prep.t] || 0) + Math.abs(game.sc.s[prep.t] || 0) >= 1.5) shake(); }
   say({ name: gg.anchor, role: `${gg.anchorRole} · ${lead.breaking ? t.breaking : t.dataRelease}`, text: `${lead.head}. ${lead.dek}` });
+}
+
+function mapBeat() {
+  const s = seenNow(), gg = g();
+  const layer = game.mapLayer || (Math.abs(s.pi - 2) > 1 ? "prices" : "activity");
+  say({ cast: [], name: gg.map.title, role: `${gg.map.role} · ${quarterLabel(game.prep.t)}`, extra: `<div id="mapBox"></div>` });
+  mountMap($("mapBox"), s, layer);
 }
 
 function frontPageBeat() {
@@ -2424,6 +2651,15 @@ function openCharts() {
     <button class="btn big" id="chClose" data-hot>${esc(gg.close)}</button></div>`);
   $("chClose").onclick = resume;
 }
+function openMap() {
+  if (!game) return;
+  cardToken = null;
+  const gg = g(), s = seenOf(cur(), game.sc, cur().t);
+  openOverlay(`<div class="scr"><h2 class="scr-title">${esc(gg.map.title)}</h2><div id="mapOv" class="map-ov"></div>
+    <button class="btn big" id="mapClose" data-hot>${esc(gg.close)}</button></div>`);
+  mountMap($("mapOv"), s, game.mapLayer || "prices");
+  $("mapClose").onclick = resume;
+}
 function resume() { closeOverlay(); const b = beats[beatIdx]; if (b && b.ov) b(); }
 function openMenu() {
   if (!game) return;
@@ -2456,7 +2692,7 @@ document.addEventListener("keydown", e => {
   }
   if (/^[1-9]$/.test(e.key)) { const b = scope.querySelector(`[data-key="${e.key}"]:not(:disabled)`); if (b) { e.preventDefault(); b.click(); } return; }
   if (!ovOpen && game && game.nudge && (e.key === "ArrowLeft" || e.key === "ArrowRight")) { e.preventDefault(); game.nudge(e.key === "ArrowLeft" ? -1 : 1); return; }
-  if (e.key === "Escape" && screen === "game") { if (ovOpen) { if ($("mResume") || $("chClose")) resume(); } else openMenu(); }
+  if (e.key === "Escape" && screen === "game") { if (ovOpen) { if ($("mResume") || $("chClose") || $("mapClose")) resume(); } else openMenu(); }
 });
 
 function start(data) {

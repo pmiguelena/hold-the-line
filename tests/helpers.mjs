@@ -56,6 +56,11 @@ export function playThrough(d, { level, lang = "en", hard = false, advisor = 2, 
       continue;
     }
     if (P.querySelector(".paper")) seen.fronts++;
+    if (P.querySelector(".emap")) {
+      seen.maps = (seen.maps || 0) + 1;
+      const tabs = P.querySelectorAll(".emap-tabs [data-layer]");
+      tabs[seen.maps % tabs.length].click();                     // flip through the layers like a curious player
+    }
     if (P.querySelector(".react")) seen.reactions++;
     if (P.querySelector("[data-qa]")) { seen.qa++; P.querySelectorAll("[data-qa]")[qa].click(); continue; }
     if (P.querySelector(".decide")) {
