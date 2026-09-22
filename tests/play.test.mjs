@@ -7,7 +7,9 @@ const plays = [
   { level: "random", lang: "en" },
   { level: "pandemic", lang: "es", hard: true, advisor: 0, qe: 2 },
   { level: "crisis", lang: "en", choice: 1, qa: 1 },
-  { level: "oil", lang: "es", hard: true, qa: 2 }
+  { level: "oil", lang: "es", hard: true, qa: 2 },
+  { level: "random", lang: "en", em: true, fx: 1 },
+  { level: "crisis", lang: "es", em: true, fx: -1, advisor: 0 }
 ];
 
 for (const p of plays) {
@@ -25,6 +27,7 @@ for (const p of plays) {
       assert.equal(r.budgets, 5, "a budget meeting should open each of the five years");
       assert.ok(r.buys >= 5, `only ${r.buys} upgrades bought`);
       assert.equal(r.boards, 18, "the board vote should appear at every decision");
+      if (p.em) assert.equal(r.fxRows, 18, "emerging markets always have the currency tool");
     }
   });
 }
@@ -71,7 +74,7 @@ test("charts and pause menu open mid-game", () => {
   }
   d.getElementById("mapClose").click();
   d.getElementById("bCharts").click();
-  assert.equal(d.querySelectorAll("#overlay svg.chart").length, 5);
+  assert.equal(d.querySelectorAll("#overlay svg.chart").length, 6);
   d.getElementById("chClose").click();
   d.getElementById("bMenu").click();
   assert.ok(d.getElementById("mResume"));

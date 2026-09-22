@@ -18,6 +18,8 @@ const T = {
     quietHead: (pi, x) => `Statistics office: inflation at ${pi}, output gap ${x}`,
     quietDek: "No major events this quarter — just the numbers, and the people reading them.",
     news: {
+      gl_up: ["Global rates surge as the world's biggest central bank hikes", "Money is flowing back to the big financial centres."],
+      gl_down: ["World central banks slash rates", "Cheap global money is looking for returns abroad."],
       oil1: ["OPEC embargo: crude prices quadruple", "Petrol stations ration fuel; transport costs jump across the economy."],
       oil2: ["Petrol queues stretch around the block", "Consumer confidence falls to a record low."],
       oil3: ["Unions demand wages indexed to inflation", "Strike threats at the ports and in the car plants."],
@@ -147,12 +149,13 @@ const T = {
     bCols: ["Date", "Scenario", "Code", "Score", "Outcome"],
     noMinutes: "No meetings yet — your first decision will appear here.",
     noBoard: "Finished terms appear here (stored in this browser only).",
-    outcome: { done: "Completed", defl: "Deflation trap", infl: "Inflation spiral", cred: "Confidence collapse", fired: "Fired" },
+    outcome: { done: "Completed", defl: "Deflation trap", infl: "Inflation spiral", cred: "Confidence collapse", fired: "Fired", fxcrisis: "Currency crisis" },
     lostWhy: {
       defl: "Prices fell for three quarters in a row. Households postponed spending and real debts swelled.",
       infl: "Inflation stayed above 10% for three quarters. Nobody believes the target any more.",
       cred: "Credibility fell below 12. Savers fled to foreign currency and the Bank's words stopped moving anything.",
-      fired: "Popularity crashed and the President blamed the Bank. Parliament voted to replace you."
+      fired: "Popularity crashed and the President blamed the Bank. Parliament voted to replace you.",
+      fxcrisis: "Capital fled with the Bank's reserves almost gone. The currency collapsed and dollar debts became unpayable."
     },
     doneTitle: "Your term is complete",
     epilogue: c => c > 0.8 ? "History will remember a governor whose word was trusted." : c > 0.5 ? "You made it — though markets still wonder what you'll do next." : "You survived, but the next governor inherits a Bank nobody quite believes.",
@@ -188,6 +191,8 @@ const T = {
     quietHead: (pi, x) => `Instituto de estadística: inflación ${pi}, brecha ${x}`,
     quietDek: "Sin grandes eventos este trimestre — solo los números, y quienes los leen.",
     news: {
+      gl_up: ["Suben las tasas mundiales: el mayor banco central del mundo endurece", "El dinero vuelve a los grandes centros financieros."],
+      gl_down: ["Los bancos centrales del mundo recortan tasas", "El dinero global barato busca rendimientos en el exterior."],
       oil1: ["Embargo de la OPEP: el crudo se cuadruplica", "Las gasolineras racionan combustible; el transporte se encarece en toda la economía."],
       oil2: ["Filas interminables en las gasolineras", "La confianza del consumidor cae a mínimos históricos."],
       oil3: ["Los sindicatos exigen indexar salarios a la inflación", "Amenazas de huelga en puertos y automotrices."],
@@ -317,12 +322,13 @@ const T = {
     bCols: ["Fecha", "Escenario", "Código", "Puntaje", "Resultado"],
     noMinutes: "Aún no hay reuniones — tu primera decisión aparecerá aquí.",
     noBoard: "Los mandatos terminados aparecen aquí (solo en este navegador).",
-    outcome: { done: "Completado", defl: "Trampa deflacionaria", infl: "Espiral inflacionaria", cred: "Colapso de confianza", fired: "Despedido" },
+    outcome: { done: "Completado", defl: "Trampa deflacionaria", infl: "Espiral inflacionaria", cred: "Colapso de confianza", fired: "Despedido", fxcrisis: "Crisis cambiaria" },
     lostWhy: {
       defl: "Los precios cayeron tres trimestres seguidos. Los hogares postergaron el gasto y las deudas reales crecieron.",
       infl: "La inflación superó el 10% durante tres trimestres. Nadie cree ya en la meta.",
       cred: "La credibilidad cayó bajo 12. Los ahorristas huyeron a la moneda extranjera y las palabras del Banco dejaron de mover algo.",
-      fired: "La popularidad se desplomó y el Presidente culpó al Banco. El Congreso votó tu reemplazo."
+      fired: "La popularidad se desplomó y el Presidente culpó al Banco. El Congreso votó tu reemplazo.",
+      fxcrisis: "El capital huyó con las reservas casi agotadas. La moneda colapsó y las deudas en dólares se volvieron impagables."
     },
     doneTitle: "Tu mandato terminó",
     epilogue: c => c > 0.8 ? "La historia recordará a una autoridad cuya palabra valía." : c > 0.5 ? "Lo lograste — aunque los mercados aún se preguntan qué harás después." : "Sobreviviste, pero quien te suceda hereda un Banco al que nadie le cree del todo.",

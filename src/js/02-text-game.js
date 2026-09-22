@@ -22,7 +22,8 @@ G.en = {
     hot: (sec, v) => `${sec} is overheating (activity ${v}).`,
     bankStress: v => `Banks are under stress: health index ${v}.`,
     housingBoom: v => `House prices are booming, ${v} over a year.`,
-    housingBust: v => `House prices are falling, ${v} over a year.`
+    housingBust: v => `House prices are falling, ${v} over a year.`,
+    levWarn: v => `Credit is running ${v} points above trend: bust risk rising.`, crunch: "Banks are short of capital and rationing credit."
   },
   diff: { normal: "Normal", hard: "Hard" },
   board: {
@@ -48,6 +49,17 @@ G.en = {
   },
   macro: { label: "Mortgage rules", off: ["Normal", "standard lending limits"], on: ["Tight", "cap loans against home values"],
     tip: "Tight rules cool house prices and construction and make banks sturdier, at a small cost in popularity." },
+  econ: { adv: "Advanced", em: "Emerging" },
+  emHint: "Emerging market: the currency moves prices much more, depreciation hurts through dollar debts, capital can flee suddenly, and you hold reserves to defend the currency.",
+  fx: { label: "Currency", opts: { "-1": ["Buy reserves", "weaken the currency"], 0: ["Float", "let the market decide"], 1: ["Sell reserves", "support the currency"], 2: ["Sell heavily", "defend it hard"] },
+    reserves: r => `Reserves: ${r} months of imports`,
+    tip: "Selling reserves props up the currency and keeps import prices down, but they run out. If capital flees when they are almost gone, the currency collapses." },
+  fxSpeech: { "-1": "The Bank will buy foreign currency to rebuild its reserves.", 1: "The Bank will sell reserves to steady the currency.", 2: "The Bank will defend the currency with every tool it has." },
+  bustNews: ["Credit bubble bursts: banks count their losses", "Years of easy lending are unwinding. House prices are falling and banks are cutting loans."],
+  ssNews: f => [`Capital flight: the currency plunges ${f}`, "Foreign investors pulled their money out in days. Import prices will follow."],
+  creditBoomNews: v => `Credit boom: lending grows ${v} a year`, crunchNews: "Banks ration credit as their capital runs thin",
+  warnLev: v => `Credit is running ${v} points above trend. The bigger the gap, the likelier a bust.`,
+  warnResv: v => `Reserves are down to ${v} months of imports. A sudden stop now could break the currency.`,
   continueGame: (name, q) => `Continue: ${name}, quarter ${q}`,
   estTip: "First estimate: the statistics office will revise it next quarter.",
   fanTitle: "Staff forecast", fanHold: "If you hold the rate. Shaded bands show the likely range.",
@@ -66,7 +78,7 @@ G.en = {
     q_rift: ["Governor, is the Palace about to remove you?", ["I serve under the law, not at the Palace's pleasure.", "The President and I work very well together.", "Ask the President."]],
     q_generic: ["Are you done moving rates?", ["Nothing is pre-set. We react to the data.", "Households can relax — the worst is over.", "Ask me next quarter."]]
   },
-  whyExtra: { presser: "Press conference answer", qe: "Large asset purchases with inflation high", outvoted: "Outvoted by your own board", divided: "A divided board (3–2)", united: "A united board", macro: "Stricter mortgage rules annoy buyers" },
+  whyExtra: { presser: "Press conference answer", qe: "Large asset purchases with inflation high", outvoted: "Outvoted by your own board", divided: "A divided board (3–2)", united: "A united board", macro: "Stricter mortgage rules annoy buyers", lastReserves: "Spending the last of the reserves" },
   qeLabel: "Asset purchases", qeOnly: "Available only when the policy rate is near its floor.",
   qe: [["None", "no purchases"], ["Moderate", "buy bonds, ease conditions"], ["Large", "flood the market"]],
   qeTip: "With the policy rate near its floor, buying government bonds pushes long yields down and supports demand — but it looks like financing the Treasury if inflation is high.",
@@ -119,9 +131,9 @@ G.en = {
     + (tone === "hawkish" ? ", vows to beat inflation" : tone === "dovish" ? ", signals more support ahead" : ", says the data will decide"),
   resultTitle: "The fallout", streak: n => `On target ×${n}`,
   electionNight: "Election night", voteShare: "Government vote share", toWin: "50% to win",
-  hud: { infl: "Inflation", gap: "Output gap", rate: "Policy rate", cred: "Credibility", pop: "Popularity", charts: "Charts", menu: "Pause", jobs: "Unemployment", heat: "Removal risk", stocks: "Stock index" },
+  hud: { infl: "Inflation", gap: "Output gap", rate: "Policy rate", cred: "Credibility", pop: "Popularity", charts: "Charts", menu: "Pause", jobs: "Unemployment", heat: "Removal risk", stocks: "Stock index", world: "world", y10: "10-year", reserves: "Reserves", months: "months" },
   chartsTitle: "Economic monitor", close: "Close",
-  chart: { infl: "Inflation", gap: "Output gap", rate: "Policy rate", pol: "Credibility & popularity", exp: "expected", cred: "credibility", pop: "popularity", target: "target", heat: "removal risk", mkt: "Stocks and currency", eq: "stocks", fx: "currency", y10: "10-year yield", first: "first estimate" },
+  chart: { infl: "Inflation", gap: "Output gap", rate: "Policy rate", pol: "Credibility & popularity", exp: "expected", cred: "credibility", pop: "popularity", target: "target", heat: "removal risk", mkt: "Stocks and currency", eq: "stocks", fx: "currency", y10: "10-year yield", first: "first estimate", world: "world rate", fin: "Credit gap and reserves", lev: "credit gap, points", resv: "reserves, months" },
   electionMark: "election",
   paused: "Paused", resume: "Resume", restart: "Restart level", quit: "Level select", toTitle: "Title screen",
   codeLine: c => `Shock code: ${c}`,
@@ -132,6 +144,7 @@ G.en = {
   newAch: "Achievements unlocked", achTitle: "Achievements",
   finalLabel: "Tomorrow's front page",
   finalFront: {
+    fxcrisis: "Currency collapses as reserves run dry",
     good: "A steady hand: Governor leaves inflation tamed", mixed: "Governor completes term to mixed reviews",
     defl: "Deflation spiral ends Governor's term", infl: "Runaway prices force Governor out",
     cred: "Markets lose faith; Governor resigns", fired: "President fires central bank Governor"
@@ -145,7 +158,9 @@ G.en = {
     beatMachine: ["Beat the Machine", "Outscore the rule-bound governor"],
     zeroHero: ["Zero Hero", "Take the rate to zero and still finish the level"],
     hardWay: ["The Hard Way", "Lose a level. Everyone does."],
-    survivor: ["Survivor", "Finish a level after removal risk passed 70"]
+    survivor: ["Survivor", "Finish a level after removal risk passed 70"],
+    emStar: ["Emerging Star", "Finish a level in emerging-market mode"],
+    noBubble: ["No Bubble", "Finish a level where credit ran 6 points above trend, without a bust"]
   },
   tickerStart: ["Markets open calm ahead of the Bank's first meeting", "Analysts expect the new Governor to hold rates"],
   people: {
@@ -165,6 +180,10 @@ G.en = {
     boom: [["sofia", "I can't find staff at any wage. I'm raising prices to keep up."], ["bond", "The economy is running hot. Markets expect hikes."]],
     lowCred: [["bond", "Nobody believes the 2% target any more. Long yields say it all."], ["andrade", "Lost credibility is expensive to rebuild. Words alone won't do it."]],
     election: [["tomas", "Funny how spending always rises right before an election."], ["andrade", "Classic political budget cycle. The Bank must not play along."]],
+    bust: [["bond", "The credit boom is over. Banks are counting their losses."], ["diego", "My house is now worth less than my mortgage."]],
+    suddenStop: [["bond", "Foreign investors are dumping everything. The currency is in free fall."], ["sofia", "Imported flour doubled in price overnight."]],
+    creditBoom: [["andrade", "Credit is growing far faster than the economy. We have seen how this ends."], ["diego", "The bank offered me a bigger mortgage than I asked for."]],
+    global: [["bond", "When the world's biggest central bank moves, everyone else feels it."], ["andrade", "Global rates just moved. Our currency will feel it within days."]],
     markets: [["bond", "Equities in free fall and everyone wants the Bank to blink. It usually does."], ["sofia", "My pension fund lost a fifth of its value in a month. Should I be scared?"]],
     rift: [["andrade", "When the Palace fights the Bank, the Bank usually wins the argument and loses the job."], ["bond", "Removal chatter is back. Long yields hate this."]],
     calm: [["maria", "Honestly? Things feel normal. Let's keep it boring."], ["roberto", "Stable prices, stable life. That's all I ask."], ["andrade", "Quiet quarters are when credibility gets built."]]
@@ -259,7 +278,8 @@ G.es = {
     hot: (sec, v) => `${sec} se recalienta (actividad ${v}).`,
     bankStress: v => `Los bancos están bajo tensión: índice de salud ${v}.`,
     housingBoom: v => `Los precios de las viviendas se disparan: ${v} en un año.`,
-    housingBust: v => `Los precios de las viviendas caen: ${v} en un año.`
+    housingBust: v => `Los precios de las viviendas caen: ${v} en un año.`,
+    levWarn: v => `El crédito corre ${v} puntos sobre su tendencia: sube el riesgo de estallido.`, crunch: "A los bancos les falta capital y racionan el crédito."
   },
   diff: { normal: "Normal", hard: "Difícil" },
   board: {
@@ -285,6 +305,17 @@ G.es = {
   },
   macro: { label: "Reglas hipotecarias", off: ["Normales", "límites de crédito estándar"], on: ["Estrictas", "tope al crédito según el valor de la vivienda"],
     tip: "Las reglas estrictas enfrían los precios de las viviendas y la construcción y fortalecen a los bancos, con un pequeño costo en popularidad." },
+  econ: { adv: "Avanzada", em: "Emergente" },
+  emHint: "Mercado emergente: la moneda mueve mucho más los precios, la depreciación duele por las deudas en dólares, el capital puede huir de golpe y tienes reservas para defender la moneda.",
+  fx: { label: "Moneda", opts: { "-1": ["Comprar reservas", "debilitar la moneda"], 0: ["Flotar", "que decida el mercado"], 1: ["Vender reservas", "sostener la moneda"], 2: ["Vender fuerte", "defenderla a fondo"] },
+    reserves: r => `Reservas: ${r} meses de importaciones`,
+    tip: "Vender reservas sostiene la moneda y contiene los precios importados, pero se agotan. Si el capital huye cuando casi no quedan, la moneda colapsa." },
+  fxSpeech: { "-1": "El Banco comprará divisas para reconstruir sus reservas.", 1: "El Banco venderá reservas para estabilizar la moneda.", 2: "El Banco defenderá la moneda con todas sus herramientas." },
+  bustNews: ["Estalla la burbuja de crédito: los bancos cuentan sus pérdidas", "Años de crédito fácil se desarman. Caen los precios de las viviendas y los bancos recortan préstamos."],
+  ssNews: f => [`Fuga de capitales: la moneda se desploma ${f}`, "Los inversores extranjeros retiraron su dinero en días. Los precios importados vendrán detrás."],
+  creditBoomNews: v => `Boom de crédito: los préstamos crecen ${v} por año`, crunchNews: "Los bancos racionan el crédito con el capital al límite",
+  warnLev: v => `El crédito corre ${v} puntos sobre su tendencia. Cuanto mayor la brecha, más probable un estallido.`,
+  warnResv: v => `Las reservas bajaron a ${v} meses de importaciones. Una parada súbita ahora podría quebrar la moneda.`,
   continueGame: (name, q) => `Continuar: ${name}, trimestre ${q}`,
   estTip: "Primera estimación: el instituto de estadística la revisará el próximo trimestre.",
   fanTitle: "Pronóstico del staff", fanHold: "Si mantienes la tasa. Las bandas muestran el rango probable.",
@@ -303,7 +334,7 @@ G.es = {
     q_rift: ["¿El Palacio está por destituirlo?", ["Sirvo bajo la ley, no al gusto del Palacio.", "El Presidente y yo trabajamos muy bien juntos.", "Pregúntele al Presidente."]],
     q_generic: ["¿Terminó de mover la tasa?", ["Nada está predefinido. Reaccionamos a los datos.", "Los hogares pueden relajarse: lo peor ya pasó.", "Pregúnteme el próximo trimestre."]]
   },
-  whyExtra: { presser: "Respuesta en la conferencia de prensa", qe: "Compras masivas de activos con inflación alta", outvoted: "Tu propio directorio te derrotó", divided: "Un directorio dividido (3–2)", united: "Un directorio unido", macro: "Las reglas hipotecarias estrictas molestan a los compradores" },
+  whyExtra: { presser: "Respuesta en la conferencia de prensa", qe: "Compras masivas de activos con inflación alta", outvoted: "Tu propio directorio te derrotó", divided: "Un directorio dividido (3–2)", united: "Un directorio unido", macro: "Las reglas hipotecarias estrictas molestan a los compradores", lastReserves: "Gastar las últimas reservas" },
   qeLabel: "Compra de activos", qeOnly: "Disponible solo cuando la tasa está cerca de su piso.",
   qe: [["Ninguna", "sin compras"], ["Moderada", "comprar bonos, aflojar condiciones"], ["Grande", "inundar el mercado"]],
   qeTip: "Con la tasa cerca de su piso, comprar bonos del gobierno baja las tasas largas y sostiene la demanda — pero parece financiar al Tesoro si la inflación es alta.",
@@ -356,9 +387,9 @@ G.es = {
     + (tone === "hawkish" ? " y promete vencer a la inflación" : tone === "dovish" ? " y anticipa más apoyo" : " y dice que decidirán los datos"),
   resultTitle: "Las consecuencias", streak: n => `En meta ×${n}`,
   electionNight: "Noche electoral", voteShare: "Votos del gobierno", toWin: "50% para ganar",
-  hud: { infl: "Inflación", gap: "Brecha", rate: "Tasa", cred: "Credibilidad", pop: "Popularidad", charts: "Gráficos", menu: "Pausa", jobs: "Desempleo", heat: "Riesgo de destitución", stocks: "Bolsa" },
+  hud: { infl: "Inflación", gap: "Brecha", rate: "Tasa", cred: "Credibilidad", pop: "Popularidad", charts: "Gráficos", menu: "Pausa", jobs: "Desempleo", heat: "Riesgo de destitución", stocks: "Bolsa", world: "mundo", y10: "10 años", reserves: "Reservas", months: "meses" },
   chartsTitle: "Monitor económico", close: "Cerrar",
-  chart: { infl: "Inflación", gap: "Brecha del producto", rate: "Tasa de política", pol: "Credibilidad y popularidad", exp: "esperada", cred: "credibilidad", pop: "popularidad", target: "meta", heat: "riesgo de destitución", mkt: "Bolsa y moneda", eq: "bolsa", fx: "moneda", y10: "bono a 10 años", first: "primera estimación" },
+  chart: { infl: "Inflación", gap: "Brecha del producto", rate: "Tasa de política", pol: "Credibilidad y popularidad", exp: "esperada", cred: "credibilidad", pop: "popularidad", target: "meta", heat: "riesgo de destitución", mkt: "Bolsa y moneda", eq: "bolsa", fx: "moneda", y10: "bono a 10 años", first: "primera estimación", world: "tasa mundial", fin: "Brecha de crédito y reservas", lev: "brecha de crédito, puntos", resv: "reservas, meses" },
   electionMark: "elección",
   paused: "Pausa", resume: "Seguir jugando", restart: "Reiniciar nivel", quit: "Elegir nivel", toTitle: "Pantalla de inicio",
   codeLine: c => `Código de shocks: ${c}`,
@@ -369,6 +400,7 @@ G.es = {
   newAch: "Logros desbloqueados", achTitle: "Logros",
   finalLabel: "La portada de mañana",
   finalFront: {
+    fxcrisis: "La moneda colapsa al agotarse las reservas",
     good: "Mano firme: la autoridad del Banco deja la inflación domada", mixed: "Termina el mandato en el Banco, con opiniones divididas",
     defl: "La espiral deflacionaria termina con el mandato", infl: "Los precios desbocados fuerzan la salida del Banco",
     cred: "Los mercados pierden la fe; renuncia la autoridad del Banco", fired: "El Presidente despide a la autoridad del Banco Central"
@@ -382,7 +414,9 @@ G.es = {
     beatMachine: ["Vence a la Máquina", "Supera a la autoridad de la regla"],
     zeroHero: ["Héroe del Cero", "Lleva la tasa a cero y aun así termina el nivel"],
     hardWay: ["Por las Malas", "Pierde un nivel. A todos les pasa."],
-    survivor: ["Sobreviviente", "Termina un nivel después de que el riesgo de destitución superó 70"]
+    survivor: ["Sobreviviente", "Termina un nivel después de que el riesgo de destitución superó 70"],
+    emStar: ["Estrella Emergente", "Termina un nivel en modo mercado emergente"],
+    noBubble: ["Sin Burbuja", "Termina un nivel en que el crédito corrió 6 puntos sobre su tendencia, sin estallido"]
   },
   tickerStart: ["Mercados tranquilos antes de la primera reunión del Banco", "Los analistas esperan que la nueva autoridad mantenga la tasa"],
   people: {
@@ -402,6 +436,10 @@ G.es = {
     boom: [["sofia", "No consigo personal a ningún sueldo. Tengo que subir precios."], ["bond", "La economía está recalentada. El mercado espera subas."]],
     lowCred: [["bond", "Ya nadie cree en la meta del 2%. Las tasas largas lo dicen todo."], ["andrade", "La credibilidad perdida cuesta caro reconstruirla. Con palabras no alcanza."]],
     election: [["tomas", "Qué casualidad: el gasto siempre sube justo antes de las elecciones."], ["andrade", "Ciclo político presupuestario clásico. El Banco no debe prestarse."]],
+    bust: [["bond", "Se terminó el boom de crédito. Los bancos cuentan sus pérdidas."], ["diego", "Mi casa ahora vale menos que mi hipoteca."]],
+    suddenStop: [["bond", "Los inversores extranjeros venden todo. La moneda está en caída libre."], ["sofia", "La harina importada duplicó su precio de un día para otro."]],
+    creditBoom: [["andrade", "El crédito crece mucho más rápido que la economía. Ya vimos cómo termina esto."], ["diego", "El banco me ofreció una hipoteca más grande de la que pedí."]],
+    global: [["bond", "Cuando se mueve el mayor banco central del mundo, todos lo sienten."], ["andrade", "Se movieron las tasas mundiales. Nuestra moneda lo sentirá en días."]],
     markets: [["bond", "La bolsa en caída libre y todos esperan que el Banco parpadee. Suele hacerlo."], ["sofia", "Mi fondo de pensión perdió un quinto en un mes. ¿Debería asustarme?"]],
     rift: [["andrade", "Cuando el Palacio pelea con el Banco, el Banco suele ganar la discusión y perder el cargo."], ["bond", "Vuelven los rumores de destitución. Las tasas largas lo odian."]],
     calm: [["maria", "¿Sinceramente? Todo se siente normal. Que siga aburrido."], ["roberto", "Precios estables, vida estable. Es todo lo que pido."], ["andrade", "En los trimestres tranquilos se construye la credibilidad."]]

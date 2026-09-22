@@ -86,3 +86,7 @@
   .hud-row.b .t-num{font-size:16px}
   .hud-row.b .t-row{flex-wrap:wrap;gap:0 6px}
 }
+.hard-tag.em{background:var(--blue)}
+.tones.fx4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:640px){.tones.fx4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tone:disabled{opacity:.35;cursor:not-allowed}

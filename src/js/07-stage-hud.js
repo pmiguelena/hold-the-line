@@ -65,15 +65,15 @@ function renderHUD(s, prev, turn) {
   const xCls = Math.abs(s.x) < 1 ? "good" : Math.abs(s.x) < 3 ? "warn" : "bad";
   const toE = M.election - turn, H = game.hist.slice(0, now + 1).map(h => seenOf(h, game.sc, now));
   const u = 5 - 0.5 * s.x, uFrom = 5 - 0.5 * from.x, uCls = u < 6 ? "good" : u < 7.5 ? "warn" : "bad";
-  const dd = drawdown(s), eqCls = dd > 20 ? "bad" : dd > 10 ? "warn" : "good";
+  const dd = drawdown(s), eqCls = dd > 20 ? "bad" : dd > 10 ? "warn" : "good", iwT = game.sc.iw ? game.sc.iw[Math.min(turn, M.turns)] : 2.5;
   const d = (a, b, dec) => prev ? `<small class="${Math.abs(a - b) < 0.005 ? "" : a > b ? "up" : "down"}">${sgn(a - b, dec)}</small>` : "";
   $("hud").innerHTML = `
-    <div class="hud-row a"><div class="hud-when"><span class="hw-date">${esc(quarterLabel(turn))}${game.cfg.hard ? `<span class="hard-tag">${esc(gg.hardTag)}</span>` : ""}</span><span class="hw-turn">${esc(gg.hudTurn(turn, M.turns))}</span><span class="pill ${toE === 0 ? "hot" : ""}">${esc(gg.hudElection(toE))}</span></div>
+    <div class="hud-row a"><div class="hud-when"><span class="hw-date">${esc(quarterLabel(turn))}${game.cfg.hard ? `<span class="hard-tag">${esc(gg.hardTag)}</span>` : ""}${game.cfg.em ? `<span class="hard-tag em">${esc(gg.econ.em)}</span>` : ""}</span><span class="hw-turn">${esc(gg.hudTurn(turn, M.turns))}</span><span class="pill ${toE === 0 ? "hot" : ""}">${esc(gg.hudElection(toE))}</span></div>
     <div id="hInfl"><span class="t-lab">${esc(gg.hud.infl)}</span><span class="t-val ${piCls}" title="${esc(gg.estTip)}">≈${pc(s.pi, 1)}${d(s.pi, from.pi, 1)}</span>${spark(H.map(h => h.pi), "var(--red)", 2)}</div>
     <div id="hGap"><span class="t-lab">${esc(gg.hud.gap)}</span><span class="t-val ${xCls}" title="${esc(gg.estTip)}">≈${pc(s.x, 1)}${d(s.x, from.x, 1)}</span>${spark(H.map(h => h.x), "var(--blue)", 0)}</div>
     <div id="hJobs"><span class="t-lab">${esc(gg.hud.jobs)}</span><span class="t-val ${uCls}" title="${esc(gg.estTip)}">≈${pc(u, 1)}${d(u, uFrom, 1)}</span>${spark(H.map(h => 5 - 0.5 * h.x), "var(--amber)", 5)}</div>
     <div id="hEq"><span class="t-lab">${esc(gg.hud.stocks)}</span><span class="t-val ${eqCls}">${Math.round(s.eq || 100)}${d(s.eq || 100, from.eq || 100, 0)}</span>${spark(H.map(h => h.eq || 100), "var(--blue)", 100)}</div>
-    <div><span class="t-lab">${esc(gg.hud.rate)}</span><span class="t-val">${pc(s.i)}</span><span class="t-lab">${esc(gg.chart.y10)} ${pc(s.y10 || Y10_NEUTRAL, 1)}</span></div></div>
+    <div><span class="t-lab">${esc(gg.hud.rate)}</span><span class="t-val">${pc(s.i)}</span><span class="t-lab">${esc(gg.hud.y10)} ${pc(s.y10 || Y10_NEUTRAL, 1)} · ${esc(gg.hud.world)} ${pc(iwT, 1)}</span>${game.sc.em ? `<span class="t-lab">${esc(gg.hud.reserves)} ${(s.reserves ?? 6).toFixed(1)} ${esc(gg.hud.months)}</span>` : ""}</div></div>
     <div class="hud-row b">
     <div class="meter-tile" id="hCred"><div class="t-row"><span class="t-lab">${esc(gg.hud.cred)}</span><span class="t-num" data-count="${Math.round(from.cred * 100)}|${Math.round(s.cred * 100)}">${Math.round(from.cred * 100)}</span></div><div class="mbar" style="--c:var(--green)"><i style="width:${from.cred * 100}%" data-to="${s.cred * 100}"></i><em class="danger" style="left:12%"></em></div></div>
     <div class="meter-tile" id="hPop"><div class="t-row"><span class="t-lab">${esc(gg.hud.pop)}</span><span class="t-num" data-count="${Math.round(from.pop)}|${Math.round(s.pop)}">${Math.round(from.pop)}</span></div><div class="mbar" style="--c:var(--amber)"><i style="width:${from.pop}%" data-to="${s.pop}"></i><em class="danger" style="left:25%"></em><em style="left:50%"></em></div></div>

@@ -95,6 +95,8 @@ function mapSummary(s, E) {
   if (E.bank < 50) out.push(m.bankStress(Math.round(E.bank)));
   else if (E.hpYoY > 10) out.push(m.housingBoom(`${sgn(E.hpYoY, 0)}%`));
   else if (E.hpYoY < -6) out.push(m.housingBust(`${sgn(E.hpYoY, 0)}%`));
+  if (E.lev >= 5) out.push(m.levWarn(Math.round(E.lev)));
+  if (E.bankCap < 75) out.push(m.crunch);
   return out.join(" ");
 }
 function mapHTML(s, layer) {

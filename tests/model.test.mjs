@@ -144,6 +144,70 @@ test("building the institution pays off", () => {
   }
 });
 
+const lowBias = (s, p) => { const mv = Math.max(-1, p.advisors.taylor - 0.25); return { move: s.i + mv < 0 ? 0 : mv, tone: "neutral", choice: 0, qa: 0, qe: 0 }; };
+const playFrom = (level, seed, policy, setup = s => s, em = false) => {
+  const S = m.applyMode(m.extendScenario(m.buildScenario(level, seed), seed), false, em);
+  let s = setup(m.initGame(S)), busts = 0;
+  while (s.t < m.M.turns && !s.lost) { const p = m.prepGame(s, S); const r = m.stepGame(s, S, p, policy(s, p)); if (r.bust) busts++; s = r.state; }
+  return { s, busts };
+};
+
+test("cheap money builds a credit boom that busts; mortgage rules prevent it", () => {
+  const withRules = s => Object.assign(s, { dept: Object.assign(m.initDept(), { supervision: 2 }) });
+  const easy = Array.from({ length: 120 }, (_, k) => playFrom("random", "CR" + k, lowBias));
+  const ruled = Array.from({ length: 120 }, (_, k) => playFrom("random", "CR" + k, (s, p) => ({ ...lowBias(s, p), macro: true }), withRules));
+  const rate = g => g.reduce((a, r) => a + r.busts, 0) / g.length;
+  assert.ok(rate(easy) > 0.3, `busts per game with cheap money: ${rate(easy).toFixed(2)}`);
+  assert.ok(rate(ruled) < 0.05, `busts per game with mortgage rules: ${rate(ruled).toFixed(2)}`);
+});
+
+test("a credit bust hits stocks and bank capital, then drags demand", () => {
+  const S = m.extendScenario(m.buildScenario("random", "BUST"), "BUST");
+  const s = Object.assign(m.initGame(S), { lev: 16 });
+  S.bustRoll[1] = 0;                                              // force the dice
+  const p = m.prepGame(s, S), r = m.stepGame(s, S, p, POLICIES.rule(s, p));
+  assert.ok(r.bust && r.state.bust === 3);
+  assert.ok(r.state.bankCap < 90, `bank capital ${r.state.bankCap}`);
+  assert.ok(r.state.eq < s.eq, "stocks should fall");
+  assert.ok(m.finFeed(r.state, S).bustD < -1, "next quarter's demand takes the hit");
+});
+
+test("the world interest rate follows each era", () => {
+  const iw = level => m.extendScenario(m.buildScenario(level, "W"), "W").iw;
+  assert.ok(iw("oil")[12] >= 12, "the Volcker shock");
+  assert.ok(iw("pandemic")[5] <= 0.5 && iw("pandemic")[12] >= 4, "zero rates, then the 2022 hikes");
+  assert.ok(iw("crisis")[6] <= 0.5, "global rates collapse after 2008");
+});
+
+test("emerging markets: a weaker currency raises prices more and hurts demand", () => {
+  const S = m.extendScenario(m.buildScenario("random", "EMF"), "EMF"), s = Object.assign(m.initGame(S), { fx: 90, fxA: 100 });
+  const adv = m.finFeed(s, S), em = m.finFeed(s, m.applyMode(m.extendScenario(m.buildScenario("random", "EMF"), "EMF"), false, true));
+  assert.ok(em.s > 2 * adv.s, `pass-through ${em.s} vs ${adv.s}`);
+  assert.ok(em.d < 0 && adv.d > 0, "depreciation contracts an emerging market but helps an advanced one");
+});
+
+test("reserves defend the currency; a sudden stop with no reserves breaks it", () => {
+  const S = m.applyMode(m.extendScenario(m.buildScenario("random", "FX"), "FX"), false, true);
+  const s = m.initGame(S), p = m.prepGame(s, S), base = { move: 0, tone: "neutral", choice: null, qa: null };
+  const float = m.stepGame(s, S, p, { ...base, fx: 0 }).state, sell = m.stepGame(s, S, p, { ...base, fx: 2 }).state;
+  assert.ok(sell.fx > float.fx && sell.reserves < float.reserves);
+  const broke = Object.assign(m.initGame(S), { reserves: 0.5, cred: 0.2 });
+  S.ssRoll[1] = 0;
+  const r = m.stepGame(broke, S, m.prepGame(broke, S), { ...base, fx: 0 });
+  assert.ok(r.ss);
+  assert.equal(r.state.lost, "fxcrisis");
+});
+
+test("emerging-market mode is harder but winnable", () => {
+  for (const level of LEVELS) {
+    const adv = Array.from({ length: 80 }, (_, k) => simulate(m, level, "E" + k, POLICIES.rule));
+    const em = Array.from({ length: 80 }, (_, k) => simulate(m, level, "E" + k, POLICIES.rule, false, true));
+    const sc = g => mean(g.map(s => m.scoreGame(s).total)), fin = g => g.filter(s => !s.lost).length / g.length;
+    assert.ok(sc(em) < sc(adv), `${level}: emerging ${sc(em).toFixed(0)} vs advanced ${sc(adv).toFixed(0)}`);
+    assert.ok(fin(em) >= (level === "oil" ? 0.75 : 0.95), `${level}: emerging finish rate ${(fin(em) * 100).toFixed(0)}%`);
+  }
+});
+
 test("financial variables stay in plausible ranges", () => {
   for (const level of LEVELS) for (const s of run(level, "rule", 40)) {
     assert.ok(s.eq > 30 && s.eq < 300, `${level} stocks ${s.eq}`);

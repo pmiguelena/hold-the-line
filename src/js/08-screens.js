@@ -1,10 +1,12 @@
 /* ═══════════════ SCREENS ═══════════════ */
 const langToggle = () => `<div class="seg" role="group" aria-label="Language"><button data-lang="en" aria-pressed="${lang === "en"}">EN</button><button data-lang="es" aria-pressed="${lang === "es"}">ES</button></div>`;
 const diffToggle = () => `<div class="seg" role="group"><button data-diff="0" aria-pressed="${!store.hard}">${esc(g().diff.normal)}</button><button data-diff="1" aria-pressed="${!!store.hard}">${esc(g().diff.hard)}</button></div>`;
+const econToggle = () => `<div class="seg" role="group"><button data-econ="0" aria-pressed="${!store.em}">${esc(g().econ.adv)}</button><button data-econ="1" aria-pressed="${!!store.em}">${esc(g().econ.em)}</button></div>`;
 const soundToggle = () => `<button class="btn ghost small" id="sndBtn" aria-pressed="${store.sound !== false}">${esc(g().sound)}: ${esc(store.sound !== false ? g().on : g().off)}</button>`;
 function bindToggles(rerender) {
   $("overlay").querySelectorAll("[data-lang]").forEach(b => (b.onclick = () => { lang = b.dataset.lang; store.lang = lang; persist(); document.documentElement.lang = lang; Sound.select(); rerender(); }));
   $("overlay").querySelectorAll("[data-diff]").forEach(b => (b.onclick = () => { store.hard = b.dataset.diff === "1"; persist(); Sound.select(); rerender(); }));
+  $("overlay").querySelectorAll("[data-econ]").forEach(b => (b.onclick = () => { store.em = b.dataset.econ === "1"; persist(); Sound.select(); rerender(); }));
   const sb = $("sndBtn"); if (sb) sb.onclick = () => { store.sound = store.sound === false; persist(); Sound.select(); rerender(); };
 }
 function resetStage() { if (typing) typing.cancel(); beats = []; beatIdx = -1; setCast([]); tvOff(); $("panel").innerHTML = ""; }
@@ -22,7 +24,7 @@ function titleScreen() {
     <div class="toggles">${langToggle()}${soundToggle()}</div>
   </div>`);
   $("tStart").onclick = () => { Sound.unlock(); Sound.confirm(); levelSelect(); };
-  if (sv) $("tCont").onclick = () => { Sound.unlock(); Sound.confirm(); startLevel(sv.cfg.scenario, sv.cfg.seed, sv.inputs, !!sv.cfg.hard); };
+  if (sv) $("tCont").onclick = () => { Sound.unlock(); Sound.confirm(); startLevel(sv.cfg.scenario, sv.cfg.seed, sv.inputs, !!sv.cfg.hard, !!sv.cfg.em); };
   bindToggles(titleScreen);
 }
 
@@ -32,7 +34,7 @@ function levelSelect() {
   openOverlay(`<div class="scr">
     <h2 class="scr-title">${esc(gg.levelsTitle)}</h2>
     <div class="lvl-grid">${LEVEL_ORDER.map((k, idx) => {
-      const [name, year, blurb] = gg.levels[k], sk = k + (store.hard ? ":hard" : ""), st = store.stars[sk] || 0, [bg, icon] = LEVEL_ICON[k];
+      const [name, year, blurb] = gg.levels[k], sk = k + (store.hard ? ":hard" : "") + (store.em ? ":em" : ""), st = store.stars[sk] || 0, [bg, icon] = LEVEL_ICON[k];
       return `<button class="lvl" data-level="${k}" data-key="${idx + 1}">
         <span class="lvl-icon" style="--ic:${bg}">${icon}</span>
         <span class="lvl-main">
@@ -42,7 +44,7 @@ function levelSelect() {
           <span class="lvl-foot"><span class="stars-s" aria-label="${st}/3">${starRow(st)}</span><span>${esc(gg.best)}: ${store.best[sk] ?? "—"}</span></span>
         </span></button>`;
     }).join("")}</div>
-    <div class="toggles">${diffToggle()}</div><p class="diff-hint">${store.hard ? esc(gg.hardHint) : ""}</p>
+    <div class="toggles">${diffToggle()}${econToggle()}</div><p class="diff-hint">${[store.hard ? gg.hardHint : "", store.em ? gg.emHint : ""].filter(Boolean).map(esc).join(" ")}</p>
     <label class="code"><span>${esc(gg.code)}</span><input id="codeIn" maxlength="8" autocomplete="off" spellcheck="false"></label>
     <p class="hint">${esc(gg.codeHint)}</p>
     <div class="achbar"><span class="sec-lab">${esc(gg.achTitle)} · ${got}/${achIds.length}</span><div class="ach-row">${achIds.map(id => `<span class="ach-pill ${store.ach[id] ? "got" : ""}" title="${esc(gg.ach[id][1])}">${esc(gg.ach[id][0])}</span>`).join("")}</div></div>
@@ -50,18 +52,17 @@ function levelSelect() {
   </div>`);
   $("overlay").querySelectorAll("[data-level]").forEach(b => (b.onclick = () => {
     const code = ($("codeIn").value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
-    Sound.confirm(); startLevel(b.dataset.level, code || randomCode(), [], !!store.hard);
+    Sound.confirm(); startLevel(b.dataset.level, code || randomCode(), [], !!store.hard, !!store.em);
   }));
   $("lBack").onclick = titleScreen;
   bindToggles(levelSelect);
 }
 
-function startLevel(scenario, seed, inputs = [], hard = false) {
+function startLevel(scenario, seed, inputs = [], hard = false, em = false) {
   closeOverlay(); resetStage();
   screen = "game";
-  const sc = extendScenario(buildScenario(scenario, seed), seed);
-  if (hard) { const f = scenario === "oil" ? 1.15 : 1.3; ["d", "s"].forEach(k => (sc[k] = sc[k].map(v => v * f))); ["noiseD", "noiseS"].forEach(k => (sc[k] = sc[k].map(v => v * 1.4))); sc.cred = Math.max(0.3, sc.cred - 0.05); }
-  game = { cfg: { scenario, seed, hard: !!hard }, sc, hist: [initGame(sc)], reports: [], inputs: [], hud: null, headlines: [] };
+  const sc = applyMode(extendScenario(buildScenario(scenario, seed), seed), hard, em);
+  game = { cfg: { scenario, seed, hard: !!hard, em: !!em }, sc, hist: [initGame(sc)], reports: [], inputs: [], hud: null, headlines: [] };
   g().tickerStart.forEach((x, k) => game.headlines.push({ key: "start" + k, src: "wire", textFn: () => g().tickerStart[k] }));
   inputs.forEach(advance);
   saveGame();

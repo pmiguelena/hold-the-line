@@ -5,14 +5,8 @@ const require = createRequire(import.meta.url);
 export const model = () => require("../tools/model.cjs");
 
 // Plays one level with a policy function and returns the final state.
-export function simulate(m, level, seed, policy, hard = false) {
-  const S = m.extendScenario(m.buildScenario(level, seed), seed);
-  if (hard) {
-    const f = level === "oil" ? 1.15 : 1.3;
-    ["d", "s"].forEach(k => (S[k] = S[k].map(v => v * f)));
-    ["noiseD", "noiseS"].forEach(k => (S[k] = S[k].map(v => v * 1.4)));
-    S.cred = Math.max(0.3, S.cred - 0.05);
-  }
+export function simulate(m, level, seed, policy, hard = false, em = false) {
+  const S = m.applyMode(m.extendScenario(m.buildScenario(level, seed), seed), hard, em);
   let s = m.initGame(S);
   while (s.t < m.M.turns && !s.lost) { const p = m.prepGame(s, S); s = m.stepGame(s, S, p, policy(s, p)).state; }
   return s;
@@ -37,11 +31,12 @@ export function boot(pre = "") {
 }
 
 // Clicks through a whole level like a player; returns what was seen.
-export function playThrough(d, { level, lang = "en", hard = false, advisor = 2, choice = 0, qa = 0, qe = 1 }) {
+export function playThrough(d, { level, lang = "en", hard = false, em = false, advisor = 2, choice = 0, qa = 0, qe = 1, fx = 0 }) {
   const seen = { quarters: 0, fronts: 0, reactions: 0, dilemmas: 0, qa: 0, qe: 0, elections: 0, fans: 0 };
   d.querySelector(`#overlay [data-lang="${lang}"]`).click();
   d.getElementById("tStart").click();
   if (hard) d.querySelector('#overlay [data-diff="1"]').click();
+  if (em) d.querySelector('#overlay [data-econ="1"]').click();
   d.querySelector(`[data-level="${level}"]`).click();
   for (let k = 0; k < 1500; k++) {
     const ov = d.getElementById("overlay"), P = d.getElementById("panel");
@@ -72,6 +67,8 @@ export function playThrough(d, { level, lang = "en", hard = false, advisor = 2, 
     if (P.querySelector(".decide")) {
       const q = P.querySelectorAll("[data-qe]");
       if (q.length) { seen.qe++; q[qe].click(); }
+      const fxb = P.querySelector(`[data-fx="${fx}"]:not(:disabled)`);
+      if (P.querySelector("[data-fx]")) { seen.fxRows = (seen.fxRows || 0) + 1; if (fxb) fxb.click(); }
       if (P.querySelector(".fan")) seen.fans++;
       P.querySelectorAll(".chip-btn")[advisor].click();
       d.getElementById("announce").click();

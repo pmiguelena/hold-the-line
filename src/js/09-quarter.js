@@ -1,7 +1,7 @@
 /* ═══════════════ A QUARTER ═══════════════ */
 function beginQuarter() {
   const s = cur(), prep = (game.prep = prepGame(s, game.sc));
-  draft = { move: null, tone: "neutral", choice: null, qe: 0, buy: [], macro: !!s.macro };
+  draft = { move: null, tone: "neutral", choice: null, qe: 0, buy: [], macro: !!s.macro, fx: 0 };
   resetStage(); drawRoom(); renderHUD(s, null, prep.t);
   const list = [quarterCard, newsBeat, frontPageBeat, mapBeat];
   if (prep.budget) list.push(budgetBeat);
@@ -28,6 +28,8 @@ function quarterCard() {
 function leadStory(s, prep) {
   const t = tr();
   if (prep.gd === "crash") return { head: g().crashNews[0], dek: g().crashNews[1], breaking: true };
+  if (prep.bustNow) return { head: g().bustNews[0], dek: g().bustNews[1], breaking: true };
+  if (prep.ssLast) { const r = lastReport(), [head, dek] = g().ssNews(r ? pc(-100 * (r.state.fx / r.prev.fx - 1), 0) : ""); return { head, dek, breaking: true }; }
   if (prep.news) return { head: t.news[prep.news][0], dek: t.news[prep.news][1], breaking: true };
   const first = pressItems(s, prep)[0];
   return { head: first[1], dek: t.quietHead(pc(s.pi, 1), pc(s.x, 1)) + ". " + t.quietDek, breaking: false };
@@ -135,6 +137,7 @@ function decideBeat() {
     <div class="dec-row"><div class="fan-head"><span class="sec-lab">${esc(gg.fanTitle)}</span><span class="tip" id="fanNote"></span></div><div class="fan-wrap"><div class="fan" id="fanPi"></div><div class="fan" id="fanX"></div></div></div>
     <div class="dec-row"><span class="sec-lab">${esc(gg.tone)}</span><div class="tones" role="group">${["dovish", "neutral", "hawkish"].map(k => `<button class="tone ${k}" data-tone="${k}" aria-pressed="false"><b><i></i>${esc(gg.tones[k][0])}</b><small>${esc(gg.tones[k][1])}</small></button>`).join("")}</div><p class="tip">${esc(gg.toneTip(Math.round(s.cred * 100)))}</p></div>
     ${prep.qe ? `<div class="dec-row"><span class="sec-lab">${esc(gg.qeLabel)}</span><div class="tones" role="group">${[0, 1, 2].map(k => `<button class="tone qe${k}" data-qe="${k}" aria-pressed="false"><b><i></i>${esc(gg.qe[k][0])}</b><small>${esc(gg.qe[k][1])}</small></button>`).join("")}</div><p class="tip">${esc(gg.qeTip)}</p></div>` : ""}
+    ${prep.fxTool ? `<div class="dec-row"><div class="fan-head"><span class="sec-lab">${esc(gg.fx.label)}</span><span class="tip">${esc(gg.fx.reserves((s.reserves ?? 6).toFixed(1)))}</span></div><div class="tones fx4" role="group">${[-1, 0, 1, 2].map(k => `<button class="tone ${k > 0 ? "qe1" : k < 0 ? "qe2" : "qe0"}" data-fx="${k}" aria-pressed="false" ${k > 0 && (s.reserves ?? 6) < k ? "disabled" : ""}><b><i></i>${esc(gg.fx.opts[k][0])}</b><small>${esc(gg.fx.opts[k][1])}</small></button>`).join("")}</div><p class="tip">${esc(gg.fx.tip)}</p></div>` : ""}
     ${prep.canMacro ? `<div class="dec-row"><span class="sec-lab">${esc(gg.macro.label)}</span><div class="tones" role="group">${["off", "on"].map(k => `<button class="tone ${k === "on" ? "qe2" : "qe0"}" data-macro="${k}" aria-pressed="false"><b><i></i>${esc(gg.macro[k][0])}</b><small>${esc(gg.macro[k][1])}</small></button>`).join("")}</div><p class="tip">${esc(gg.macro.tip)}</p></div>` : ""}
     <div class="dec-foot"><div class="recs"><span class="sec-lab">${esc(gg.recsLabel)}</span>${["keynes", "friedman", "taylor"].map(k => `<button class="chip-btn" data-follow="${prep.advisors[k]}">${esc(t.adv[k].name)}: ${esc(t.moveName(prep.advisors[k]))}</button>`).join("")}</div>
       <div class="dec-go"><div class="newrate"><span>${esc(gg.newRate)}</span><b id="newRate">—</b></div><button class="btn red big" id="announce" data-hot disabled>${esc(gg.announce)}</button></div></div>
@@ -154,6 +157,7 @@ function decideBeat() {
     $("fanX").innerHTML = fanSVG(hist.map(h => h.x), fc.map(f => f.x), FAN_SD.x.map(v => v * fm), { color: "#5B9BD5", ref: 0, title: gg.chart.gap, nowLabel: gg.nowLabel });
     $("fanNote").textContent = draft.move == null ? gg.fanHold : gg.fanMove(t.moveName(mv));
     P.querySelectorAll("[data-macro]").forEach(b => b.setAttribute("aria-pressed", !!draft.macro === (b.dataset.macro === "on")));
+    P.querySelectorAll("[data-fx]").forEach(b => b.setAttribute("aria-pressed", (draft.fx || 0) === +b.dataset.fx));
     const B = gg.board, bv = draft.move == null ? null : boardVote(cur(), game.sc, prep, draft.move), prefs = boardPrefs(seenOf(cur(), game.sc, cur().t), prep);
     $("boardRow").innerHTML = `<div class="bm you ${bv ? "yes" : ""}"><span class="avatar" style="--c:#F2B650">${esc(B.youShort)}</span><span><b>${esc(gg.you)}</b><small>${esc(bv ? t.moveName(draft.move) : "—")}</small></span><i>${bv ? "✓" : ""}</i></div>`
       + (cur().board || BOARD0).map(id => {
@@ -168,6 +172,7 @@ function decideBeat() {
   P.querySelectorAll("[data-tone]").forEach(b => (b.onclick = () => { draft.tone = b.dataset.tone; Sound.stamp(); sync(); }));
   P.querySelectorAll("[data-qe]").forEach(b => (b.onclick = () => { draft.qe = +b.dataset.qe; Sound.select(); sync(); }));
   P.querySelectorAll("[data-macro]").forEach(b => (b.onclick = () => { draft.macro = b.dataset.macro === "on"; Sound.stamp(); sync(); }));
+  P.querySelectorAll("[data-fx]").forEach(b => (b.onclick = () => { draft.fx = +b.dataset.fx; Sound.select(); sync(); }));
   $("announce").onclick = announce;
   game.nudge = dir => {
     const allowed = MOVES.filter(ok), idx = allowed.indexOf(draft.move == null ? 0 : draft.move);
@@ -181,7 +186,7 @@ function announce() {
   const prep = game.prep;
   if (draft.move == null || ((prep.dilemma || prep.gd) && draft.choice == null)) return;
   Sound.stamp(); game.nudge = null;
-  const inp = { move: draft.move, tone: draft.tone, choice: prep.dilemma || prep.gd ? draft.choice : null, qe: prep.qe ? draft.qe || 0 : 0, qa: null, buy: prep.budget ? draft.buy.slice() : [], macro: prep.canMacro ? !!draft.macro : false };
+  const inp = { move: draft.move, tone: draft.tone, choice: prep.dilemma || prep.gd ? draft.choice : null, qe: prep.qe ? draft.qe || 0 : 0, qa: null, buy: prep.budget ? draft.buy.slice() : [], macro: prep.canMacro ? !!draft.macro : false, fx: prep.fxTool ? draft.fx || 0 : 0 };
   play([() => presserBeat(inp), () => qaBeat(inp)]);
 }
 function afterQA(inp) {
@@ -195,7 +200,7 @@ function afterQA(inp) {
 function presserBeat(inp) {
   const gg = g(), s = cur(), bv = boardVote(s, game.sc, game.prep, inp.move), mv = bv.passed ? inp.move : bv.implemented;
   flash(3);
-  say({ cast: [{ prop: "podium" }], name: gg.you, role: gg.youRole, text: `${bv.passed ? "" : gg.board.overruled + " "}${gg.speech.move(mv, pc(clamp(s.i + mv, M.iMin, M.iMax)))} ${gg.speech[inp.tone]}${inp.qe ? " " + gg.qeSpeech[inp.qe] : ""}` });
+  say({ cast: [{ prop: "podium" }], name: gg.you, role: gg.youRole, text: `${bv.passed ? "" : gg.board.overruled + " "}${gg.speech.move(mv, pc(clamp(s.i + mv, M.iMin, M.iMax)))} ${gg.speech[inp.tone]}${inp.qe ? " " + gg.qeSpeech[inp.qe] : ""}${inp.fx ? " " + gg.fxSpeech[inp.fx] : ""}` });
   if (!bv.passed) { shake(); Sound.bad(); }
 }
 

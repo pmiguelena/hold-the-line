@@ -1,5 +1,5 @@
 /* ═══════════════ WHAT THE WORLD SAYS ═══════════════ */
-const NEWS_KIND = { oil1: "supUp", oil2: "supUp", oil3: "supUp", oil4: "supUp", cr1: "demDown", cr2: "demDown", cr3: "demDown", cr4: "demDown", cr5: "demUp",
+const NEWS_KIND = { gl_up: "global", gl_down: "global", oil1: "supUp", oil2: "supUp", oil3: "supUp", oil4: "supUp", cr1: "demDown", cr2: "demDown", cr3: "demDown", cr4: "demDown", cr5: "demUp",
   pa1: "demDown", pa2: "demUp", pa3: "supUp", pa4: "supUp", pa5: "supDown", ev_house: "demDown", ev_stocks: "demDown", ev_credit: "demUp", ev_exports: "demUp",
   ev_drought: "supUp", ev_oil: "supUp", ev_tech: "supDown", ev_commod: "supDown" };
 const AVATAR = { maria: "#C2587A", roberto: "#6B7FA8", diego: "#2F8C7A", sofia: "#C98A2C", andrade: "#7A62C9", bond: "#2E6FA8", tomas: "#B5473A" };
@@ -10,6 +10,8 @@ function pressItems(s, prep) {
   const rk = prep.t - 2, rev = rk >= 1 && game.sc.errX ? -0.6 * (game.sc.errX[rk] || 0) : 0;   // last quarter's growth, first estimate -> revised
   if (Math.abs(rev) >= 0.3) out.push(["wire", g()[rev > 0 ? "revUp" : "revDown"](quarterLabel(rk))]);
   if (r && r.stacked) out.unshift(["ledger", g().board.stackNews(g().board.names.rubio[0])]);
+  if ((s.lev || 0) >= 6) out.push(["wire", g().creditBoomNews(pc(s.cg || 6, 0))]);
+  if ((s.bankCap ?? 100) < 75) out.push(["ledger", g().crunchNews]);
   if (s.heat >= 60) out.push(["ledger", g().pressRift]);
   if (prep.t === M.election + 1 && s.govt === "opp") out.push(["ledger", P.newGov]);
   if (s.pi > 4) out.push(["ch9", P.hotPrices(pc(s.pi, 1))]); else if (s.pi < 0.5) out.push(["ch9", P.falling]);
@@ -26,6 +28,9 @@ function preComments(s, prep) {
   if (prep.news) keys.push(NEWS_KIND[prep.news]);
   if (s.pi > 4) keys.push("highInfl"); else if (s.pi < 0.5) keys.push("deflation");
   if (s.x < -2) keys.push("recession"); else if (s.x > 2) keys.push("boom");
+  if (s.bust > 0) keys.push("bust");
+  if (s.ssHit) keys.push("suddenStop");
+  if ((s.lev || 0) >= 6) keys.push("creditBoom");
   if (drawdown(s) >= 8) keys.push("markets");
   if (s.heat >= 60) keys.push("rift");
   if (s.cred < 0.45) keys.push("lowCred");
@@ -86,6 +91,8 @@ function warnings(s, prep) {
   if (s.hot > 0) w.push(t.warnInfl(s.hot));
   if (s.cred < 0.25) w.push(t.warnCred);
   if (s.heat >= 60) w.push(g().warnHeat(Math.round(s.heat)));
+  if ((s.lev || 0) >= 8) w.push(g().warnLev(Math.round(s.lev)));
+  if (game.sc.em && (s.reserves ?? 6) < 3) w.push(g().warnResv((s.reserves ?? 0).toFixed(1)));
   if (prep.pressure === "cut" && prep.level >= 2 && s.pop < 42) w.push(t.warnFire); else if (s.pop < 32) w.push(t.warnPop);
   return w;
 }

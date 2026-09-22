@@ -10,6 +10,8 @@ function evalAchievements(score, rule) {
     if (statements >= 3 && !broke) got.push("wordIsBond");
     if (score > rule) got.push("beatMachine");
     if ((s.heatPeak || 0) >= 70) got.push("survivor");
+    if (game.cfg.em) got.push("emStar");
+    if (Math.max(...game.hist.map(h => h.lev || 0)) >= 6 && !R.some(r => r.bust)) got.push("noBubble");
   }
   if (R.some(r => r.election === "reelected")) got.push("kingmaker");
   if (s.lost) got.push("hardWay");
@@ -18,7 +20,7 @@ function evalAchievements(score, rule) {
 
 function endLevel(restored) {
   resetStage();
-  const s = cur(), t = tr(), gg = g(), key = game.cfg.scenario, sk = key + (game.cfg.hard ? ":hard" : ""), H = game.hist;
+  const s = cur(), t = tr(), gg = g(), key = game.cfg.scenario, sk = key + (game.cfg.hard ? ":hard" : "") + (game.cfg.em ? ":em" : ""), H = game.hist;
   const sp = scoreGame(s), rule = scoreGame(ruleBoundGame(game.sc)).total;
   const stars = s.lost ? 0 : sp.total >= rule ? 3 : sp.total >= 0.9 * rule ? 2 : 1;
   const got = evalAchievements(sp.total, rule), fresh = got.filter(a => !store.ach[a]);
@@ -34,7 +36,7 @@ function endLevel(restored) {
   const front = s.lost ? gg.finalFront[s.lost] : s.cred > 0.8 ? gg.finalFront.good : gg.finalFront.mixed;
   const qL = k => quarterLabel(k).replace(" ", "");
   openOverlay(`<div class="scr end">
-    <span class="q-date">${esc(gg.levels[key][0])} · ${esc(game.cfg.seed)}${game.cfg.hard ? ` · ${esc(gg.hardTag)}` : ""}</span>
+    <span class="q-date">${esc(gg.levels[key][0])} · ${esc(game.cfg.seed)}${game.cfg.hard ? ` · ${esc(gg.hardTag)}` : ""}${game.cfg.em ? ` · ${esc(gg.econ.em)}` : ""}</span>
     <h2 class="big-title">${esc(s.lost ? gg.gameover : gg.complete)}</h2>
     <article class="paper front"><header class="paper-mast"><span class="pm-meta">${esc(gg.finalLabel)}</span><span class="pm-name">${esc(t.outlets.ledger)}</span><span class="pm-meta">${esc(quarterLabel(s.t + 1))}</span></header>
       <div class="paper-lead"><span class="kicker">${esc(s.lost ? t.outcome[s.lost] : t.outcome.done)}</span><h3>${esc(front)}</h3><p>${esc(s.lost ? t.lostWhy[s.lost] : t.epilogue(s.cred))}</p></div></article>
@@ -58,9 +60,9 @@ function endLevel(restored) {
       <button class="btn ghost" id="eLevels">${esc(gg.toLevels)}</button>
     </div>
   </div>`);
-  $("eRetry").onclick = () => { Sound.confirm(); startLevel(key, game.cfg.seed, [], game.cfg.hard); };
-  $("eFresh").onclick = () => { Sound.confirm(); startLevel(key, randomCode(), [], game.cfg.hard); };
-  if ($("eNext")) $("eNext").onclick = () => { Sound.confirm(); startLevel(nextKey, randomCode(), [], game.cfg.hard); };
+  $("eRetry").onclick = () => { Sound.confirm(); startLevel(key, game.cfg.seed, [], game.cfg.hard, game.cfg.em); };
+  $("eFresh").onclick = () => { Sound.confirm(); startLevel(key, randomCode(), [], game.cfg.hard, game.cfg.em); };
+  if ($("eNext")) $("eNext").onclick = () => { Sound.confirm(); startLevel(nextKey, randomCode(), [], game.cfg.hard, game.cfg.em); };
   $("eLevels").onclick = levelSelect;
   if (restored || FAST) return;
   if (stars === 3) confetti();
@@ -77,7 +79,10 @@ function chartSpec(kind, reveal) {
   if (kind === "infl" && reveal) return { title: c.infl, keys: [[c.infl, "#E5484D"], [c.first, "#F2B650"]], series: [{ values: game.hist.map(h => h.pi + (game.sc.errPi[h.t] || 0)), color: "#F2B650", dash: true }, { values: H.map(h => h.pi), color: "#E5484D", area: true }], band: [1, 3], include: [0, 4] };
   if (kind === "infl") return { title: c.infl, keys: [[c.infl, "#E5484D"], [c.exp, "#9AA4BD"]], series: [{ values: H.map(h => h.pe), color: "#9AA4BD", dash: true }, { values: H.map(h => h.pi), color: "#E5484D", area: true }], band: [1, 3], include: [0, 4] };
   if (kind === "gap") return { title: c.gap, keys: [], series: [{ values: H.map(h => h.x), color: "#5B9BD5", bars: true }], include: [-2, 2] };
-  if (kind === "rate") return { title: c.rate, keys: [[c.rate, "#3FB68B"], [c.y10, "#C4A0FF"]], series: [{ values: H.map(h => h.i), color: "#3FB68B", step: true }, { values: H.map(h => h.y10 || Y10_NEUTRAL), color: "#C4A0FF" }], include: [0, 5] };
+  const iw = h => (game.sc.iw ? game.sc.iw[h.t] : 2.5);
+  if (kind === "rate") return { title: c.rate, keys: [[c.rate, "#3FB68B"], [c.y10, "#C4A0FF"], [c.world, "#F2B650"]], series: [{ values: H.map(h => h.i), color: "#3FB68B", step: true }, { values: H.map(h => h.y10 || Y10_NEUTRAL), color: "#C4A0FF" }, { values: H.map(iw), color: "#F2B650", dash: true }], include: [0, 5] };
+  if (kind === "fin") return { title: c.fin, keys: [[c.lev, "#E5484D"]].concat(game.sc.em ? [[c.resv, "#3FB68B"]] : []),
+    series: [{ values: H.map(h => h.lev || 0), color: "#E5484D", area: true }].concat(game.sc.em ? [{ values: H.map(h => h.reserves ?? 6), color: "#3FB68B" }] : []), include: [-2, 8], refs: [0] };
   if (kind === "mkt") return { title: c.mkt, keys: [[c.eq, "#5B9BD5"], [c.fx, "#F2B650"]], series: [{ values: H.map(h => h.eq || 100), color: "#5B9BD5", area: true }, { values: H.map(h => h.fx || 100), color: "#F2B650" }], include: [92, 108] };
   return { title: c.pol, keys: [[c.cred, "#3FB68B"], [c.pop, "#F2B650"], [c.heat, "#E5484D"]], series: [{ values: H.map(h => h.cred * 100), color: "#3FB68B", area: true }, { values: H.map(h => h.pop), color: "#F2B650" }, { values: H.map(h => h.heat || 0), color: "#E5484D" }], fixed: [0, 100], refs: [50] };
 }
@@ -90,7 +95,7 @@ function openCharts() {
   cardToken = null;
   const gg = g(), qL = k => quarterLabel(k).replace(" ", "");
   openOverlay(`<div class="scr"><h2 class="scr-title">${esc(gg.chartsTitle)}</h2>
-    <div class="chart-grid">${["infl", "gap", "rate", "mkt", "pol"].map(k => chartCard(k, qL)).join("")}</div>
+    <div class="chart-grid">${["infl", "gap", "rate", "mkt", "fin", "pol"].map(k => chartCard(k, qL)).join("")}</div>
     <button class="btn big" id="chClose" data-hot>${esc(gg.close)}</button></div>`);
   $("chClose").onclick = resume;
 }
@@ -119,7 +124,7 @@ function openMenu() {
     <div class="toggles">${langToggle()}${soundToggle()}</div>
     <p class="hint">${esc(gg.codeLine(game.cfg.seed))}</p></div>`);
   $("mResume").onclick = resume;
-  $("mRestart").onclick = () => startLevel(game.cfg.scenario, game.cfg.seed, [], game.cfg.hard);
+  $("mRestart").onclick = () => startLevel(game.cfg.scenario, game.cfg.seed, [], game.cfg.hard, game.cfg.em);
   $("mLevels").onclick = levelSelect;
   $("mTitle").onclick = titleScreen;
   bindToggles(() => { closeOverlay(); if (game.hud) renderHUD(game.hud.s, null, game.hud.turn); drawRoom(); renderTicker(); rerunBeat(); openMenu(); });

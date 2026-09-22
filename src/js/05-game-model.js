@@ -35,21 +35,31 @@ const QE = [{ d: 0, s: 0, eq: 0, y: 0, heat: 0, cred: 0 },
             { d: 0.8, s: 0.1, eq: 2.2, y: 0.8, heat: -7, cred: -0.05 }];
 const CRASH = [{ d: 0.5, eq: 4, cred: 0.01, heat: -2 }, { d: -0.4, eq: -3, cred: 0.03, pop: -3, heat: 2 }];
 // Financial conditions at the start of a quarter feed demand and prices.
-function finFeed(s) {
+function finFeed(s, sc) {
   // Households and firms judge markets against what they have got used to, so swings bite hard and then fade.
+  const em = !!(sc && sc.em);
   const eqGap = clamp(100 * (s.eq / s.eqA - 1), -40, 40);   // stocks vs the accustomed level: wealth and confidence
   const fxDev = clamp(100 * (s.fx / s.fxA - 1), -40, 40);   // + = currency stronger than people are used to
   const yGap = s.y10 - Y10_NEUTRAL;                          // long rates the Bank does not set directly
-  return { d: clamp(0.03 * eqGap - 0.25 * yGap - 0.03 * fxDev, -1.8, 1.2), s: clamp(-0.05 * fxDev, -0.9, 0.9), eqGap, fxDev, yGap };
+  const bustD = -(s.bustSize || 0) * [0, 0.3, 0.6, 1][s.bust || 0];                       // a credit bust drags demand for three quarters
+  const crunch = (s.bankCap ?? 100) < 75 ? -0.03 * (75 - s.bankCap) : 0;                 // thin bank capital means rationed credit
+  // In an emerging market a weaker currency raises prices much more, and hurts demand through dollar debts.
+  const d = clamp(0.03 * eqGap - 0.25 * yGap + (em ? 0.02 : -0.03) * fxDev + 0.04 * (s.lev || 0), -1.8, 1.2) + bustD + crunch;   // a credit boom feels good while it lasts
+  return { d, s: clamp((em ? -0.12 : -0.05) * fxDev, -2.5, 2.5), eqGap, fxDev, yGap, bustD, crunch };
 }
 // Markets reprice the moment the decision lands.
-function finStep(s, n, prep, inp, sc, t, gdT, qe) {
-  const ts = inp.tone === "hawkish" ? 1 : inp.tone === "dovish" ? -1 : 0;
+function finStep(s, n, prep, inp, sc, t, gdT, qe, ext = {}) {
+  const ts = inp.tone === "hawkish" ? 1 : inp.tone === "dovish" ? -1 : 0, em = !!sc.em;
   const h = (inp.move - prep.advisors.taylor + 0.25 * ts) * (inp.hDamp || 1), dcred = n.cred - s.cred;   // a good markets desk means smaller surprises
+  const iwNow = ext.iwNow ?? 2.5, iwPrev = ext.iwPrev ?? 2.5, iw0 = sc.iw ? sc.iw[0] : 2.5;
   const eqRet = 1.2 - 2.5 * h + 1.4 * (n.x - s.x) - 0.8 * Math.max(0, n.pi - 3) + 12 * dcred
-    + 4 * (sc.d[t] || 0) * ((sc.d[t] || 0) < 0 ? inp.eqDamp || 1 : 1) - 1.2 * (sc.s[t] || 0) + qe.eq + (gdT.eq || 0);
-  const fxRet = 1.6 * h + 25 * dcred - 0.3 * (n.pi - s.pi) - 1.2 * qe.eq;
-  const yTarget = 1 + n.pe + 0.4 * (n.i - 1 - n.pi) + 3 * (0.8 - n.cred) + 0.015 * n.heat - qe.y;
+    + 4 * (sc.d[t] || 0) * ((sc.d[t] || 0) < 0 ? inp.eqDamp || 1 : 1) - 1.2 * (sc.s[t] || 0) + qe.eq + (gdT.eq || 0)
+    - (ext.bustOnset ? 6 : 0) - (ext.ss ? 4 : 0);
+  // Currency: surprises, credibility, the rate gap with the world, intervention and, in emerging markets, capital flight.
+  const fxRet = 1.6 * h + 25 * dcred - 0.3 * (n.pi - s.pi) - 1.2 * qe.eq
+    + 1.0 * ((n.i - iwNow) - (s.i - iwPrev)) - (em ? 1.0 * Math.max(0, iwNow - iwPrev) : 0) + (ext.fxI || 0) - (ext.ss ? 9 : 0);
+  const yTarget = 1 + n.pe + 0.4 * (n.i - 1 - n.pi) + 3 * (0.8 - n.cred) + 0.015 * n.heat - qe.y
+    + (em ? 0.35 : 0.25) * (iwNow - iw0) + (ext.ss ? 1.2 : 0);                             // world rates spill into long yields
   const eq = Math.max(20, s.eq * (1 + eqRet / 100)), fx = Math.max(30, s.fx * (1 + fxRet / 100));
   const eqA = s.eqA * EQ_TREND + 0.25 * (eq - s.eqA * EQ_TREND), fxA = s.fxA + 0.25 * (fx - s.fxA);
   return { eq, fx, eqA, fxA, y10: clamp(s.y10 + 0.55 * (yTarget - s.y10) + 0.35 * h, 0.1, 18),
@@ -88,8 +98,8 @@ function econDetail(s) {
   for (const k in SEC_W) { sec[k] = s.x + gap[k] - gm; jobs[k] = Math.max(1, SEC_U[k] - 0.5 * sec[k]); }
   const dd = drawdown(s);
   return { cat, sec, jobs, fxDev, eqGap, hpYoY: 4 * (s.hpg || 0),
-    credit: 6 + 1.5 * s.x - 1.2 * (s.i - 3) - 0.15 * dd + 0.3 * (s.hpg || 0),
-    bank: clamp(80 - 1.2 * dd - 6 * Math.max(0, y - 5) - 4 * Math.max(0, -s.x - 1) + 40 * ((s.cred || 0.8) - 0.75) + (s.macro ? 8 : 0) + 5 * ((s.dept || {}).supervision || 0), 5, 100) };
+    credit: s.cg ?? (6 + 1.5 * s.x - 1.2 * (s.i - 3) - 0.15 * dd + 0.3 * (s.hpg || 0)), lev: s.lev || 0, bankCap: s.bankCap ?? 100,
+    bank: clamp((s.bankCap ?? 100) - 20 - 1.2 * dd - 6 * Math.max(0, y - 5) - 4 * Math.max(0, -s.x - 1) + 40 * ((s.cred || 0.8) - 0.75) + (s.macro ? 8 : 0) + 5 * ((s.dept || {}).supervision || 0), 5, 100) };
 }
 // Data fog: inflation and growth arrive as first estimates, get revised a quarter later, and are final after two.
 // Financial markets are observed in real time.
@@ -102,7 +112,8 @@ function seenOf(h, sc, now) {
 // Staff forecast: projects from the data the Bank sees, with no new shocks, this move now and the rate held after.
 function staffForecast(s, sc, inp, h = 4) {
   const z = () => new Array(M.turns + h + 3).fill(0), [fNow, fNext] = FORESIGHT[(s.dept || initDept()).research];
-  const fs = { key: sc.key, year: sc.year, q: sc.q, cred: sc.cred, d: z(), s: z(), noiseD: z(), noiseS: z(), news: {}, dilemmas: {} };
+  const fs = { key: sc.key, year: sc.year, q: sc.q, cred: sc.cred, d: z(), s: z(), noiseD: z(), noiseS: z(), news: {}, dilemmas: {}, em: sc.em,
+    iw: z().map((_, k) => (sc.iw ? sc.iw[Math.min(k, sc.iw.length - 1)] : 2.5)) };
   const t0 = s.t + 1;                                   // research lets staff see part of the shocks in the news, and later the ones coming
   [[t0, fNow], [t0 + 1, fNext]].forEach(([t, f]) => { fs.d[t] = f * (sc.d[t] || 0); fs.s[t] = f * (sc.s[t] || 0); });
   let st = seenOf(s, sc, s.t);
@@ -135,6 +146,20 @@ function extendScenario(sc, seed) {
     [1, 0.6, 0.3].forEach((w, j) => { if (t + j <= M.turns) sc[ev.kind][t + j] += ev.sign * mag * w; });
     sc.news[t] = ev.id;
   }
+  // The world interest rate: each era has its own global cycle. Big moves make the news.
+  const wrng = rngFrom("world:" + sc.key + ":" + seed), IW = {
+    pandemic: t => (t < 1 ? 1.75 : t < 9 ? 0.25 : Math.min(5.25, 0.25 + 1.25 * (t - 8))),     // near zero, then the 2022 hiking cycle
+    crisis: t => (t < 2 ? 5 : t < 5 ? 5 - 1.5 * (t - 1) : 0.25),                              // global rates collapse after 2008
+    oil: t => (t < 9 ? 6 + 0.2 * t : t < 13 ? 7.6 + 1.2 * (t - 8) : 12.4 - 0.8 * (t - 12))     // the late-1970s Volcker shock
+  };
+  sc.iw = [];
+  for (let t = 0, w = 2.5; t <= M.turns + 8; t++) {
+    if (IW[sc.key]) sc.iw.push(IW[sc.key](t));
+    else { if (t && wrng() < 0.4) w = clamp(w + (wrng() < 0.5 ? -0.25 : 0.25), 0.25, 5); sc.iw.push(w); }
+  }
+  for (let t = 2; t <= M.turns; t++) { const dw = sc.iw[t] - sc.iw[t - 1]; if (Math.abs(dw) >= 0.75 && !sc.news[t]) sc.news[t] = dw > 0 ? "gl_up" : "gl_down"; }
+  sc.bustRoll = Array.from({ length: n }, () => wrng());                                        // fixed dice for credit busts and sudden stops
+  sc.ssRoll = Array.from({ length: n }, () => wrng());
   const free = Object.keys(DILEMMAS).filter(id => !Object.values(sc.dilemmas).includes(id)).sort(() => rng() - 0.5);
   [12 + Math.floor(rng() * 2), 15 + Math.floor(rng() * 3)].forEach((t, k) => { if (!sc.dilemmas[t] && free[k]) sc.dilemmas[t] = free[k]; });
   return sc;
@@ -144,6 +169,12 @@ const scoreGame = s => {
   const macro = Math.round(550 * Math.exp(-s.L / (25 * (M.turns / 12))));
   return { macro, cred: Math.round(300 * s.cred), pop: Math.round(150 * Math.min(1, s.pop / 60)), total: macro + Math.round(300 * s.cred) + Math.round(150 * Math.min(1, s.pop / 60)) };
 };
+// Difficulty and economy type, applied after the scenario is built.
+function applyMode(sc, hard, em) {
+  if (hard) { const f = sc.key === "oil" ? 1.15 : 1.3; ["d", "s"].forEach(k => (sc[k] = sc[k].map(v => v * f))); ["noiseD", "noiseS"].forEach(k => (sc[k] = sc[k].map(v => v * 1.4))); sc.cred = Math.max(0.3, sc.cred - 0.05); }
+  if (em) { sc.em = true; sc.cred = Math.max(0.3, sc.cred - 0.08); }                           // emerging-market central banks start less trusted
+  return sc;
+}
 /*FIN-END*/
 /*INST-START*/
 // Phase 3: the institution. Departments you fund once a year, a board that votes, and macroprudential rules.
@@ -193,24 +224,30 @@ const DIL_HEAT = { financing: [18, -10], hearing: [10, -8], bank: [0, 0], leak: 
 const QA_HEAT = { q_markets: [0, -2, 0], q_pressure: [3, 0, -1], q_election: [4, -2, 0], q_jobs: [0, -2, 3], q_infl: [0, -2, 0], q_rift: [4, -4, 2], q_generic: [0, -1, 0] };
 const TRUCE = [{ cred: 0.02, heat: 5 }, { cred: -0.05, pop: 2, heat: -25 }];
 const GD = { truce: TRUCE, crash: CRASH };
-const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false, catP: {}, hp: 100, hpg: 0.8, dept: initDept(), points: BUDGET_START, board: BOARD0.slice(), macro: false, fogM: 1 });
+const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false, catP: {}, hp: 100, hpg: 0.8, dept: initDept(), points: BUDGET_START, board: BOARD0.slice(), macro: false, fogM: 1,
+  lev: 0, cg: 6, bust: 0, bustSize: 0, bankCap: 100, reserves: sc.em ? 6 : 12, ssHit: false });
 function prepGame(s, sc) {
   const p = prepare(seenOf(s, sc, s.t), sc), dept = s.dept || initDept();   // advisors, the government and the press all read the published data
   p.gd = p.dilemma ? null : drawdown(s) >= CRASH_DD + 4 * dept.supervision && !s.crashUsed ? "crash" : s.heat >= 55 ? "truce" : null;
   p.qe = s.i <= QE_RATE;
   p.budget = budgetQuarter(p.t); p.canMacro = dept.supervision >= 2;
+  p.fxTool = !!sc.em || dept.markets >= 2; p.bustNow = s.bust === 3; p.ssLast = !!s.ssHit;
   return p;
 }
 function stepGame(s, sc, prep, inp) {
   const t = prep.t, dept = s.dept || initDept();
   const vote = inp.noVote ? null : boardVote(s, sc, prep, inp.move);
   const macro = !!inp.macro && dept.supervision >= 2;
+  const fxL = sc.em || dept.markets >= 2 ? inp.fx || 0 : 0;                      // -1 buy reserves, 0 float, 1 sell, 2 sell heavily
+  const iwNow = sc.iw ? sc.iw[t] : 2.5, iwPrev = sc.iw ? sc.iw[t - 1] : 2.5;
+  const pSS = sc.em ? clamp(0.02 + 0.2 * Math.max(0, iwNow - iwPrev) + 0.4 * Math.max(0, 0.55 - s.cred) + ((s.reserves ?? 6) < 3 ? 0.08 : 0), 0, 0.6) : 0;
+  const ss = !!(sc.ssRoll && sc.ssRoll[t] < pSS);                               // sudden stop: capital flees an emerging market
   inp = Object.assign({}, inp, { move: vote && !vote.passed ? vote.implemented : inp.move, toneK: TONEK[dept.comms],
     hDamp: 1 - 0.1 * dept.markets, eqDamp: 1 - 0.15 * dept.supervision - (macro ? 0.15 : 0) });
   const gdT = prep.gd && inp.choice != null ? GD[prep.gd][inp.choice] || {} : {};
-  const q0 = QE[(prep.qe ? inp.qe : 0) || 0], qe = Object.assign({}, q0, { d: q0.d * QEK[dept.markets], y: q0.y * QEK[dept.markets] }), ff = finFeed(s);
+  const q0 = QE[(prep.qe ? inp.qe : 0) || 0], qe = Object.assign({}, q0, { d: q0.d * QEK[dept.markets], y: q0.y * QEK[dept.markets] }), ff = finFeed(s, sc);
   const dSave = sc.d[t], sSave = sc.s[t];                       // financial conditions enter as demand and price shocks
-  sc.d[t] = dSave + ff.d + (gdT.d || 0) + qe.d - (macro ? 0.15 : 0);
+  sc.d[t] = dSave + ff.d + (gdT.d || 0) + qe.d - (macro ? 0.15 : 0) - (ss ? 0.4 : 0);
   sc.s[t] = sSave + ff.s + qe.s;
   const res = resolve(s, sc, prep, inp);
   sc.d[t] = dSave; sc.s[t] = sSave;
@@ -235,11 +272,26 @@ function stepGame(s, sc, prep, inp) {
   let heat = clamp(s.heat + hp.reduce((a, p) => a + p[1], 0), 0, 100);
   if (res.election === "defeated") { hp.push(["newGov", 12 - heat]); heat = 12; }
   n.heat = heat; n.heatPeak = Math.max(s.heatPeak || 0, heat);
-  Object.assign(n, finStep(s, n, prep, inp, sc, t, gdT, qe));
+  // The credit cycle: easy money and rising house prices push credit above trend; a big gap can burst.
+  const cap0 = s.bankCap ?? 100;
+  const cg = 6 + 1.2 * n.x - 1.5 * (n.i - n.pe - M.rStar) + 0.3 * (s.hpg || 0) + 1.5 * Math.max(0, dSave || 0) - 0.15 * drawdown(s)
+    - (macro ? 2.5 : 0) - (cap0 < 75 ? 0.1 * (75 - cap0) : 0);                      // cheap real money, rising house prices and demand booms feed credit
+  const lev = 0.92 * (s.lev || 0) + 0.3 * (cg - 6);
+  const pBust = (s.bust || 0) > 0 || lev < 4 ? 0 : (1 - 0.2 * dept.supervision) / (1 + Math.exp(-(0.45 * (lev - 10) + 1.5 * Math.max(0, n.i - s.i) + 0.05 * drawdown(s))));
+  const bustOnset = !!(sc.bustRoll && sc.bustRoll[t] < pBust);
+  const bankLoss = bustOnset ? (10 + lev) * (1 - 0.2 * dept.supervision) : 0;
+  n.cg = cg; n.lev = bustOnset ? lev * 0.5 : lev;
+  n.bust = bustOnset ? 3 : Math.max(0, (s.bust || 0) - 1); n.bustSize = bustOnset ? 0.9 + 0.08 * lev : s.bustSize || 0;
+  const FXI = { "-1": [-1.5, 0.8], 0: [0, 0], 1: [2.2, -1], 2: [4, -2] }[fxL] || [0, 0], resv0 = s.reserves ?? (sc.em ? 6 : 12);
+  if (fxL > 0 && resv0 < 3) bump(-0.02, 0, "lastReserves");
+  Object.assign(n, finStep(s, n, prep, inp, sc, t, gdT, qe, { fxI: FXI[0] * (1 + 0.15 * dept.markets), ss, bustOnset, iwNow, iwPrev }));
+  n.bankCap = clamp(cap0 + (n.x > -1 ? 1.5 : 0.5) - 20 * Math.max(0, n.y10 - s.y10 - 0.5) - bankLoss, 30, 130);   // profits rebuild capital; busts and bond losses eat it
+  n.reserves = Math.max(0, resv0 + FXI[1] + (sc.em ? 0.1 : 0)); n.ssHit = ss;
+  res.bust = bustOnset; res.ss = ss;
   const shock = (sSave || 0) + (sc.noiseS[t] || 0), mix = supplyMix(sc, t), P0 = s.catP || {};
   n.catP = {};
   for (const c of ["food", "energy", "goods"]) n.catP[c] = 0.2 * (P0[c] || 0) + shock * (mix[c] || 0);
-  n.hpg = clamp(0.8 + 1.0 * n.x - 0.9 * (n.y10 - Y10_NEUTRAL) + 1.5 * (dSave || 0) + 0.5 * (n.x - s.x) - (macro ? 1.5 : 0), -8, 8);   // house prices, % a quarter
+  n.hpg = clamp(0.8 + 1.0 * n.x - 0.9 * (n.y10 - Y10_NEUTRAL) + 1.5 * (dSave || 0) + 0.5 * (n.x - s.x) - (macro ? 1.5 : 0) - (n.bust > 0 ? 2.5 : 0) + 0.12 * (s.lev || 0), -8, 8);   // credit feeds house prices, which feed credit   // house prices, % a quarter
   n.hp = (s.hp || 100) * (1 + n.hpg / 100);
   n.crashUsed = s.crashUsed || prep.gd === "crash";
   const buys = budgetQuarter(t) ? inp.buy || [] : [], cost = buyCost(dept, buys);
@@ -254,6 +306,7 @@ function stepGame(s, sc, prep, inp) {
   if (n.lost === "fired" && n.pop >= M.popFire) n.lost = null;               // the model's instant firing becomes heat instead
   if (!n.lost && n.cred < M.credLose) n.lost = "cred";
   if (!n.lost && (n.pop < M.popFire || heat >= 100 || (heat >= 80 && n.pop < 35))) n.lost = "fired";
+  if (!n.lost && ss && resv0 < 1) n.lost = "fxcrisis";                              // capital fled and there was nothing left to defend with
   res.heatParts = hp; res.ff = ff;
   return res;
 }
