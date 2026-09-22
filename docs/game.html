@@ -13,7 +13,7 @@
   --bg:#0A0F1D; --bg-2:#0F1627; --surface:#161F36; --surface-2:#1D2844;
   --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.15);
   --text:#EEF1F7; --muted:#9AA4BD; --faint:#6B7591;
-  --amber:#F2B650; --red:#E5484D; --green:#3FB68B; --blue:#5B9BD5;
+  --amber:#F2B650; --red:#E5484D; --green:#3FB68B; --blue:#5B9BD5; --purple:#C4A0FF;
   --paper:#F5EFE3; --paper-ink:#1E1B16; --paper-muted:#6C6457; --paper-line:#DCD2BF;
   --f-ui:"Archivo", "Segoe UI", system-ui, sans-serif;
   --f-news:"Newsreader", Georgia, "Times New Roman", serif;
@@ -349,13 +349,13 @@ svg.chart{width:100%;height:auto;display:block}
 .hud>*{padding:0;border:0}
 .hud-row{display:grid;background:#0A0F1D;border-bottom:1px solid var(--line)}
 .hud-row.a{grid-template-columns:auto repeat(5,minmax(0,1fr))}
-.hud-row.b{grid-template-columns:repeat(3,minmax(0,1fr)) auto}
+.hud-row.b{grid-template-columns:repeat(4,minmax(0,1fr)) auto}
 .hud-row>*{padding:9px 14px;border-right:1px solid var(--line);min-width:0;display:grid;align-content:center;gap:3px}
 .hud-row>*:last-child{border-right:0}
 @media (max-width:900px){
   .hud-row.a{grid-template-columns:repeat(3,minmax(0,1fr))}
   .hud-row.a .hud-when{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
-  .hud-row.b{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .hud-row.b{grid-template-columns:repeat(2,minmax(0,1fr))}
   .hud-row.b .hud-btns{grid-column:1/-1;justify-content:flex-end}
 }
 .tone.qe0{--tc:#8A93AD} .tone.qe1{--tc:var(--blue)} .tone.qe2{--tc:#C4A0FF}
@@ -536,6 +536,12 @@ dl.gloss dd{margin:0;font-size:14.5px;line-height:1.5;color:#D5DAE6}
 .td-grid .toggles{justify-content:flex-start;margin:0}
 .prof-grid{width:min(620px,100%);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px 16px;text-align:left}
 .prof-grid .fld input,.prof-grid .fld select{width:100%;min-width:0;font:500 15px var(--f-ui);color:var(--text);background:var(--bg-2);border:1px solid var(--line-2);border-radius:10px;padding:9px 11px}
+.grp-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px 14px}
+.grp{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"ic name val" "ic bar bar";gap:2px 8px;align-items:center;padding:8px 10px;border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.grp-ic{grid-area:ic;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.06)}
+.grp-n{grid-area:name;font:700 12px var(--f-ui);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.grp b{grid-area:val;font-variant-numeric:tabular-nums;font-size:13px}
+.grp .mbar{grid-area:bar}
 </style>
 </head>
 <body>
@@ -1086,16 +1092,18 @@ const G = {};
 G.en = {
   map: {
     title: "The economy", role: "Staff briefing", rateChip: "Policy rate", hudBtn: "Economy map",
-    layers: { prices: "Prices", activity: "Activity", jobs: "Jobs", credit: "Credit" },
+    layers: { prices: "Prices", activity: "Activity", jobs: "Jobs", credit: "Credit", public: "Public finances" },
     dist: { farms: "Farms", housing: "Housing", shops: "Shops & services", finance: "Financial district", industry: "Industry & port", energy: "Energy", gov: "Bank & Palace" },
     sub: { housing: "House prices, a year", shops: "Lending growth", industry: "Lending growth", finance: "Bank health" },
+    pub: { gov: "Public debt", shops: "Budget deficit", finance: "Risk premium", housing: "Mortgage rate" },
     cat: { food: "Food", energy: "Energy", housing: "Housing", goods: "Goods", services: "Services" },
     secName: { farms: "Farming", construction: "Construction", industry: "Industry", shops: "Retail and services", finance: "Finance" },
     legend: {
       prices: [["cold", "below 1%"], ["good", "1–3%"], ["warn", "3–5%"], ["bad", "above 5%"]],
       activity: [["bad", "deep slump or overheating"], ["warn", "slack or running hot"], ["good", "close to normal"]],
       jobs: [["good", "unemployment below 5%"], ["warn", "5–6.5%"], ["bad", "above 6.5%"]],
-      credit: [["good", "healthy"], ["warn", "slow or frothy"], ["bad", "crunch, bust or boom"]]
+      credit: [["good", "healthy"], ["warn", "slow or frothy"], ["bad", "crunch, bust or boom"]],
+      public: [["good", "comfortable"], ["warn", "getting expensive"], ["bad", "the Treasury is squeezed"]]
     },
     drivers: (c, v) => `${c} is driving inflation, running at ${v}.`,
     drag: (c, v) => `${c} prices are holding inflation down, at ${v}.`,
@@ -1191,13 +1199,17 @@ G.en = {
     q_rift: ["Governor, is the Palace about to remove you?", ["I serve under the law, not at the Palace's pleasure.", "The President and I work very well together.", "Ask the President."]],
     q_generic: ["Are you done moving rates?", ["Nothing is pre-set. We react to the data.", "Households can relax — the worst is over.", "Ask me next quarter."]]
   },
-  whyExtra: { presser: "Press conference answer", qe: "Large asset purchases with inflation high", outvoted: "Outvoted by your own board", divided: "A divided board (3–2)", united: "A united board", macro: "Stricter mortgage rules annoy buyers", lastReserves: "Spending the last of the reserves" },
+  qt: { label: "Bond holdings", off: ["Hold them", "let the portfolio run"], on: ["Sell some", "drain the money you created"],
+    tip: v => `The Bank still holds ${v} rounds of bond purchases. Selling raises long rates, cools demand and shows the Treasury it cannot count on you.` },
+  groups: { title: "Who felt it", savers: "Savers", borrowers: "Borrowers", workers: "Workers", retirees: "Retirees",
+    tip: "Every decision helps some households and hurts others. When a group turns really angry, the street does too, and the government looks for someone to blame." },
+  whyExtra: { presser: "Press conference answer", qe: "Large asset purchases with inflation high", qt: "Selling bonds back into the market", dominance: "Debt so high that people expect it to be inflated away", outvoted: "Outvoted by your own board", divided: "A divided board (3–2)", united: "A united board", macro: "Stricter mortgage rules annoy buyers", lastReserves: "Spending the last of the reserves" },
   qeLabel: "Asset purchases", qeOnly: "Available only when the policy rate is near its floor.",
   qe: [["None", "no purchases"], ["Moderate", "buy bonds, ease conditions"], ["Large", "flood the market"]],
   qeTip: "With the policy rate near its floor, buying government bonds pushes long yields down and supports demand — but it looks like financing the Treasury if inflation is high.",
   qeSpeech: ["", "We will also buy government bonds to ease financial conditions.", "We are launching a large-scale asset purchase programme."],
   crashNews: ["Markets in free fall as investors flee", "Stocks have lost a fifth of their value from the peak. Banks are hoarding cash and the phones at the Bank have not stopped ringing."],
-  heatWhy: { qe: "Asset purchases pleased the Treasury", crash: "Your answer to the market crash", drift: "Tempers cool (or simmer) over time", resisted: "You resisted the President's pressure", caved: "You gave the President what he wanted", defied: "You hiked while the President demanded cuts", dilemma: "Your answer on the desk item", presser: "Press conference answer", unpopular: "An unpopular government looks for a scapegoat", election: "Re-election eased the pressure", newGov: "A new government wipes the slate", truce: "The truce offer" },
+  heatWhy: { qe: "Asset purchases pleased the Treasury", qt: "Selling bonds raises the Treasury's costs", treasury: "Expensive debt: the Treasury wants lower rates", street: "Angry households on the street", crash: "Your answer to the market crash", drift: "Tempers cool (or simmer) over time", resisted: "You resisted the President's pressure", caved: "You gave the President what he wanted", defied: "You hiked while the President demanded cuts", dilemma: "Your answer on the desk item", presser: "Press conference answer", unpopular: "An unpopular government looks for a scapegoat", election: "Re-election eased the pressure", newGov: "A new government wipes the slate", truce: "The truce offer" },
   warnHeat: h => `Removal risk at ${h}. Above 80 with popularity under 35 — or at 100 — the government replaces you.`,
   threatFin: ["Between us: the President has asked the legal team how a Governor can be removed. Give him something.", "The removal decree is drafted. One more clash and he signs it."],
   pressRift: "Sources: Palace and Bank on collision course",
@@ -1244,9 +1256,9 @@ G.en = {
     + (tone === "hawkish" ? ", vows to beat inflation" : tone === "dovish" ? ", signals more support ahead" : ", says the data will decide"),
   resultTitle: "The fallout", streak: n => `On target ×${n}`,
   electionNight: "Election night", voteShare: "Government vote share", toWin: "50% to win",
-  hud: { infl: "Inflation", gap: "Output gap", rate: "Policy rate", cred: "Credibility", pop: "Popularity", charts: "Charts", menu: "Pause", jobs: "Unemployment", heat: "Removal risk", stocks: "Stock index", world: "world", y10: "10-year", reserves: "Reserves", months: "months" },
+  hud: { infl: "Inflation", gap: "Output gap", rate: "Policy rate", cred: "Credibility", pop: "Popularity", charts: "Charts", menu: "Pause", jobs: "Unemployment", heat: "Removal risk", stocks: "Stock index", world: "world", y10: "10-year", reserves: "Reserves", months: "months", debt: "Public debt" },
   chartsTitle: "Economic monitor", close: "Close",
-  chart: { infl: "Inflation", gap: "Output gap", rate: "Policy rate", pol: "Credibility & popularity", exp: "expected", cred: "credibility", pop: "popularity", target: "target", heat: "removal risk", mkt: "Stocks and currency", eq: "stocks", fx: "currency", y10: "10-year yield", first: "first estimate", world: "world rate", fin: "Credit gap and reserves", lev: "credit gap, points", resv: "reserves, months" },
+  chart: { infl: "Inflation", gap: "Output gap", rate: "Policy rate", pol: "Credibility & popularity", exp: "expected", cred: "credibility", pop: "popularity", target: "target", heat: "removal risk", mkt: "Stocks and currency", eq: "stocks", fx: "currency", y10: "10-year yield", first: "first estimate", world: "world rate", fin: "Credit gap and reserves", lev: "credit gap, points", resv: "reserves, months", fisc: "Public debt", debt: "debt, % of GDP", interest: "interest bill, % of GDP" },
   electionMark: "election",
   paused: "Paused", resume: "Resume", restart: "Restart level", quit: "Level select", toTitle: "Title screen",
   codeLine: c => `Shock code: ${c}`,
@@ -1374,16 +1386,18 @@ G.en = {
 G.es = {
   map: {
     title: "La economía", role: "Informe del staff", rateChip: "Tasa de política", hudBtn: "Mapa de la economía",
-    layers: { prices: "Precios", activity: "Actividad", jobs: "Empleo", credit: "Crédito" },
+    layers: { prices: "Precios", activity: "Actividad", jobs: "Empleo", credit: "Crédito", public: "Cuentas públicas" },
     dist: { farms: "Campo", housing: "Vivienda", shops: "Comercio y servicios", finance: "Distrito financiero", industry: "Industria y puerto", energy: "Energía", gov: "Banco y Palacio" },
     sub: { housing: "Precio de viviendas, anual", shops: "Crecimiento del crédito", industry: "Crecimiento del crédito", finance: "Salud bancaria" },
+    pub: { gov: "Deuda pública", shops: "Déficit fiscal", finance: "Prima de riesgo", housing: "Tasa hipotecaria" },
     cat: { food: "Alimentos", energy: "Energía", housing: "Vivienda", goods: "Bienes", services: "Servicios" },
     secName: { farms: "El agro", construction: "La construcción", industry: "La industria", shops: "El comercio y los servicios", finance: "Las finanzas" },
     legend: {
       prices: [["cold", "menos de 1%"], ["good", "1–3%"], ["warn", "3–5%"], ["bad", "más de 5%"]],
       activity: [["bad", "recesión profunda o recalentamiento"], ["warn", "holgura o ritmo alto"], ["good", "cerca de lo normal"]],
       jobs: [["good", "desempleo bajo 5%"], ["warn", "5–6,5%"], ["bad", "más de 6,5%"]],
-      credit: [["good", "sano"], ["warn", "lento o espumoso"], ["bad", "sequía, desplome o burbuja"]]
+      credit: [["good", "sano"], ["warn", "lento o espumoso"], ["bad", "sequía, desplome o burbuja"]],
+      public: [["good", "cómodas"], ["warn", "se encarecen"], ["bad", "el Tesoro está ahogado"]]
     },
     drivers: (c, v) => `${c} empuja la inflación: corre a ${v}.`,
     drag: (c, v) => `Los precios de ${c.toLowerCase()} contienen la inflación, en ${v}.`,
@@ -1479,13 +1493,17 @@ G.es = {
     q_rift: ["¿El Palacio está por destituirlo?", ["Sirvo bajo la ley, no al gusto del Palacio.", "El Presidente y yo trabajamos muy bien juntos.", "Pregúntele al Presidente."]],
     q_generic: ["¿Terminó de mover la tasa?", ["Nada está predefinido. Reaccionamos a los datos.", "Los hogares pueden relajarse: lo peor ya pasó.", "Pregúnteme el próximo trimestre."]]
   },
-  whyExtra: { presser: "Respuesta en la conferencia de prensa", qe: "Compras masivas de activos con inflación alta", outvoted: "Tu propio directorio te derrotó", divided: "Un directorio dividido (3–2)", united: "Un directorio unido", macro: "Las reglas hipotecarias estrictas molestan a los compradores", lastReserves: "Gastar las últimas reservas" },
+  qt: { label: "Cartera de bonos", off: ["Mantenerla", "dejar correr la cartera"], on: ["Vender parte", "retirar el dinero que creaste"],
+    tip: v => `El Banco todavía tiene ${v} rondas de compras de bonos. Venderlas sube las tasas largas, enfría la demanda y le muestra al Tesoro que no puede contar contigo.` },
+  groups: { title: "Quién lo sintió", savers: "Ahorristas", borrowers: "Deudores", workers: "Trabajadores", retirees: "Jubilados",
+    tip: "Cada decisión ayuda a unos hogares y perjudica a otros. Cuando un grupo se enoja de verdad, la calle también, y el gobierno busca a quién culpar." },
+  whyExtra: { presser: "Respuesta en la conferencia de prensa", qe: "Compras masivas de activos con inflación alta", qt: "Vender bonos de vuelta al mercado", dominance: "Deuda tan alta que la gente espera que se licue con inflación", outvoted: "Tu propio directorio te derrotó", divided: "Un directorio dividido (3–2)", united: "Un directorio unido", macro: "Las reglas hipotecarias estrictas molestan a los compradores", lastReserves: "Gastar las últimas reservas" },
   qeLabel: "Compra de activos", qeOnly: "Disponible solo cuando la tasa está cerca de su piso.",
   qe: [["Ninguna", "sin compras"], ["Moderada", "comprar bonos, aflojar condiciones"], ["Grande", "inundar el mercado"]],
   qeTip: "Con la tasa cerca de su piso, comprar bonos del gobierno baja las tasas largas y sostiene la demanda — pero parece financiar al Tesoro si la inflación es alta.",
   qeSpeech: ["", "También compraremos bonos del gobierno para aflojar las condiciones financieras.", "Lanzamos un programa de compra de activos a gran escala."],
   crashNews: ["Los mercados se derrumban y los inversores huyen", "La bolsa perdió un quinto de su valor desde el máximo. Los bancos acaparan efectivo y en el Banco no paran de sonar los teléfonos."],
-  heatWhy: { qe: "Las compras de activos le gustaron al Tesoro", crash: "Tu respuesta al desplome de los mercados", drift: "Los ánimos se calman (o se caldean) con el tiempo", resisted: "Resististe la presión del Presidente", caved: "Le diste al Presidente lo que pedía", defied: "Subiste la tasa mientras el Presidente exigía bajas", dilemma: "Tu respuesta al tema del escritorio", presser: "Respuesta en la conferencia de prensa", unpopular: "Un gobierno impopular busca un chivo expiatorio", election: "La reelección alivió la presión", newGov: "Un nuevo gobierno borra la pizarra", truce: "La oferta de tregua" },
+  heatWhy: { qe: "Las compras de activos le gustaron al Tesoro", qt: "Vender bonos encarece al Tesoro", treasury: "Deuda cara: el Tesoro quiere tasas más bajas", street: "Hogares enojados en la calle", crash: "Tu respuesta al desplome de los mercados", drift: "Los ánimos se calman (o se caldean) con el tiempo", resisted: "Resististe la presión del Presidente", caved: "Le diste al Presidente lo que pedía", defied: "Subiste la tasa mientras el Presidente exigía bajas", dilemma: "Tu respuesta al tema del escritorio", presser: "Respuesta en la conferencia de prensa", unpopular: "Un gobierno impopular busca un chivo expiatorio", election: "La reelección alivió la presión", newGov: "Un nuevo gobierno borra la pizarra", truce: "La oferta de tregua" },
   warnHeat: h => `Riesgo de destitución en ${h}. Sobre 80 con popularidad bajo 35 — o en 100 — el gobierno te reemplaza.`,
   threatFin: ["Entre nosotros: el Presidente le preguntó al equipo legal cómo se destituye a la autoridad del Banco. Dele algo.", "El decreto de destitución ya está redactado. Un choque más y lo firma."],
   pressRift: "Fuentes: Palacio y Banco en rumbo de colisión",
@@ -1532,9 +1550,9 @@ G.es = {
     + (tone === "hawkish" ? " y promete vencer a la inflación" : tone === "dovish" ? " y anticipa más apoyo" : " y dice que decidirán los datos"),
   resultTitle: "Las consecuencias", streak: n => `En meta ×${n}`,
   electionNight: "Noche electoral", voteShare: "Votos del gobierno", toWin: "50% para ganar",
-  hud: { infl: "Inflación", gap: "Brecha", rate: "Tasa", cred: "Credibilidad", pop: "Popularidad", charts: "Gráficos", menu: "Pausa", jobs: "Desempleo", heat: "Riesgo de destitución", stocks: "Bolsa", world: "mundo", y10: "10 años", reserves: "Reservas", months: "meses" },
+  hud: { infl: "Inflación", gap: "Brecha", rate: "Tasa", cred: "Credibilidad", pop: "Popularidad", charts: "Gráficos", menu: "Pausa", jobs: "Desempleo", heat: "Riesgo de destitución", stocks: "Bolsa", world: "mundo", y10: "10 años", reserves: "Reservas", months: "meses", debt: "Deuda pública" },
   chartsTitle: "Monitor económico", close: "Cerrar",
-  chart: { infl: "Inflación", gap: "Brecha del producto", rate: "Tasa de política", pol: "Credibilidad y popularidad", exp: "esperada", cred: "credibilidad", pop: "popularidad", target: "meta", heat: "riesgo de destitución", mkt: "Bolsa y moneda", eq: "bolsa", fx: "moneda", y10: "bono a 10 años", first: "primera estimación", world: "tasa mundial", fin: "Brecha de crédito y reservas", lev: "brecha de crédito, puntos", resv: "reservas, meses" },
+  chart: { infl: "Inflación", gap: "Brecha del producto", rate: "Tasa de política", pol: "Credibilidad y popularidad", exp: "esperada", cred: "credibilidad", pop: "popularidad", target: "meta", heat: "riesgo de destitución", mkt: "Bolsa y moneda", eq: "bolsa", fx: "moneda", y10: "bono a 10 años", first: "primera estimación", world: "tasa mundial", fin: "Brecha de crédito y reservas", lev: "brecha de crédito, puntos", resv: "reservas, meses", fisc: "Deuda pública", debt: "deuda, % del PIB", interest: "intereses, % del PIB" },
   electionMark: "elección",
   paused: "Pausa", resume: "Seguir jugando", restart: "Reiniciar nivel", quit: "Elegir nivel", toTitle: "Pantalla de inicio",
   codeLine: c => `Código de shocks: ${c}`,
@@ -1687,6 +1705,10 @@ Object.assign(G.en, {
       react: "Markets price the surprise, not the move. If they expected a hike and you hiked, little happens. A surprise moves the currency, [[yield10|bond yields]] and stocks.",
       ledger: "This ledger shows exactly why [[credibility|credibility]], popularity and removal risk moved. Credibility is your most valuable asset: it keeps expectations anchored near 2%.",
       heat: "Your [[heat|removal risk]] is climbing. At 100 you are fired. Cooperating lowers it but costs credibility: the classic dilemma of central bank [[independence|independence]].",
+      qt: "The Bank still owns the bonds it bought in the emergency. Selling them back ([[qt|quantitative tightening]]) drains money, lifts long rates and raises the Treasury's costs, which the government will feel.",
+      groups: "One rate, four different households. Savers like high real rates, borrowers hate them, workers care about jobs, retirees about inflation. There is no decision that pleases everyone.",
+      debt: "Public debt is high enough to matter for you. Every point you add to the rate raises the Treasury's interest bill, and a government with expensive debt pushes hard for cuts. Watch the Public finances layer of the map.",
+      dominance: "This is [[fiscalDominance|fiscal dominance]]: debt so high, and trust so thin, that people expect the Bank to inflate it away. Expectations drift up on their own, and only credibility brings them back.",
       credit: "Cheap money is fuelling a credit boom (see the [[creditGap|credit gap]]). Booms can end in a bust that hits banks and spending. Watch the Credit layer of the map."
     }
   },
@@ -1718,6 +1740,9 @@ Object.assign(G.en, {
       revision: ["Data revision", "Official statistics are estimated fast and corrected later as more information arrives. The Bank must decide on numbers that may turn out to be wrong."],
       fanChart: ["Fan chart", "A forecast drawn as a widening band: the central line is the most likely path, the shaded fan shows the range of plausible outcomes. Popularised by the Bank of England."],
       heat: ["Removal risk", "In the game, how close the government is to firing you. Real governors are rarely fired, but political pressure on central banks is very real."],
+      primaryBalance: ["Primary balance", "The government's budget before interest payments. Debt stops growing when the primary surplus covers the gap between the interest rate on the debt and the economy's growth rate."],
+      sovereignSpread: ["Risk premium", "The extra interest a government pays because investors doubt it will repay comfortably. It rises with debt, and it passes straight into mortgage and business borrowing costs."],
+      qt: ["Quantitative tightening", "The reverse of [[qe|asset purchases]]: the central bank lets its bonds mature or sells them, draining the money it created. It lifts long-term rates and raises the Treasury's funding costs."],
       yield10: ["10-year bond yield", "The interest rate on long-term government debt. It reflects expected future policy rates plus a risk premium, and it sets mortgage and business borrowing costs."]
     }
   },
@@ -1779,6 +1804,10 @@ Object.assign(G.es, {
       react: "Los mercados valoran la sorpresa, no la decisión. Si esperaban una suba y subiste, pasa poco. Una sorpresa mueve la moneda, los [[yield10|bonos]] y las acciones.",
       ledger: "Este balance muestra exactamente por qué se movieron la [[credibility|credibilidad]], la popularidad y el riesgo de remoción. La credibilidad es tu activo más valioso: mantiene las expectativas ancladas cerca del 2%.",
       heat: "Tu [[heat|riesgo de remoción]] sube. En 100 te despiden. Cooperar lo baja pero cuesta credibilidad: el dilema clásico de la [[independence|independencia]] del banco central.",
+      qt: "El Banco todavía tiene los bonos que compró en la emergencia. Venderlos ([[qt|ajuste cuantitativo]]) retira dinero, sube las tasas largas y encarece al Tesoro, algo que el gobierno va a sentir.",
+      groups: "Una sola tasa, cuatro hogares distintos. A los ahorristas les gustan las tasas reales altas, a los deudores las detestan, a los trabajadores les importa el empleo y a los jubilados la inflación. No hay decisión que deje contentos a todos.",
+      debt: "La deuda pública ya es lo bastante alta como para importarte. Cada punto que subes la tasa encarece los intereses del Tesoro, y un gobierno con deuda cara presiona fuerte por bajas. Mira la capa Cuentas públicas del mapa.",
+      dominance: "Esto es [[fiscalDominance|dominancia fiscal]]: deuda tan alta, y confianza tan escasa, que la gente espera que el Banco la licue con inflación. Las expectativas suben solas y solo la credibilidad las vuelve a anclar.",
       credit: "El dinero barato alimenta un auge de crédito (mira la [[creditGap|brecha de crédito]]). Los auges pueden terminar en una crisis que golpea a los bancos y al gasto. Vigila la capa Crédito del mapa."
     }
   },
@@ -1810,6 +1839,9 @@ Object.assign(G.es, {
       revision: ["Revisión de datos", "Las estadísticas oficiales se estiman rápido y se corrigen después, al llegar más información. El Banco debe decidir con números que pueden resultar equivocados."],
       fanChart: ["Gráfico de abanico", "Un pronóstico dibujado como una banda que se ensancha: la línea central es el camino más probable y el abanico sombreado muestra el rango de resultados posibles. Lo popularizó el Banco de Inglaterra."],
       heat: ["Riesgo de remoción", "En el juego, cuán cerca está el gobierno de despedirte. En la realidad rara vez se despide a una autoridad monetaria, pero la presión política sobre los bancos centrales es muy real."],
+      primaryBalance: ["Resultado primario", "El presupuesto del gobierno antes de pagar intereses. La deuda deja de crecer cuando el superávit primario cubre la diferencia entre la tasa de interés de la deuda y el crecimiento de la economía."],
+      sovereignSpread: ["Prima de riesgo", "El interés adicional que paga un gobierno porque los inversores dudan de que pueda pagar con comodidad. Sube con la deuda y se traslada directo al costo de las hipotecas y del crédito a empresas."],
+      qt: ["Ajuste cuantitativo (QT)", "Lo contrario de las [[qe|compras de activos]]: el banco central deja vencer o vende sus bonos y retira el dinero que creó. Sube las tasas largas y encarece el financiamiento del Tesoro."],
       yield10: ["Rendimiento del bono a 10 años", "La tasa de interés de la deuda pública de largo plazo. Refleja las tasas de política esperadas más una prima de riesgo, y determina el costo de las hipotecas y del crédito a empresas."]
     }
   },
@@ -2148,7 +2180,18 @@ const PROPS = {
 };
 
 /* ═══════════════ ICONS ═══════════════ */
+const GRP_ICON = (() => {
+  const w = 'fill="none" stroke="#EEF1F7" stroke-opacity=".85" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"';
+  const wrap = inner => `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">${inner}</svg>`;
+  return {
+    savers: wrap(`<path d="M4 9h16v9H4z" ${w}/><path d="M8 9V6h8v3M12 12v3" ${w}/>`),                      // a safe box
+    borrowers: wrap(`<path d="M4 12l8-7 8 7" ${w}/><path d="M6.5 11v8h11v-8" ${w}/>`),                     // a house
+    workers: wrap(`<path d="M5 20v-3a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v3" ${w}/><circle cx="12" cy="7" r="3.2" ${w}/>`),
+    retirees: wrap(`<path d="M8 20l2-9M16 20l-2-9" ${w}/><circle cx="12" cy="6" r="2.6" ${w}/><path d="M18 11v9" ${w}/>`)
+  };
+})();
 const ICON = {
+  grp: GRP_ICON,
   map: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5l6-2.5 6 2.5 6-2.5v13.5l-6 2.5-6-2.5-6 2.5z M9 4v13.5 M15 6.5V20"/></svg>`,
   chart: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg>`,
   pause: `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>`,
@@ -2257,10 +2300,17 @@ const MAP_LAYERS = {
   prices:   { farms: E => E.cat.food, housing: E => E.cat.housing, shops: E => E.cat.services, industry: E => E.cat.goods, energy: E => E.cat.energy },
   activity: { farms: E => E.sec.farms, housing: E => E.sec.construction, shops: E => E.sec.shops, industry: E => E.sec.industry, energy: E => E.sec.industry, finance: E => E.sec.finance },
   jobs:     { farms: E => E.jobs.farms, housing: E => E.jobs.construction, shops: E => E.jobs.shops, industry: E => E.jobs.industry, energy: E => E.jobs.industry, finance: E => E.jobs.finance },
-  credit:   { housing: E => E.hpYoY, shops: E => E.credit, industry: E => E.credit, finance: E => E.bank }
+  credit:   { housing: E => E.hpYoY, shops: E => E.credit, industry: E => E.credit, finance: E => E.bank },
+  public:   { gov: E => E.debt, shops: E => E.deficit, finance: E => E.spread, housing: E => E.mortgage }
 };
 function mapTone(layer, key, v) {
   if (v == null) return "none";
+  if (layer === "public") {
+    if (key === "gov") return v < 60 ? "good" : v < 90 ? "warn" : "bad";
+    if (key === "shops") return v < 3 ? "good" : v < 6 ? "warn" : "bad";                 // the deficit
+    if (key === "finance") return v < 50 ? "good" : v < 150 ? "warn" : "bad";            // the risk premium, in basis points
+    return v < 4 ? "good" : v < 6 ? "warn" : "bad";                                      // what a mortgage costs
+  }
   if (layer === "prices") return v < 1 ? "cold" : v <= 3 ? "good" : v <= 5 ? "warn" : "bad";
   if (layer === "activity") return v < -2.5 || v > 3 ? "bad" : v < -1 || v > 1.5 ? "warn" : "good";
   if (layer === "jobs") return v < 5 ? "good" : v < 6.5 ? "warn" : "bad";
@@ -2268,6 +2318,7 @@ function mapTone(layer, key, v) {
   return v < 0 ? "bad" : v < 3 ? "warn" : v <= 10 ? "good" : v <= 14 ? "warn" : "bad";   // lending and house prices
 }
 function mapFmt(layer, key, v) {
+  if (layer === "public") return key === "gov" ? `${Math.round(v)}%` : key === "finance" ? `${Math.round(v)} bp` : pc(v, 1);
   if (layer === "prices" || layer === "jobs") return pc(v, 1);
   if (layer === "activity") return `${sgn(v, 1)}%`;
   return key === "finance" ? String(Math.round(v)) : `${sgn(v, 0)}%`;
@@ -2300,6 +2351,8 @@ function mapIcons(E) {
   o += `<path d="M660 268 V246 H690 V268 Z M662 246 C 662 230 688 230 688 246" fill="#E9E1CC" opacity=".45"/><path d="M675 232 V222 H684 V228 H675" fill="#E5484D" opacity=".8"/>`;
   return o;
 }
+// District labels change with the layer: lending growth on the credit layer, the deficit on the public one.
+const layerName = (gm, layer, key) => (layer === "credit" ? gm.sub[key] : layer === "public" ? gm.pub[key] : null);
 function mapSVG(s, E, layer) {
   const L = MAP_LAYERS[layer], gm = g().map;
   let o = `<svg viewBox="0 0 800 380" role="img" aria-label="${esc(gm.title + ": " + gm.layers[layer])}">
@@ -2314,10 +2367,11 @@ function mapSVG(s, E, layer) {
   }
   o += mapIcons(E);
   for (const [key, dd] of Object.entries(DISTRICTS)) {
-    const f = L[key], v = key === "gov" ? s.i : f ? f(E) : null;
+    const gov = key === "gov", pub = layer === "public";
+    const f = L[key], v = gov && !pub ? s.i : f ? f(E) : null;
     if (v == null) continue;                                     // no reading on this layer: leave the district unlabelled
-    const tone = key === "gov" ? "none" : mapTone(layer, key, v), val = key === "gov" ? pc(s.i) : v == null ? "—" : mapFmt(layer, key, v);
-    const name = layer === "credit" && gm.sub[key] ? gm.sub[key] : key === "gov" ? gm.rateChip : gm.dist[key];
+    const tone = gov && !pub ? "none" : mapTone(layer, key, v), val = gov && !pub ? pc(s.i) : mapFmt(layer, key, v);
+    const name = layerName(gm, layer, key) || (gov ? gm.rateChip : gm.dist[key]);
     const [cx, cy] = dd.chip, wd = Math.max(96, 7.2 * name.length + 14);
     o += `<g transform="translate(${cx - wd / 2} ${cy - 24})"><rect width="${wd}" height="42" rx="9" fill="#0B1222" fill-opacity=".9" stroke="${MAP_TONE[tone]}" stroke-width="2"/>
       <text x="${wd / 2}" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#9AA4BD" font-family="Archivo, sans-serif">${esc(name)}</text>
@@ -2343,9 +2397,9 @@ function mapSummary(s, E) {
 }
 function mapHTML(s, layer) {
   const E = econDetail(s), gm = g().map, L = MAP_LAYERS[layer];
-  const list = Object.keys(DISTRICTS).filter(k => k !== "gov" && L[k]).map(k => {
+  const list = Object.keys(DISTRICTS).filter(k => (k !== "gov" || layer === "public") && L[k]).map(k => {
     const v = L[k](E), tone = mapTone(layer, k, v);
-    return `<span class="emap-item" style="--c:${MAP_TONE[tone]}"><b>${esc(mapFmt(layer, k, v))}</b>${esc(layer === "credit" && gm.sub[k] ? gm.sub[k] : gm.dist[k])}</span>`;
+    return `<span class="emap-item" style="--c:${MAP_TONE[tone]}"><b>${esc(mapFmt(layer, k, v))}</b>${esc(layerName(gm, layer, k) || gm.dist[k])}</span>`;
   }).join("");
   return `<div class="emap" data-map="${layer}">
     <div class="emap-tabs" role="group">${Object.keys(MAP_LAYERS).map(k => `<button data-layer="${k}" aria-pressed="${k === layer}">${esc(gm.layers[k])}</button>`).join("")}</div>
@@ -2420,7 +2474,8 @@ function finStep(s, n, prep, inp, sc, t, gdT, qe, ext = {}) {
   const fxRet = 1.6 * h + 25 * dcred - 0.3 * (n.pi - s.pi) - 1.2 * qe.eq
     + 1.0 * ((n.i - iwNow) - (s.i - iwPrev)) - (em ? 1.0 * Math.max(0, iwNow - iwPrev) : 0) + (ext.fxI || 0) - (ext.ss ? 9 : 0);
   const yTarget = 1 + n.pe + 0.4 * (n.i - 1 - n.pi) + 3 * (0.8 - n.cred) + 0.015 * n.heat - qe.y
-    + (em ? 0.35 : 0.25) * (iwNow - iw0) + (ext.ss ? 1.2 : 0);                             // world rates spill into long yields
+    + (em ? 0.35 : 0.25) * (iwNow - iw0) + (ext.ss ? 1.2 : 0)
+    + (ext.sov || 0) - 0.06 * (ext.qeStock || 0);                                          // world rates and the Treasury's own risk premium
   const eq = Math.max(20, s.eq * (1 + eqRet / 100)), fx = Math.max(30, s.fx * (1 + fxRet / 100));
   const eqA = s.eqA * EQ_TREND + 0.25 * (eq - s.eqA * EQ_TREND), fxA = s.fxA + 0.25 * (fx - s.fxA);
   return { eq, fx, eqA, fxA, y10: clamp(s.y10 + 0.55 * (yTarget - s.y10) + 0.35 * h, 0.1, 18),
@@ -2458,7 +2513,7 @@ function econDetail(s) {
   const gm = Object.keys(SEC_W).reduce((a, k) => a + SEC_W[k] * gap[k], 0), sec = {}, jobs = {};
   for (const k in SEC_W) { sec[k] = s.x + gap[k] - gm; jobs[k] = Math.max(1, SEC_U[k] - 0.5 * sec[k]); }
   const dd = drawdown(s);
-  return { cat, sec, jobs, fxDev, eqGap, hpYoY: 4 * (s.hpg || 0),
+  return { cat, sec, jobs, fxDev, eqGap, hpYoY: 4 * (s.hpg || 0), debt: s.debt ?? 60, deficit: s.deficit ?? 3, spread: 100 * sovSpread(s.debt ?? 60, s.em), mortgage: (s.y10 ?? Y10_NEUTRAL) + 1.2,
     credit: s.cg ?? (6 + 1.5 * s.x - 1.2 * (s.i - 3) - 0.15 * dd + 0.3 * (s.hpg || 0)), lev: s.lev || 0, bankCap: s.bankCap ?? 100,
     bank: clamp((s.bankCap ?? 100) - 20 - 1.2 * dd - 6 * Math.max(0, y - 5) - 4 * Math.max(0, -s.x - 1) + 40 * ((s.cred || 0.8) - 0.75) + (s.macro ? 8 : 0) + 5 * ((s.dept || {}).supervision || 0), 5, 100) };
 }
@@ -2604,11 +2659,16 @@ const TRUCE = [{ cred: 0.02, heat: 5 }, { cred: -0.05, pop: 2, heat: -25 }];
 const GD = { truce: TRUCE, crash: CRASH };
 const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false, catP: {}, hp: 100, hpg: 0.8, dept: sc.dept0 ? Object.assign(initDept(), sc.dept0) : initDept(), points: sc.points0 ?? BUDGET_START, board: BOARD0.slice(),
   Lm: 0, lam: (MANDATE[sc.mandate] || MANDATE.price).lam, mandate: sc.mandate || "price", macro: false, fogM: 1,
-  lev: 0, cg: 6, bust: 0, bustSize: 0, bankCap: 100, reserves: sc.em ? 6 : 12, ssHit: false });
+  lev: 0, cg: 6, bust: 0, bustSize: 0, bankCap: 100, reserves: sc.em ? 6 : 12, ssHit: false,
+  debt: debtStart(sc), ri: 3, prim: PRIM0, interest: 1.8, deficit: 2.8, qeStock: 0, grp: { savers: 50, borrowers: 50, workers: 50, retirees: 50 } });
 function prepGame(s, sc) {
   const p = prepare(seenOf(s, sc, s.t), sc), dept = s.dept || initDept();   // advisors, the government and the press all read the published data
   p.gd = p.dilemma ? null : drawdown(s) >= CRASH_DD + 4 * dept.supervision && !s.crashUsed ? "crash" : s.heat >= 55 ? "truce" : null;
+  const LIM = debtLim(sc.em), debtNow = s.debt ?? debtStart(sc);
+  if (debtNow >= LIM.heat && s.i > 3.5) { p.pressure = "cut"; p.level = Math.min(3, (p.pressure === "cut" ? p.level : 0) + 1); }   // a stretched Treasury wants cheaper funding
+  p.debtPress = debtNow >= LIM.heat;
   p.qe = s.i <= QE_RATE;
+  p.qt = !p.qe && (s.qeStock || 0) >= 1;
   p.budget = budgetQuarter(p.t); p.canMacro = dept.supervision >= 2;
   p.fxTool = !!sc.em || dept.markets >= 2; p.bustNow = s.bust === 3; p.ssLast = !!s.ssHit;
   return p;
@@ -2624,7 +2684,8 @@ function stepGame(s, sc, prep, inp) {
   inp = Object.assign({}, inp, { move: vote && !vote.passed ? vote.implemented : inp.move, toneK: TONEK[dept.comms],
     hDamp: 1 - 0.1 * dept.markets, eqDamp: 1 - 0.15 * dept.supervision - (macro ? 0.15 : 0) });
   const gdT = prep.gd && inp.choice != null ? GD[prep.gd][inp.choice] || {} : {};
-  const q0 = QE[(prep.qe ? inp.qe : 0) || 0], qe = Object.assign({}, q0, { d: q0.d * QEK[dept.markets], y: q0.y * QEK[dept.markets] }), ff = finFeed(s, sc);
+  const doQT = !!inp.qt && prep.qt;
+  const q0 = doQT ? QT : QE[(prep.qe ? inp.qe : 0) || 0], qe = Object.assign({}, q0, { d: q0.d * QEK[dept.markets], y: q0.y * QEK[dept.markets] }), ff = finFeed(s, sc);
   const dSave = sc.d[t], sSave = sc.s[t];                       // financial conditions enter as demand and price shocks
   sc.d[t] = dSave + ff.d + (gdT.d || 0) + qe.d - (macro ? 0.15 : 0) - (ss ? 0.4 : 0);
   sc.s[t] = sSave + ff.s + qe.s;
@@ -2643,8 +2704,8 @@ function stepGame(s, sc, prep, inp) {
   n.lam = md.lam; n.Lm = (s.Lm || 0) + (n.pi - 2) ** 2 + md.lam * n.x ** 2; n.mandate = sc.mandate || "price";
   if (inp.qa != null) { const e = qaEffect(s, prep, inp); bump(e.cred, e.pop, "presser"); const h = (QA_HEAT[qaId(s, prep, inp)] || [])[inp.qa]; if (h) hp.push(["presser", h]); }
   if (prep.gd && inp.choice != null) { bump(gdT.cred, gdT.pop, "dilemma"); if (gdT.heat) hp.push([prep.gd, gdT.heat]); }
-  if (qe.cred) bump(n.pi > 3 ? qe.cred : qe.cred * 0.3, 0, "qe");
-  if (qe.heat) hp.push(["qe", qe.heat]);
+  if (qe.cred) bump(doQT ? (n.pi > 3 ? qe.cred : qe.cred * 0.5) : n.pi > 3 ? qe.cred : qe.cred * 0.3, 0, doQT ? "qt" : "qe");
+  if (qe.heat) hp.push([doQT ? "qt" : "qe", qe.heat]);
   if (vote) { if (!vote.passed) bump(-0.04, 0, "outvoted"); else if (vote.no >= 2) bump(-0.01, 0, "divided"); else if (vote.no === 0) bump(0.005, 0, "united"); }
   if (macro) bump(0, -0.5, "macro");
   hp.push(["drift", ((s.pop >= 50 ? 10 : 20) + md.heat - s.heat) * 0.2]);
@@ -2669,7 +2730,8 @@ function stepGame(s, sc, prep, inp) {
   n.bust = bustOnset ? 3 : Math.max(0, (s.bust || 0) - 1); n.bustSize = bustOnset ? 0.9 + 0.08 * lev : s.bustSize || 0;
   const FXI = { "-1": [-1.5, 0.8], 0: [0, 0], 1: [2.2, -1], 2: [4, -2] }[fxL] || [0, 0], resv0 = s.reserves ?? (sc.em ? 6 : 12);
   if (fxL > 0 && resv0 < 3) bump(-0.02, 0, "lastReserves");
-  Object.assign(n, finStep(s, n, prep, inp, sc, t, gdT, qe, { fxI: FXI[0] * (1 + 0.15 * dept.markets), ss, bustOnset, iwNow, iwPrev }));
+  const sov = sovSpread(s.debt ?? debtStart(sc), sc.em);
+  Object.assign(n, finStep(s, n, prep, inp, sc, t, gdT, qe, { fxI: FXI[0] * (1 + 0.15 * dept.markets), ss, bustOnset, iwNow, iwPrev, sov, qeStock: s.qeStock || 0 }));
   n.bankCap = clamp(cap0 + (n.x > -1 ? 1.5 : 0.5) - 20 * Math.max(0, n.y10 - s.y10 - 0.5) - bankLoss, 30, 130);   // profits rebuild capital; busts and bond losses eat it
   n.reserves = Math.max(0, resv0 + FXI[1] + (sc.em ? 0.1 : 0)); n.ssHit = ss;
   res.bust = bustOnset; res.ss = ss;
@@ -2692,7 +2754,25 @@ function stepGame(s, sc, prep, inp) {
   if (!n.lost && n.cred < M.credLose) n.lost = "cred";
   if (!n.lost && (n.pop < M.popFire || heat >= 100 || (heat >= 80 && n.pop < 35))) n.lost = "fired";
   if (!n.lost && ss && resv0 < 1) n.lost = "fxcrisis";                              // capital fled and there was nothing left to defend with
-  res.heatParts = hp; res.ff = ff;
+  n.qeStock = Math.max(0, (s.qeStock || 0) * 0.98 + (prep.qe ? inp.qe || 0 : 0) - (doQT ? 1 : 0));
+  const monet = prep.dilemma === "financing" && inp.choice === 1;                  // printing money for the Treasury retires debt, and costs trust
+  Object.assign(n, fiscalStep(s, n, sc, monet, bustOnset ? 3 + 0.2 * lev : 0));
+  const LIM = debtLim(sc.em);
+  if (n.debt >= LIM.dom && n.cred < 0.7) {                                        // fiscal dominance: people expect debt to be inflated away
+    const push = 0.15 + 0.5 * Math.max(0, 0.7 - n.cred);
+    n.pe = n.pe + push; n.peExtra = (n.peExtra || 0) + push;
+    bump(-0.015, 0, "dominance");
+    res.dominance = true;
+  }
+  const tHeat = n.debt >= LIM.heat && n.i > 2.5 ? clamp(0.05 * (n.debt - LIM.heat) + 1.2 * Math.max(0, n.i - 2.5), 0, 5) : 0;
+  if (tHeat) hp.push(["treasury", tHeat]);
+  n.grp = groupMood(n);
+  const angry = Object.values(n.grp).filter(v => v < 22).length;
+  if (angry) hp.push(["street", Math.min(1.5, 0.6 * angry)]);
+  n.heat = clamp(n.heat + Math.min(1.5, 0.6 * angry) + tHeat, 0, 100);
+  n.heatPeak = Math.max(n.heatPeak || 0, n.heat);
+  if (!n.lost && (n.heat >= 100 || (n.heat >= 80 && n.pop < 35))) n.lost = "fired";
+  res.heatParts = hp; res.ff = ff; res.qt = doQT;
   return res;
 }
 function ruleBoundGame(sc) {
@@ -2700,6 +2780,40 @@ function ruleBoundGame(sc) {
   while (s.t < M.turns && !s.lost) { const p = prepGame(s, sc); s = stepGame(s, sc, p, { move: p.advisors.taylor, tone: "neutral", choice: 0, qa: null, qe: p.qe && s.x < -0.5 ? 2 : 0, buy: p.budget ? ruleBuys(s) : [] }).state; }
   return s;
 }
+/*FISC-START*/
+// The Treasury: a stock of debt, what it costs to service, and the politics that follow. High debt makes the Bank's job political.
+// Where each era starts: roughly where public debt stood in 1973, 2007 and 2020. Emerging markets borrow less and pay more.
+const DEBT0 = { oil: 35, crisis: 65, pandemic: 95, random: 80, custom: 70 };
+const debtStart = sc => (sc.debt0 ?? (DEBT0[sc.key] ?? 70) * (sc.em ? 0.65 : 1));
+const DEBT_LIM = { adv: { sov: 70, heat: 85, dom: 105 }, em: { sov: 45, heat: 58, dom: 75 } };   // markets lose patience much sooner with an emerging market
+const debtLim = em => DEBT_LIM[em ? "em" : "adv"];
+const PRIM0 = -1.5;
+const sovSpread = (debt, em) => clamp(0.012 * Math.max(0, debt - debtLim(em).sov) * (em ? 2.4 : 1), 0, em ? 5 : 2.5);   // investors charge more as debt piles up
+// Debt moves with the gap between what it costs and how fast nominal income grows, plus whatever the government fails to cover.
+function fiscalStep(s, n, sc, monet, rescue) {
+  const em = !!sc.em, debt0 = s.debt ?? debtStart(sc);
+  const mkt = (n.y10 ?? Y10_NEUTRAL) - 0.12 * (n.qeStock || 0);                     // the Bank's own holdings cheapen the Treasury's funding
+  const ri = clamp((s.ri ?? 3) + 0.12 * (mkt - (s.ri ?? 3)), 0, 20);                // debt rolls over slowly, so today's yields bite for years
+  const prim = PRIM0 + 0.8 * n.x - 0.8 * (n.g - M.g0);                             // automatic stabilisers, plus what the government spends
+  const nom = clamp(400 * (n.Y / s.Y - 1) + n.pi, -20, 30);                         // nominal income growth: inflation erodes old debt
+  const debt = clamp(debt0 * (1 + (ri - nom) / 400) - prim / 4 - (monet ? 2.5 : 0) + (rescue || 0), 5, 400);   // a banking rescue lands on the Treasury
+  return { debt, ri, prim, interest: (ri * debt0) / 100, deficit: (ri * debt0) / 100 - prim, sov: sovSpread(debt0, em) };
+}
+// Four groups feel the same decision in opposite directions. Angry households end up on the street, and the government notices.
+function groupMood(s) {
+  const real = (s.i ?? 3) - (s.pe ?? 2), infl = Math.max(0, (s.pi ?? 2) - 2), defl = Math.max(0, -(s.pi ?? 2));
+  const g = {
+    savers: 50 + 10 * (real - 1) - 3 * infl + 0.2 * (100 * ((s.eq || 100) / (s.eqA || 100) - 1)),
+    borrowers: 50 - 11 * (real - 1) + 1.2 * (s.hpg || 0) - 2 * infl - 8 * Math.max(0, (s.bust || 0) > 0 ? 1 : 0),
+    workers: 50 + 11 * (s.x || 0) - 2.5 * infl - 3 * defl,
+    retirees: 50 - 9 * infl + 4 * (real - 1) - 2 * defl
+  };
+  for (const k in g) g[k] = clamp(Math.round(g[k]), 0, 100);
+  return g;
+}
+// Selling the bond holdings back: the mirror image of asset purchases, and only once rates are off the floor.
+const QT = { d: -0.3, s: -0.03, eq: -1.2, y: -0.55, heat: 4, cred: 0.02 };
+/*FISC-END*/
 /*HEAT-END*/
 /*TEACH-START*/
 // US federal funds rate, quarterly averages (approximate), from each era's first quarter: 1973 Q3, 2007 Q3, 2020 Q1.
@@ -2975,6 +3089,7 @@ function renderHUD(s, prev, turn) {
     <div class="meter-tile" id="hCred"><div class="t-row"><span class="t-lab">${esc(gg.hud.cred)}</span><span class="t-num" data-count="${Math.round(from.cred * 100)}|${Math.round(s.cred * 100)}">${Math.round(from.cred * 100)}</span></div><div class="mbar" style="--c:var(--green)"><i style="width:${from.cred * 100}%" data-to="${s.cred * 100}"></i><em class="danger" style="left:12%"></em></div></div>
     <div class="meter-tile" id="hPop"><div class="t-row"><span class="t-lab">${esc(gg.hud.pop)}</span><span class="t-num" data-count="${Math.round(from.pop)}|${Math.round(s.pop)}">${Math.round(from.pop)}</span></div><div class="mbar" style="--c:var(--amber)"><i style="width:${from.pop}%" data-to="${s.pop}"></i><em class="danger" style="left:25%"></em><em style="left:50%"></em></div></div>
     <div class="meter-tile" id="hHeat"><div class="t-row"><span class="t-lab">${esc(gg.hud.heat)}</span><span class="t-num" data-count="${Math.round(from.heat || 0)}|${Math.round(s.heat || 0)}">${Math.round(from.heat || 0)}</span></div><div class="mbar" style="--c:var(--red)"><i style="width:${from.heat || 0}%" data-to="${s.heat || 0}"></i><em class="danger" style="left:80%"></em></div></div>
+    <div class="meter-tile" id="hDebt"><div class="t-row"><span class="t-lab">${esc(gg.hud.debt)}</span><span class="t-num" data-count="${Math.round(from.debt || 0)}|${Math.round(s.debt || 0)}">${Math.round(from.debt || 0)}</span></div><div class="mbar" style="--c:var(--purple)"><i style="width:${Math.min(100, (s.debt || 0) / 1.5)}%" data-to="${Math.min(100, (s.debt || 0) / 1.5)}"></i><em class="danger" style="left:${Math.min(96, debtLim(game.sc.em).heat / 1.5)}%"></em></div></div>
     <div class="hud-btns"><button class="icon-btn" id="bMap" aria-label="${esc(gg.map.hudBtn)}" title="${esc(gg.map.hudBtn)}">${ICON.map}</button><button class="icon-btn" id="bCharts" aria-label="${esc(gg.hud.charts)}" title="${esc(gg.hud.charts)}">${ICON.chart}</button><button class="icon-btn" id="bMenu" aria-label="${esc(gg.hud.menu)}" title="${esc(gg.hud.menu)}">${ICON.pause}</button></div></div>`;
   $("hud").hidden = false;
   const settle = () => {
@@ -3106,7 +3221,7 @@ function startLevel(scenario, seed, inputs = [], hard = false, em = false, opts 
 /* ═══════════════ A QUARTER ═══════════════ */
 function beginQuarter() {
   const s = cur(), prep = (game.prep = prepGame(s, game.sc));
-  draft = { move: null, tone: "neutral", choice: null, qe: 0, buy: [], macro: !!s.macro, fx: 0 };
+  draft = { move: null, tone: "neutral", choice: null, qe: 0, buy: [], macro: !!s.macro, fx: 0, qt: false };
   resetStage(); drawRoom(); renderHUD(s, null, prep.t);
   const list = [quarterCard, newsBeat, frontPageBeat, mapBeat];
   if (prep.budget) list.push(budgetBeat);
@@ -3242,6 +3357,7 @@ function decideBeat() {
     <div class="dec-row"><div class="fan-head"><span class="sec-lab">${esc(gg.fanTitle)}</span><span class="tip" id="fanNote"></span></div><div class="fan-wrap"><div class="fan" id="fanPi"></div><div class="fan" id="fanX"></div></div></div>
     <div class="dec-row"><span class="sec-lab">${esc(gg.tone)}</span><div class="tones" role="group">${["dovish", "neutral", "hawkish"].map(k => `<button class="tone ${k}" data-tone="${k}" aria-pressed="false"><b><i></i>${esc(gg.tones[k][0])}</b><small>${esc(gg.tones[k][1])}</small></button>`).join("")}</div><p class="tip">${esc(gg.toneTip(Math.round(s.cred * 100)))}</p></div>
     ${prep.qe ? `<div class="dec-row"><span class="sec-lab">${esc(gg.qeLabel)}</span><div class="tones" role="group">${[0, 1, 2].map(k => `<button class="tone qe${k}" data-qe="${k}" aria-pressed="false"><b><i></i>${esc(gg.qe[k][0])}</b><small>${esc(gg.qe[k][1])}</small></button>`).join("")}</div><p class="tip">${esc(gg.qeTip)}</p></div>` : ""}
+    ${prep.qt ? `<div class="dec-row"><span class="sec-lab">${esc(gg.qt.label)}</span><div class="tones" role="group">${["off", "on"].map(k => `<button class="tone ${k === "on" ? "qe2" : "qe0"}" data-qt="${k}" aria-pressed="false"><b><i></i>${esc(gg.qt[k][0])}</b><small>${esc(gg.qt[k][1])}</small></button>`).join("")}</div><p class="tip">${esc(gg.qt.tip(Math.round((s.qeStock || 0) * 10) / 10))}</p></div>` : ""}
     ${prep.fxTool ? `<div class="dec-row"><div class="fan-head"><span class="sec-lab">${esc(gg.fx.label)}</span><span class="tip">${esc(gg.fx.reserves((s.reserves ?? 6).toFixed(1)))}</span></div><div class="tones fx4" role="group">${[-1, 0, 1, 2].map(k => `<button class="tone ${k > 0 ? "qe1" : k < 0 ? "qe2" : "qe0"}" data-fx="${k}" aria-pressed="false" ${k > 0 && (s.reserves ?? 6) < k ? "disabled" : ""}><b><i></i>${esc(gg.fx.opts[k][0])}</b><small>${esc(gg.fx.opts[k][1])}</small></button>`).join("")}</div><p class="tip">${esc(gg.fx.tip)}</p></div>` : ""}
     ${prep.canMacro ? `<div class="dec-row"><span class="sec-lab">${esc(gg.macro.label)}</span><div class="tones" role="group">${["off", "on"].map(k => `<button class="tone ${k === "on" ? "qe2" : "qe0"}" data-macro="${k}" aria-pressed="false"><b><i></i>${esc(gg.macro[k][0])}</b><small>${esc(gg.macro[k][1])}</small></button>`).join("")}</div><p class="tip">${esc(gg.macro.tip)}</p></div>` : ""}
     <div class="dec-foot"><div class="recs"><span class="sec-lab">${esc(gg.recsLabel)}</span>${["keynes", "friedman", "taylor"].map(k => `<button class="chip-btn" data-follow="${prep.advisors[k]}">${esc(t.adv[k].name)}: ${esc(t.moveName(prep.advisors[k]))}</button>`).join("")}</div>
@@ -3262,6 +3378,7 @@ function decideBeat() {
     $("fanX").innerHTML = fanSVG(hist.map(h => h.x), fc.map(f => f.x), FAN_SD.x.map(v => v * fm), { color: "#5B9BD5", ref: 0, title: gg.chart.gap, nowLabel: gg.nowLabel });
     $("fanNote").textContent = draft.move == null ? gg.fanHold : gg.fanMove(t.moveName(mv));
     P.querySelectorAll("[data-macro]").forEach(b => b.setAttribute("aria-pressed", !!draft.macro === (b.dataset.macro === "on")));
+    P.querySelectorAll("[data-qt]").forEach(b => b.setAttribute("aria-pressed", !!draft.qt === (b.dataset.qt === "on")));
     P.querySelectorAll("[data-fx]").forEach(b => b.setAttribute("aria-pressed", (draft.fx || 0) === +b.dataset.fx));
     const B = gg.board, bv = draft.move == null ? null : boardVote(cur(), game.sc, prep, draft.move), prefs = boardPrefs(seenOf(cur(), game.sc, cur().t), prep);
     $("boardRow").innerHTML = `<div class="bm you ${bv ? "yes" : ""}"><span class="avatar" style="--c:#F2B650">${esc(B.youShort)}</span><span><b>${esc(gg.you)}</b><small>${esc(bv ? t.moveName(draft.move) : "—")}</small></span><i>${bv ? "✓" : ""}</i></div>`
@@ -3277,6 +3394,7 @@ function decideBeat() {
   P.querySelectorAll("[data-tone]").forEach(b => (b.onclick = () => { draft.tone = b.dataset.tone; Sound.stamp(); sync(); }));
   P.querySelectorAll("[data-qe]").forEach(b => (b.onclick = () => { draft.qe = +b.dataset.qe; Sound.select(); sync(); }));
   P.querySelectorAll("[data-macro]").forEach(b => (b.onclick = () => { draft.macro = b.dataset.macro === "on"; Sound.stamp(); sync(); }));
+  P.querySelectorAll("[data-qt]").forEach(b => (b.onclick = () => { draft.qt = b.dataset.qt === "on"; Sound.stamp(); sync(); }));
   P.querySelectorAll("[data-fx]").forEach(b => (b.onclick = () => { draft.fx = +b.dataset.fx; Sound.select(); sync(); }));
   $("announce").onclick = announce;
   game.nudge = dir => {
@@ -3291,7 +3409,7 @@ function announce() {
   const prep = game.prep;
   if (draft.move == null || ((prep.dilemma || prep.gd) && draft.choice == null)) return;
   Sound.stamp(); game.nudge = null;
-  const inp = { move: draft.move, tone: draft.tone, choice: prep.dilemma || prep.gd ? draft.choice : null, qe: prep.qe ? draft.qe || 0 : 0, qa: null, buy: prep.budget ? draft.buy.slice() : [], macro: prep.canMacro ? !!draft.macro : false, fx: prep.fxTool ? draft.fx || 0 : 0 };
+  const inp = { move: draft.move, tone: draft.tone, choice: prep.dilemma || prep.gd ? draft.choice : null, qe: prep.qe ? draft.qe || 0 : 0, qa: null, buy: prep.budget ? draft.buy.slice() : [], macro: prep.canMacro ? !!draft.macro : false, fx: prep.fxTool ? draft.fx || 0 : 0, qt: prep.qt ? !!draft.qt : false };
   play([() => presserBeat(inp), () => { qaBeat(inp); coach(["qa"]); }]);
 }
 function afterQA(inp) {
@@ -3334,6 +3452,10 @@ function reactionBeat(r) {
       <div class="dec-row"><span class="sec-lab">${esc(gg.marketsTitle)}</span><div class="mkts">
         ${cell(gg.mkt.fx, mk.fx, v => `${sgn(v, 1)}%`, 0)}${cell(gg.mkt.y10, mk.y10, v => `${sgn(v, 0)} bp`, 1)}${cell(gg.mkt.stocks, mk.stocks, v => `${sgn(v, 1)}%`, 2)}
       </div></div>
+      <div class="dec-row"><span class="sec-lab">${esc(gg.groups.title)}</span><div class="grp-row">${["savers", "borrowers", "workers", "retirees"].map(k => {
+        const v = (nx.grp || {})[k] ?? 50, was = (pv.grp || {})[k] ?? 50, cls = v < 25 ? "bad" : v < 45 ? "warn" : "good";
+        return `<div class="grp"><span class="grp-ic">${ICON.grp[k]}</span><span class="grp-n">${esc(gg.groups[k])}</span><div class="mbar" style="--c:var(--${cls === "bad" ? "red" : cls === "warn" ? "amber" : "green"})"><i style="width:${v}%"></i></div><b class="${v >= was ? "upc" : "downc"}">${sgn(v - was, 0)}</b></div>`;
+      }).join("")}</div><p class="tip">${esc(gg.groups.tip)}</p></div>
       <div class="dec-row"><span class="sec-lab">${esc(gg.feedTitle)}</span><div class="posts">${posts.map((p, k) => postHTML(p, k, `rx${r.state.t}`)).join("")}</div></div>
     </div>` });
   if (!FAST) posts.forEach((_, k) => setTimeout(Sound.pop, 400 + k * 280));
@@ -3414,8 +3536,8 @@ function coachFor(fn, r) {
   const prep = game.prep, s = cur();
   const at = fn === newsBeat ? ["news"] : fn === frontPageBeat ? ["front"] : fn === mapBeat ? ["map", s.t >= 2 && "fog"] : fn === budgetBeat ? ["budget"]
     : fn === dilemmaBeat ? ["dilemma"] : fn === advisorsBeat ? ["advisors"]
-    : fn === decideBeat ? ["decide", prep.qe && "qe", prep.fxTool && "fx", prep.canMacro && "macro", "fan", "board", "tone"]
-    : fn === reactionBeat ? ["react"] : fn === falloutBeat ? [(r.state.heat || 0) >= 40 && "heat", (r.state.lev || 0) >= 3 && "credit", "ledger"] : [];
+    : fn === decideBeat ? ["decide", prep.qe && "qe", prep.qt && "qt", prep.fxTool && "fx", prep.canMacro && "macro", "fan", "board", "tone"]
+    : fn === reactionBeat ? ["react", "groups"] : fn === falloutBeat ? [r.dominance && "dominance", (r.state.debt || 0) >= debtLim(game.sc.em).heat && "debt", (r.state.heat || 0) >= 40 && "heat", (r.state.lev || 0) >= 3 && "credit", "ledger"] : [];
   coach(at);
 }
 
@@ -3574,6 +3696,8 @@ function chartSpec(kind, reveal) {
   if (kind === "rate") return { title: c.rate, keys: [[c.rate, "#3FB68B"], [c.y10, "#C4A0FF"], [c.world, "#F2B650"]], series: [{ values: H.map(h => h.i), color: "#3FB68B", step: true }, { values: H.map(h => h.y10 || Y10_NEUTRAL), color: "#C4A0FF" }, { values: H.map(iw), color: "#F2B650", dash: true }], include: [0, 5] };
   if (kind === "fin") return { title: c.fin, keys: [[c.lev, "#E5484D"]].concat(game.sc.em ? [[c.resv, "#3FB68B"]] : []),
     series: [{ values: H.map(h => h.lev || 0), color: "#E5484D", area: true }].concat(game.sc.em ? [{ values: H.map(h => h.reserves ?? 6), color: "#3FB68B" }] : []), include: [-2, 8], refs: [0] };
+  if (kind === "fisc") return { title: c.fisc, keys: [[c.debt, "#C4A0FF"], [c.interest, "#F2B650"]],
+    series: [{ values: H.map(h => h.interest ?? 1.8), color: "#F2B650" }, { values: H.map(h => h.debt ?? 60), color: "#C4A0FF", area: true }], include: [0, 80] };
   if (kind === "mkt") return { title: c.mkt, keys: [[c.eq, "#5B9BD5"], [c.fx, "#F2B650"]], series: [{ values: H.map(h => h.eq || 100), color: "#5B9BD5", area: true }, { values: H.map(h => h.fx || 100), color: "#F2B650" }], include: [92, 108] };
   return { title: c.pol, keys: [[c.cred, "#3FB68B"], [c.pop, "#F2B650"], [c.heat, "#E5484D"]], series: [{ values: H.map(h => h.cred * 100), color: "#3FB68B", area: true }, { values: H.map(h => h.pop), color: "#F2B650" }, { values: H.map(h => h.heat || 0), color: "#E5484D" }], fixed: [0, 100], refs: [50] };
 }
@@ -3586,7 +3710,7 @@ function openCharts() {
   cardToken = null;
   const gg = g(), qL = k => quarterLabel(k).replace(" ", "");
   openOverlay(`<div class="scr"><h2 class="scr-title">${esc(gg.chartsTitle)}</h2>
-    <div class="chart-grid">${["infl", "gap", "rate", "mkt", "fin", "pol"].map(k => chartCard(k, qL)).join("")}</div>
+    <div class="chart-grid">${["infl", "gap", "rate", "mkt", "fin", "fisc", "pol"].map(k => chartCard(k, qL)).join("")}</div>
     <button class="btn big" id="chClose" data-hot>${esc(gg.close)}</button></div>`);
   $("chClose").onclick = resume;
 }
@@ -3908,9 +4032,9 @@ const classLink = code => (/^https?:$/.test(location.protocol) && !/claude/.test
 
 // Decisions, packed small so a whole term fits in a code a student can paste.
 const TONES = ["dovish", "neutral", "hawkish"], DEPT_L = { stats: "s", research: "r", comms: "c", supervision: "v", markets: "m" };
-const packInp = i => [Math.round(i.move * 4), TONES.indexOf(i.tone), i.choice ?? -1, i.qa ?? -1, i.qe || 0, i.fx || 0, i.macro ? 1 : 0, (i.buy || []).map(k => DEPT_L[k]).join("")];
+const packInp = i => [Math.round(i.move * 4), TONES.indexOf(i.tone), i.choice ?? -1, i.qa ?? -1, i.qe || 0, i.fx || 0, i.macro ? 1 : 0, (i.buy || []).map(k => DEPT_L[k]).join(""), i.qt ? 1 : 0];
 const unpackInp = a => ({ move: a[0] / 4, tone: TONES[a[1]] || "neutral", choice: a[2] < 0 ? null : a[2], qa: a[3] < 0 ? null : a[3], qe: a[4] || 0, fx: a[5] || 0, macro: !!a[6],
-  buy: [...(a[7] || "")].map(c => Object.keys(DEPT_L).find(k => DEPT_L[k] === c)).filter(Boolean) });
+  qt: !!a[8], buy: [...(a[7] || "")].map(c => Object.keys(DEPT_L).find(k => DEPT_L[k] === c)).filter(Boolean) });
 
 // A teacher's scenario: the model part builds the shocks, this adds its words to both languages.
 function installCustom(spec) {

@@ -59,7 +59,8 @@ function finStep(s, n, prep, inp, sc, t, gdT, qe, ext = {}) {
   const fxRet = 1.6 * h + 25 * dcred - 0.3 * (n.pi - s.pi) - 1.2 * qe.eq
     + 1.0 * ((n.i - iwNow) - (s.i - iwPrev)) - (em ? 1.0 * Math.max(0, iwNow - iwPrev) : 0) + (ext.fxI || 0) - (ext.ss ? 9 : 0);
   const yTarget = 1 + n.pe + 0.4 * (n.i - 1 - n.pi) + 3 * (0.8 - n.cred) + 0.015 * n.heat - qe.y
-    + (em ? 0.35 : 0.25) * (iwNow - iw0) + (ext.ss ? 1.2 : 0);                             // world rates spill into long yields
+    + (em ? 0.35 : 0.25) * (iwNow - iw0) + (ext.ss ? 1.2 : 0)
+    + (ext.sov || 0) - 0.06 * (ext.qeStock || 0);                                          // world rates and the Treasury's own risk premium
   const eq = Math.max(20, s.eq * (1 + eqRet / 100)), fx = Math.max(30, s.fx * (1 + fxRet / 100));
   const eqA = s.eqA * EQ_TREND + 0.25 * (eq - s.eqA * EQ_TREND), fxA = s.fxA + 0.25 * (fx - s.fxA);
   return { eq, fx, eqA, fxA, y10: clamp(s.y10 + 0.55 * (yTarget - s.y10) + 0.35 * h, 0.1, 18),
@@ -97,7 +98,7 @@ function econDetail(s) {
   const gm = Object.keys(SEC_W).reduce((a, k) => a + SEC_W[k] * gap[k], 0), sec = {}, jobs = {};
   for (const k in SEC_W) { sec[k] = s.x + gap[k] - gm; jobs[k] = Math.max(1, SEC_U[k] - 0.5 * sec[k]); }
   const dd = drawdown(s);
-  return { cat, sec, jobs, fxDev, eqGap, hpYoY: 4 * (s.hpg || 0),
+  return { cat, sec, jobs, fxDev, eqGap, hpYoY: 4 * (s.hpg || 0), debt: s.debt ?? 60, deficit: s.deficit ?? 3, spread: 100 * sovSpread(s.debt ?? 60, s.em), mortgage: (s.y10 ?? Y10_NEUTRAL) + 1.2,
     credit: s.cg ?? (6 + 1.5 * s.x - 1.2 * (s.i - 3) - 0.15 * dd + 0.3 * (s.hpg || 0)), lev: s.lev || 0, bankCap: s.bankCap ?? 100,
     bank: clamp((s.bankCap ?? 100) - 20 - 1.2 * dd - 6 * Math.max(0, y - 5) - 4 * Math.max(0, -s.x - 1) + 40 * ((s.cred || 0.8) - 0.75) + (s.macro ? 8 : 0) + 5 * ((s.dept || {}).supervision || 0), 5, 100) };
 }
@@ -243,11 +244,16 @@ const TRUCE = [{ cred: 0.02, heat: 5 }, { cred: -0.05, pop: 2, heat: -25 }];
 const GD = { truce: TRUCE, crash: CRASH };
 const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false, catP: {}, hp: 100, hpg: 0.8, dept: sc.dept0 ? Object.assign(initDept(), sc.dept0) : initDept(), points: sc.points0 ?? BUDGET_START, board: BOARD0.slice(),
   Lm: 0, lam: (MANDATE[sc.mandate] || MANDATE.price).lam, mandate: sc.mandate || "price", macro: false, fogM: 1,
-  lev: 0, cg: 6, bust: 0, bustSize: 0, bankCap: 100, reserves: sc.em ? 6 : 12, ssHit: false });
+  lev: 0, cg: 6, bust: 0, bustSize: 0, bankCap: 100, reserves: sc.em ? 6 : 12, ssHit: false,
+  debt: debtStart(sc), ri: 3, prim: PRIM0, interest: 1.8, deficit: 2.8, qeStock: 0, grp: { savers: 50, borrowers: 50, workers: 50, retirees: 50 } });
 function prepGame(s, sc) {
   const p = prepare(seenOf(s, sc, s.t), sc), dept = s.dept || initDept();   // advisors, the government and the press all read the published data
   p.gd = p.dilemma ? null : drawdown(s) >= CRASH_DD + 4 * dept.supervision && !s.crashUsed ? "crash" : s.heat >= 55 ? "truce" : null;
+  const LIM = debtLim(sc.em), debtNow = s.debt ?? debtStart(sc);
+  if (debtNow >= LIM.heat && s.i > 3.5) { p.pressure = "cut"; p.level = Math.min(3, (p.pressure === "cut" ? p.level : 0) + 1); }   // a stretched Treasury wants cheaper funding
+  p.debtPress = debtNow >= LIM.heat;
   p.qe = s.i <= QE_RATE;
+  p.qt = !p.qe && (s.qeStock || 0) >= 1;
   p.budget = budgetQuarter(p.t); p.canMacro = dept.supervision >= 2;
   p.fxTool = !!sc.em || dept.markets >= 2; p.bustNow = s.bust === 3; p.ssLast = !!s.ssHit;
   return p;
@@ -263,7 +269,8 @@ function stepGame(s, sc, prep, inp) {
   inp = Object.assign({}, inp, { move: vote && !vote.passed ? vote.implemented : inp.move, toneK: TONEK[dept.comms],
     hDamp: 1 - 0.1 * dept.markets, eqDamp: 1 - 0.15 * dept.supervision - (macro ? 0.15 : 0) });
   const gdT = prep.gd && inp.choice != null ? GD[prep.gd][inp.choice] || {} : {};
-  const q0 = QE[(prep.qe ? inp.qe : 0) || 0], qe = Object.assign({}, q0, { d: q0.d * QEK[dept.markets], y: q0.y * QEK[dept.markets] }), ff = finFeed(s, sc);
+  const doQT = !!inp.qt && prep.qt;
+  const q0 = doQT ? QT : QE[(prep.qe ? inp.qe : 0) || 0], qe = Object.assign({}, q0, { d: q0.d * QEK[dept.markets], y: q0.y * QEK[dept.markets] }), ff = finFeed(s, sc);
   const dSave = sc.d[t], sSave = sc.s[t];                       // financial conditions enter as demand and price shocks
   sc.d[t] = dSave + ff.d + (gdT.d || 0) + qe.d - (macro ? 0.15 : 0) - (ss ? 0.4 : 0);
   sc.s[t] = sSave + ff.s + qe.s;
@@ -282,8 +289,8 @@ function stepGame(s, sc, prep, inp) {
   n.lam = md.lam; n.Lm = (s.Lm || 0) + (n.pi - 2) ** 2 + md.lam * n.x ** 2; n.mandate = sc.mandate || "price";
   if (inp.qa != null) { const e = qaEffect(s, prep, inp); bump(e.cred, e.pop, "presser"); const h = (QA_HEAT[qaId(s, prep, inp)] || [])[inp.qa]; if (h) hp.push(["presser", h]); }
   if (prep.gd && inp.choice != null) { bump(gdT.cred, gdT.pop, "dilemma"); if (gdT.heat) hp.push([prep.gd, gdT.heat]); }
-  if (qe.cred) bump(n.pi > 3 ? qe.cred : qe.cred * 0.3, 0, "qe");
-  if (qe.heat) hp.push(["qe", qe.heat]);
+  if (qe.cred) bump(doQT ? (n.pi > 3 ? qe.cred : qe.cred * 0.5) : n.pi > 3 ? qe.cred : qe.cred * 0.3, 0, doQT ? "qt" : "qe");
+  if (qe.heat) hp.push([doQT ? "qt" : "qe", qe.heat]);
   if (vote) { if (!vote.passed) bump(-0.04, 0, "outvoted"); else if (vote.no >= 2) bump(-0.01, 0, "divided"); else if (vote.no === 0) bump(0.005, 0, "united"); }
   if (macro) bump(0, -0.5, "macro");
   hp.push(["drift", ((s.pop >= 50 ? 10 : 20) + md.heat - s.heat) * 0.2]);
@@ -308,7 +315,8 @@ function stepGame(s, sc, prep, inp) {
   n.bust = bustOnset ? 3 : Math.max(0, (s.bust || 0) - 1); n.bustSize = bustOnset ? 0.9 + 0.08 * lev : s.bustSize || 0;
   const FXI = { "-1": [-1.5, 0.8], 0: [0, 0], 1: [2.2, -1], 2: [4, -2] }[fxL] || [0, 0], resv0 = s.reserves ?? (sc.em ? 6 : 12);
   if (fxL > 0 && resv0 < 3) bump(-0.02, 0, "lastReserves");
-  Object.assign(n, finStep(s, n, prep, inp, sc, t, gdT, qe, { fxI: FXI[0] * (1 + 0.15 * dept.markets), ss, bustOnset, iwNow, iwPrev }));
+  const sov = sovSpread(s.debt ?? debtStart(sc), sc.em);
+  Object.assign(n, finStep(s, n, prep, inp, sc, t, gdT, qe, { fxI: FXI[0] * (1 + 0.15 * dept.markets), ss, bustOnset, iwNow, iwPrev, sov, qeStock: s.qeStock || 0 }));
   n.bankCap = clamp(cap0 + (n.x > -1 ? 1.5 : 0.5) - 20 * Math.max(0, n.y10 - s.y10 - 0.5) - bankLoss, 30, 130);   // profits rebuild capital; busts and bond losses eat it
   n.reserves = Math.max(0, resv0 + FXI[1] + (sc.em ? 0.1 : 0)); n.ssHit = ss;
   res.bust = bustOnset; res.ss = ss;
@@ -331,7 +339,25 @@ function stepGame(s, sc, prep, inp) {
   if (!n.lost && n.cred < M.credLose) n.lost = "cred";
   if (!n.lost && (n.pop < M.popFire || heat >= 100 || (heat >= 80 && n.pop < 35))) n.lost = "fired";
   if (!n.lost && ss && resv0 < 1) n.lost = "fxcrisis";                              // capital fled and there was nothing left to defend with
-  res.heatParts = hp; res.ff = ff;
+  n.qeStock = Math.max(0, (s.qeStock || 0) * 0.98 + (prep.qe ? inp.qe || 0 : 0) - (doQT ? 1 : 0));
+  const monet = prep.dilemma === "financing" && inp.choice === 1;                  // printing money for the Treasury retires debt, and costs trust
+  Object.assign(n, fiscalStep(s, n, sc, monet, bustOnset ? 3 + 0.2 * lev : 0));
+  const LIM = debtLim(sc.em);
+  if (n.debt >= LIM.dom && n.cred < 0.7) {                                        // fiscal dominance: people expect debt to be inflated away
+    const push = 0.15 + 0.5 * Math.max(0, 0.7 - n.cred);
+    n.pe = n.pe + push; n.peExtra = (n.peExtra || 0) + push;
+    bump(-0.015, 0, "dominance");
+    res.dominance = true;
+  }
+  const tHeat = n.debt >= LIM.heat && n.i > 2.5 ? clamp(0.05 * (n.debt - LIM.heat) + 1.2 * Math.max(0, n.i - 2.5), 0, 5) : 0;
+  if (tHeat) hp.push(["treasury", tHeat]);
+  n.grp = groupMood(n);
+  const angry = Object.values(n.grp).filter(v => v < 22).length;
+  if (angry) hp.push(["street", Math.min(1.5, 0.6 * angry)]);
+  n.heat = clamp(n.heat + Math.min(1.5, 0.6 * angry) + tHeat, 0, 100);
+  n.heatPeak = Math.max(n.heatPeak || 0, n.heat);
+  if (!n.lost && (n.heat >= 100 || (n.heat >= 80 && n.pop < 35))) n.lost = "fired";
+  res.heatParts = hp; res.ff = ff; res.qt = doQT;
   return res;
 }
 function ruleBoundGame(sc) {
@@ -339,6 +365,40 @@ function ruleBoundGame(sc) {
   while (s.t < M.turns && !s.lost) { const p = prepGame(s, sc); s = stepGame(s, sc, p, { move: p.advisors.taylor, tone: "neutral", choice: 0, qa: null, qe: p.qe && s.x < -0.5 ? 2 : 0, buy: p.budget ? ruleBuys(s) : [] }).state; }
   return s;
 }
+/*FISC-START*/
+// The Treasury: a stock of debt, what it costs to service, and the politics that follow. High debt makes the Bank's job political.
+// Where each era starts: roughly where public debt stood in 1973, 2007 and 2020. Emerging markets borrow less and pay more.
+const DEBT0 = { oil: 35, crisis: 65, pandemic: 95, random: 80, custom: 70 };
+const debtStart = sc => (sc.debt0 ?? (DEBT0[sc.key] ?? 70) * (sc.em ? 0.65 : 1));
+const DEBT_LIM = { adv: { sov: 70, heat: 85, dom: 105 }, em: { sov: 45, heat: 58, dom: 75 } };   // markets lose patience much sooner with an emerging market
+const debtLim = em => DEBT_LIM[em ? "em" : "adv"];
+const PRIM0 = -1.5;
+const sovSpread = (debt, em) => clamp(0.012 * Math.max(0, debt - debtLim(em).sov) * (em ? 2.4 : 1), 0, em ? 5 : 2.5);   // investors charge more as debt piles up
+// Debt moves with the gap between what it costs and how fast nominal income grows, plus whatever the government fails to cover.
+function fiscalStep(s, n, sc, monet, rescue) {
+  const em = !!sc.em, debt0 = s.debt ?? debtStart(sc);
+  const mkt = (n.y10 ?? Y10_NEUTRAL) - 0.12 * (n.qeStock || 0);                     // the Bank's own holdings cheapen the Treasury's funding
+  const ri = clamp((s.ri ?? 3) + 0.12 * (mkt - (s.ri ?? 3)), 0, 20);                // debt rolls over slowly, so today's yields bite for years
+  const prim = PRIM0 + 0.8 * n.x - 0.8 * (n.g - M.g0);                             // automatic stabilisers, plus what the government spends
+  const nom = clamp(400 * (n.Y / s.Y - 1) + n.pi, -20, 30);                         // nominal income growth: inflation erodes old debt
+  const debt = clamp(debt0 * (1 + (ri - nom) / 400) - prim / 4 - (monet ? 2.5 : 0) + (rescue || 0), 5, 400);   // a banking rescue lands on the Treasury
+  return { debt, ri, prim, interest: (ri * debt0) / 100, deficit: (ri * debt0) / 100 - prim, sov: sovSpread(debt0, em) };
+}
+// Four groups feel the same decision in opposite directions. Angry households end up on the street, and the government notices.
+function groupMood(s) {
+  const real = (s.i ?? 3) - (s.pe ?? 2), infl = Math.max(0, (s.pi ?? 2) - 2), defl = Math.max(0, -(s.pi ?? 2));
+  const g = {
+    savers: 50 + 10 * (real - 1) - 3 * infl + 0.2 * (100 * ((s.eq || 100) / (s.eqA || 100) - 1)),
+    borrowers: 50 - 11 * (real - 1) + 1.2 * (s.hpg || 0) - 2 * infl - 8 * Math.max(0, (s.bust || 0) > 0 ? 1 : 0),
+    workers: 50 + 11 * (s.x || 0) - 2.5 * infl - 3 * defl,
+    retirees: 50 - 9 * infl + 4 * (real - 1) - 2 * defl
+  };
+  for (const k in g) g[k] = clamp(Math.round(g[k]), 0, 100);
+  return g;
+}
+// Selling the bond holdings back: the mirror image of asset purchases, and only once rates are off the floor.
+const QT = { d: -0.3, s: -0.03, eq: -1.2, y: -0.55, heat: 4, cred: 0.02 };
+/*FISC-END*/
 /*HEAT-END*/
 /*TEACH-START*/
 // US federal funds rate, quarterly averages (approximate), from each era's first quarter: 1973 Q3, 2007 Q3, 2020 Q1.

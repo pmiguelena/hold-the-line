@@ -74,10 +74,13 @@ export function playThrough(d, { level, lang = "en", hard = false, em = false, a
       tabs[seen.maps % tabs.length].click();                     // flip through the layers like a curious player
     }
     if (P.querySelector(".react")) seen.reactions++;
+    if (P.querySelector(".grp-row")) seen.groups = (seen.groups || 0) + 1;
     if (P.querySelector("[data-qa]")) { seen.qa++; P.querySelectorAll("[data-qa]")[qa].click(); continue; }
     if (P.querySelector(".decide")) {
       const q = P.querySelectorAll("[data-qe]");
       if (q.length) { seen.qe++; q[qe].click(); }
+      const qtb = P.querySelector('[data-qt="on"]');
+      if (qtb) { seen.qtRows = (seen.qtRows || 0) + 1; qtb.click(); }
       const fxb = P.querySelector(`[data-fx="${fx}"]:not(:disabled)`);
       if (P.querySelector("[data-fx]")) { seen.fxRows = (seen.fxRows || 0) + 1; if (fxb) fxb.click(); }
       if (P.querySelector(".fan")) seen.fans++;

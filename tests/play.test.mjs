@@ -67,18 +67,28 @@ test("charts and pause menu open mid-game", () => {
     }
   }
   d.getElementById("bMap").click();
-  for (const layer of ["prices", "activity", "jobs", "credit"]) {
+  for (const layer of ["prices", "activity", "jobs", "credit", "public"]) {
     d.querySelector(`#mapOv [data-layer="${layer}"]`).click();
     assert.equal(d.querySelector("#mapOv .emap").dataset.map, layer);
     assert.ok(!/NaN|undefined/.test(d.getElementById("mapOv").innerHTML), `bad value on the ${layer} layer`);
   }
   d.getElementById("mapClose").click();
   d.getElementById("bCharts").click();
-  assert.equal(d.querySelectorAll("#overlay svg.chart").length, 6);
+  assert.equal(d.querySelectorAll("#overlay svg.chart").length, 7);
   d.getElementById("chClose").click();
   d.getElementById("bMenu").click();
   assert.ok(d.getElementById("mResume"));
   assert.deepEqual(errors, []);
+});
+
+test("phase 8 on screen: debt meter, household panel and the sell-holdings control", () => {
+  const { d, errors } = boot();
+  const r = playThrough(d, { level: "crisis", lang: "en", qe: 2 });
+  assert.ok(r.qtRows >= 1, "the sell-holdings control should appear after purchases, once rates rise");
+  assert.ok(r.groups >= 18, `the household panel appeared ${r.groups} times`);
+  assert.deepEqual(errors, []);
+  d.getElementById("eDebrief").click();
+  assert.ok(!/NaN|undefined/.test(d.getElementById("overlay").textContent));
 });
 
 test("career mode: four eras, reappointment, carry-over and the hall of fame", () => {

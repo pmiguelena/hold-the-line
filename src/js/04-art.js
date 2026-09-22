@@ -148,7 +148,18 @@ const PROPS = {
 };
 
 /* ═══════════════ ICONS ═══════════════ */
+const GRP_ICON = (() => {
+  const w = 'fill="none" stroke="#EEF1F7" stroke-opacity=".85" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"';
+  const wrap = inner => `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">${inner}</svg>`;
+  return {
+    savers: wrap(`<path d="M4 9h16v9H4z" ${w}/><path d="M8 9V6h8v3M12 12v3" ${w}/>`),                      // a safe box
+    borrowers: wrap(`<path d="M4 12l8-7 8 7" ${w}/><path d="M6.5 11v8h11v-8" ${w}/>`),                     // a house
+    workers: wrap(`<path d="M5 20v-3a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v3" ${w}/><circle cx="12" cy="7" r="3.2" ${w}/>`),
+    retirees: wrap(`<path d="M8 20l2-9M16 20l-2-9" ${w}/><circle cx="12" cy="6" r="2.6" ${w}/><path d="M18 11v9" ${w}/>`)
+  };
+})();
 const ICON = {
+  grp: GRP_ICON,
   map: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5l6-2.5 6 2.5 6-2.5v13.5l-6 2.5-6-2.5-6 2.5z M9 4v13.5 M15 6.5V20"/></svg>`,
   chart: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg>`,
   pause: `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>`,

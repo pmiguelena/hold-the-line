@@ -289,3 +289,55 @@ test("teacher scenarios: events become fading shocks, and surprises can be switc
   const played = simulate(m, "custom", "CU1", POLICIES.rule);
   assert.equal(played.t, m.M.turns);
 });
+
+test("public debt: each era starts where history did, and inflation erodes it while slumps pile it up", () => {
+  const start = k => m.initGame(m.applyMode(m.extendScenario(m.buildScenario(k, "D1"), "D1"), false, false)).debt;
+  assert.equal(start("oil"), m.DEBT0.oil); assert.equal(start("pandemic"), m.DEBT0.pandemic);
+  assert.ok(start("oil") < start("crisis") && start("crisis") < start("pandemic"));
+  const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+  const end = (level, em = false) => mean(Array.from({ length: 40 }, (_, k) => simulate(m, level, "D" + k, POLICIES.rule, false, em).debt - m.initGame(m.applyMode(m.extendScenario(m.buildScenario(level, "D" + k), "D" + k), false, em)).debt));
+  assert.ok(end("oil") < 12, `1973 inflation should not leave debt much higher: ${end("oil").toFixed(1)}`);
+  assert.ok(end("crisis") > 0, "a deep slump adds debt");
+  assert.ok(m.sovSpread(m.debtLim(false).sov - 5, false) === 0, "no premium below the threshold");
+  assert.ok(m.sovSpread(120, true) > m.sovSpread(120, false), "emerging markets pay more for the same debt");
+});
+
+test("fiscal dominance and the Treasury's grip: high debt plus thin credibility unanchors expectations", () => {
+  const sc = m.applyMode(m.extendScenario(m.buildScenario("pandemic", "FD1"), "FD1"), false, false);
+  const base = Object.assign(m.initGame(sc), { t: 4, debt: 130, cred: 0.5, i: 4 });
+  const calm = Object.assign(m.initGame(sc), { t: 4, debt: 60, cred: 0.5, i: 4 });
+  const step = st => { const p = m.prepGame(st, sc); return m.stepGame(st, sc, p, { move: 0, tone: "neutral", choice: 0, qa: null, qe: 0 }); };
+  const hi = step(base), lo = step(calm);
+  assert.ok(hi.dominance && !lo.dominance);
+  assert.ok(hi.state.pe > lo.state.pe, "expectations drift up when debt looks unpayable");
+  assert.ok(hi.state.y10 > lo.state.y10, "and long yields carry a risk premium");
+  assert.ok(hi.heatParts.some(q => q[0] === "treasury"), "the Treasury leans on the Bank");
+  const monet = m.stepGame(Object.assign(m.initGame(sc), { t: 3, debt: 130 }), sc,
+    Object.assign(m.prepGame(m.initGame(sc), sc), { t: 3, dilemma: "financing" }), { move: 0, tone: "neutral", choice: 1, qa: null, qe: 0 });
+  assert.ok(monet.state.debt < 130, "printing money for the Treasury retires debt");
+  assert.ok(monet.state.pe > 2, "and people notice");
+});
+
+test("households: a hike helps savers and hurts borrowers; a slump hurts workers", () => {
+  const g0 = m.groupMood({ i: 3, pe: 2, pi: 2, x: 0, eq: 100, eqA: 100, hpg: 0 });
+  const hike = m.groupMood({ i: 5, pe: 2, pi: 2, x: 0, eq: 100, eqA: 100, hpg: 0 });
+  assert.ok(hike.savers > g0.savers && hike.borrowers < g0.borrowers);
+  const slump = m.groupMood({ i: 3, pe: 2, pi: 2, x: -3, eq: 100, eqA: 100, hpg: 0 });
+  assert.ok(slump.workers < g0.workers - 20);
+  const infl = m.groupMood({ i: 3, pe: 2, pi: 8, x: 0, eq: 100, eqA: 100, hpg: 0 });
+  assert.ok(infl.retirees < g0.retirees - 30, "inflation hits fixed incomes hardest");
+});
+
+test("selling the holdings: only after purchases and off the floor, and it tightens conditions", () => {
+  const sc = m.applyMode(m.extendScenario(m.buildScenario("crisis", "QT1"), "QT1"), false, false);
+  const held = Object.assign(m.initGame(sc), { t: 6, i: 3, qeStock: 3, pi: 4 });
+  assert.equal(m.prepGame(held, sc).qt, true);
+  assert.equal(m.prepGame(Object.assign({}, held, { i: 0.5 }), sc).qt, false, "not while the rate is on the floor");
+  assert.equal(m.prepGame(Object.assign({}, held, { qeStock: 0 }), sc).qt, false, "not with nothing to sell");
+  const p = m.prepGame(held, sc), inp = { move: 0, tone: "neutral", choice: 0, qa: null, qe: 0 };
+  const sold = m.stepGame(held, sc, p, { ...inp, qt: true }), kept = m.stepGame(held, sc, p, inp);
+  assert.ok(sold.state.y10 > kept.state.y10, "long yields rise");
+  assert.ok(sold.state.x < kept.state.x, "and demand cools");
+  assert.ok(sold.state.qeStock < kept.state.qeStock);
+  assert.ok(sold.heatParts.some(q => q[0] === "qt"), "the Treasury is not pleased");
+});

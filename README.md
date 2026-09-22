@@ -3,7 +3,7 @@
 A game about being a central bank governor, built for teaching monetary policy. English and Spanish.
 
 - **Play:** open `docs/index.html`, or the GitHub Pages site once published.
-- **The game** (`game.html`): 18 quarters, four historical crises, news, political pressure, press conferences, financial markets, data fog and a staff forecast, a four-era career mode, staff notes and a glossary, and an end-of-term debrief against the rule and against history.
+- **The game** (`game.html`): 18 quarters, four historical crises, news, political pressure, press conferences, financial markets, public debt and the households behind the averages, data fog and a staff forecast, a four-era career mode, staff notes and a glossary, and an end-of-term debrief against the rule and against history.
 - **Player profile:** a first-run page asks for a nickname and, optionally, age, gender, education and what the player does. It stays in the browser, travels inside the result code, and is exported with the results.
 - **For teachers:** the teacher desk (title screen, or `game.html#teacher`) makes a class link with fixed shocks, builds your own scenario, and checks the result codes students hand in by replaying each game. Results export as CSV; each report prints. With a collection link set (For teachers > Data, script in `tools/collect.gs`), every finished term is also posted to the teacher's own Google Sheet: profile, scenario, score, how the term ended, and the replayable result code.
 - **Classic version** (`classic/desk.html`, published at `docs/classic/`): the simpler 12-quarter classroom version. It is frozen, is not linked from the front page, and new work goes into the game.

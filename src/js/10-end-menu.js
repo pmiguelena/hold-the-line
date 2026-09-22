@@ -91,6 +91,8 @@ function chartSpec(kind, reveal) {
   if (kind === "rate") return { title: c.rate, keys: [[c.rate, "#3FB68B"], [c.y10, "#C4A0FF"], [c.world, "#F2B650"]], series: [{ values: H.map(h => h.i), color: "#3FB68B", step: true }, { values: H.map(h => h.y10 || Y10_NEUTRAL), color: "#C4A0FF" }, { values: H.map(iw), color: "#F2B650", dash: true }], include: [0, 5] };
   if (kind === "fin") return { title: c.fin, keys: [[c.lev, "#E5484D"]].concat(game.sc.em ? [[c.resv, "#3FB68B"]] : []),
     series: [{ values: H.map(h => h.lev || 0), color: "#E5484D", area: true }].concat(game.sc.em ? [{ values: H.map(h => h.reserves ?? 6), color: "#3FB68B" }] : []), include: [-2, 8], refs: [0] };
+  if (kind === "fisc") return { title: c.fisc, keys: [[c.debt, "#C4A0FF"], [c.interest, "#F2B650"]],
+    series: [{ values: H.map(h => h.interest ?? 1.8), color: "#F2B650" }, { values: H.map(h => h.debt ?? 60), color: "#C4A0FF", area: true }], include: [0, 80] };
   if (kind === "mkt") return { title: c.mkt, keys: [[c.eq, "#5B9BD5"], [c.fx, "#F2B650"]], series: [{ values: H.map(h => h.eq || 100), color: "#5B9BD5", area: true }, { values: H.map(h => h.fx || 100), color: "#F2B650" }], include: [92, 108] };
   return { title: c.pol, keys: [[c.cred, "#3FB68B"], [c.pop, "#F2B650"], [c.heat, "#E5484D"]], series: [{ values: H.map(h => h.cred * 100), color: "#3FB68B", area: true }, { values: H.map(h => h.pop), color: "#F2B650" }, { values: H.map(h => h.heat || 0), color: "#E5484D" }], fixed: [0, 100], refs: [50] };
 }
@@ -103,7 +105,7 @@ function openCharts() {
   cardToken = null;
   const gg = g(), qL = k => quarterLabel(k).replace(" ", "");
   openOverlay(`<div class="scr"><h2 class="scr-title">${esc(gg.chartsTitle)}</h2>
-    <div class="chart-grid">${["infl", "gap", "rate", "mkt", "fin", "pol"].map(k => chartCard(k, qL)).join("")}</div>
+    <div class="chart-grid">${["infl", "gap", "rate", "mkt", "fin", "fisc", "pol"].map(k => chartCard(k, qL)).join("")}</div>
     <button class="btn big" id="chClose" data-hot>${esc(gg.close)}</button></div>`);
   $("chClose").onclick = resume;
 }

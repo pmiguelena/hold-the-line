@@ -15,10 +15,17 @@ const MAP_LAYERS = {
   prices:   { farms: E => E.cat.food, housing: E => E.cat.housing, shops: E => E.cat.services, industry: E => E.cat.goods, energy: E => E.cat.energy },
   activity: { farms: E => E.sec.farms, housing: E => E.sec.construction, shops: E => E.sec.shops, industry: E => E.sec.industry, energy: E => E.sec.industry, finance: E => E.sec.finance },
   jobs:     { farms: E => E.jobs.farms, housing: E => E.jobs.construction, shops: E => E.jobs.shops, industry: E => E.jobs.industry, energy: E => E.jobs.industry, finance: E => E.jobs.finance },
-  credit:   { housing: E => E.hpYoY, shops: E => E.credit, industry: E => E.credit, finance: E => E.bank }
+  credit:   { housing: E => E.hpYoY, shops: E => E.credit, industry: E => E.credit, finance: E => E.bank },
+  public:   { gov: E => E.debt, shops: E => E.deficit, finance: E => E.spread, housing: E => E.mortgage }
 };
 function mapTone(layer, key, v) {
   if (v == null) return "none";
+  if (layer === "public") {
+    if (key === "gov") return v < 60 ? "good" : v < 90 ? "warn" : "bad";
+    if (key === "shops") return v < 3 ? "good" : v < 6 ? "warn" : "bad";                 // the deficit
+    if (key === "finance") return v < 50 ? "good" : v < 150 ? "warn" : "bad";            // the risk premium, in basis points
+    return v < 4 ? "good" : v < 6 ? "warn" : "bad";                                      // what a mortgage costs
+  }
   if (layer === "prices") return v < 1 ? "cold" : v <= 3 ? "good" : v <= 5 ? "warn" : "bad";
   if (layer === "activity") return v < -2.5 || v > 3 ? "bad" : v < -1 || v > 1.5 ? "warn" : "good";
   if (layer === "jobs") return v < 5 ? "good" : v < 6.5 ? "warn" : "bad";
@@ -26,6 +33,7 @@ function mapTone(layer, key, v) {
   return v < 0 ? "bad" : v < 3 ? "warn" : v <= 10 ? "good" : v <= 14 ? "warn" : "bad";   // lending and house prices
 }
 function mapFmt(layer, key, v) {
+  if (layer === "public") return key === "gov" ? `${Math.round(v)}%` : key === "finance" ? `${Math.round(v)} bp` : pc(v, 1);
   if (layer === "prices" || layer === "jobs") return pc(v, 1);
   if (layer === "activity") return `${sgn(v, 1)}%`;
   return key === "finance" ? String(Math.round(v)) : `${sgn(v, 0)}%`;
@@ -58,6 +66,8 @@ function mapIcons(E) {
   o += `<path d="M660 268 V246 H690 V268 Z M662 246 C 662 230 688 230 688 246" fill="#E9E1CC" opacity=".45"/><path d="M675 232 V222 H684 V228 H675" fill="#E5484D" opacity=".8"/>`;
   return o;
 }
+// District labels change with the layer: lending growth on the credit layer, the deficit on the public one.
+const layerName = (gm, layer, key) => (layer === "credit" ? gm.sub[key] : layer === "public" ? gm.pub[key] : null);
 function mapSVG(s, E, layer) {
   const L = MAP_LAYERS[layer], gm = g().map;
   let o = `<svg viewBox="0 0 800 380" role="img" aria-label="${esc(gm.title + ": " + gm.layers[layer])}">
@@ -72,10 +82,11 @@ function mapSVG(s, E, layer) {
   }
   o += mapIcons(E);
   for (const [key, dd] of Object.entries(DISTRICTS)) {
-    const f = L[key], v = key === "gov" ? s.i : f ? f(E) : null;
+    const gov = key === "gov", pub = layer === "public";
+    const f = L[key], v = gov && !pub ? s.i : f ? f(E) : null;
     if (v == null) continue;                                     // no reading on this layer: leave the district unlabelled
-    const tone = key === "gov" ? "none" : mapTone(layer, key, v), val = key === "gov" ? pc(s.i) : v == null ? "—" : mapFmt(layer, key, v);
-    const name = layer === "credit" && gm.sub[key] ? gm.sub[key] : key === "gov" ? gm.rateChip : gm.dist[key];
+    const tone = gov && !pub ? "none" : mapTone(layer, key, v), val = gov && !pub ? pc(s.i) : mapFmt(layer, key, v);
+    const name = layerName(gm, layer, key) || (gov ? gm.rateChip : gm.dist[key]);
     const [cx, cy] = dd.chip, wd = Math.max(96, 7.2 * name.length + 14);
     o += `<g transform="translate(${cx - wd / 2} ${cy - 24})"><rect width="${wd}" height="42" rx="9" fill="#0B1222" fill-opacity=".9" stroke="${MAP_TONE[tone]}" stroke-width="2"/>
       <text x="${wd / 2}" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#9AA4BD" font-family="Archivo, sans-serif">${esc(name)}</text>
@@ -101,9 +112,9 @@ function mapSummary(s, E) {
 }
 function mapHTML(s, layer) {
   const E = econDetail(s), gm = g().map, L = MAP_LAYERS[layer];
-  const list = Object.keys(DISTRICTS).filter(k => k !== "gov" && L[k]).map(k => {
+  const list = Object.keys(DISTRICTS).filter(k => (k !== "gov" || layer === "public") && L[k]).map(k => {
     const v = L[k](E), tone = mapTone(layer, k, v);
-    return `<span class="emap-item" style="--c:${MAP_TONE[tone]}"><b>${esc(mapFmt(layer, k, v))}</b>${esc(layer === "credit" && gm.sub[k] ? gm.sub[k] : gm.dist[k])}</span>`;
+    return `<span class="emap-item" style="--c:${MAP_TONE[tone]}"><b>${esc(mapFmt(layer, k, v))}</b>${esc(layerName(gm, layer, k) || gm.dist[k])}</span>`;
   }).join("");
   return `<div class="emap" data-map="${layer}">
     <div class="emap-tabs" role="group">${Object.keys(MAP_LAYERS).map(k => `<button data-layer="${k}" aria-pressed="${k === layer}">${esc(gm.layers[k])}</button>`).join("")}</div>

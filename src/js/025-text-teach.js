@@ -23,6 +23,10 @@ Object.assign(G.en, {
       react: "Markets price the surprise, not the move. If they expected a hike and you hiked, little happens. A surprise moves the currency, [[yield10|bond yields]] and stocks.",
       ledger: "This ledger shows exactly why [[credibility|credibility]], popularity and removal risk moved. Credibility is your most valuable asset: it keeps expectations anchored near 2%.",
       heat: "Your [[heat|removal risk]] is climbing. At 100 you are fired. Cooperating lowers it but costs credibility: the classic dilemma of central bank [[independence|independence]].",
+      qt: "The Bank still owns the bonds it bought in the emergency. Selling them back ([[qt|quantitative tightening]]) drains money, lifts long rates and raises the Treasury's costs, which the government will feel.",
+      groups: "One rate, four different households. Savers like high real rates, borrowers hate them, workers care about jobs, retirees about inflation. There is no decision that pleases everyone.",
+      debt: "Public debt is high enough to matter for you. Every point you add to the rate raises the Treasury's interest bill, and a government with expensive debt pushes hard for cuts. Watch the Public finances layer of the map.",
+      dominance: "This is [[fiscalDominance|fiscal dominance]]: debt so high, and trust so thin, that people expect the Bank to inflate it away. Expectations drift up on their own, and only credibility brings them back.",
       credit: "Cheap money is fuelling a credit boom (see the [[creditGap|credit gap]]). Booms can end in a bust that hits banks and spending. Watch the Credit layer of the map."
     }
   },
@@ -54,6 +58,9 @@ Object.assign(G.en, {
       revision: ["Data revision", "Official statistics are estimated fast and corrected later as more information arrives. The Bank must decide on numbers that may turn out to be wrong."],
       fanChart: ["Fan chart", "A forecast drawn as a widening band: the central line is the most likely path, the shaded fan shows the range of plausible outcomes. Popularised by the Bank of England."],
       heat: ["Removal risk", "In the game, how close the government is to firing you. Real governors are rarely fired, but political pressure on central banks is very real."],
+      primaryBalance: ["Primary balance", "The government's budget before interest payments. Debt stops growing when the primary surplus covers the gap between the interest rate on the debt and the economy's growth rate."],
+      sovereignSpread: ["Risk premium", "The extra interest a government pays because investors doubt it will repay comfortably. It rises with debt, and it passes straight into mortgage and business borrowing costs."],
+      qt: ["Quantitative tightening", "The reverse of [[qe|asset purchases]]: the central bank lets its bonds mature or sells them, draining the money it created. It lifts long-term rates and raises the Treasury's funding costs."],
       yield10: ["10-year bond yield", "The interest rate on long-term government debt. It reflects expected future policy rates plus a risk premium, and it sets mortgage and business borrowing costs."]
     }
   },
@@ -115,6 +122,10 @@ Object.assign(G.es, {
       react: "Los mercados valoran la sorpresa, no la decisión. Si esperaban una suba y subiste, pasa poco. Una sorpresa mueve la moneda, los [[yield10|bonos]] y las acciones.",
       ledger: "Este balance muestra exactamente por qué se movieron la [[credibility|credibilidad]], la popularidad y el riesgo de remoción. La credibilidad es tu activo más valioso: mantiene las expectativas ancladas cerca del 2%.",
       heat: "Tu [[heat|riesgo de remoción]] sube. En 100 te despiden. Cooperar lo baja pero cuesta credibilidad: el dilema clásico de la [[independence|independencia]] del banco central.",
+      qt: "El Banco todavía tiene los bonos que compró en la emergencia. Venderlos ([[qt|ajuste cuantitativo]]) retira dinero, sube las tasas largas y encarece al Tesoro, algo que el gobierno va a sentir.",
+      groups: "Una sola tasa, cuatro hogares distintos. A los ahorristas les gustan las tasas reales altas, a los deudores las detestan, a los trabajadores les importa el empleo y a los jubilados la inflación. No hay decisión que deje contentos a todos.",
+      debt: "La deuda pública ya es lo bastante alta como para importarte. Cada punto que subes la tasa encarece los intereses del Tesoro, y un gobierno con deuda cara presiona fuerte por bajas. Mira la capa Cuentas públicas del mapa.",
+      dominance: "Esto es [[fiscalDominance|dominancia fiscal]]: deuda tan alta, y confianza tan escasa, que la gente espera que el Banco la licue con inflación. Las expectativas suben solas y solo la credibilidad las vuelve a anclar.",
       credit: "El dinero barato alimenta un auge de crédito (mira la [[creditGap|brecha de crédito]]). Los auges pueden terminar en una crisis que golpea a los bancos y al gasto. Vigila la capa Crédito del mapa."
     }
   },
@@ -146,6 +157,9 @@ Object.assign(G.es, {
       revision: ["Revisión de datos", "Las estadísticas oficiales se estiman rápido y se corrigen después, al llegar más información. El Banco debe decidir con números que pueden resultar equivocados."],
       fanChart: ["Gráfico de abanico", "Un pronóstico dibujado como una banda que se ensancha: la línea central es el camino más probable y el abanico sombreado muestra el rango de resultados posibles. Lo popularizó el Banco de Inglaterra."],
       heat: ["Riesgo de remoción", "En el juego, cuán cerca está el gobierno de despedirte. En la realidad rara vez se despide a una autoridad monetaria, pero la presión política sobre los bancos centrales es muy real."],
+      primaryBalance: ["Resultado primario", "El presupuesto del gobierno antes de pagar intereses. La deuda deja de crecer cuando el superávit primario cubre la diferencia entre la tasa de interés de la deuda y el crecimiento de la economía."],
+      sovereignSpread: ["Prima de riesgo", "El interés adicional que paga un gobierno porque los inversores dudan de que pueda pagar con comodidad. Sube con la deuda y se traslada directo al costo de las hipotecas y del crédito a empresas."],
+      qt: ["Ajuste cuantitativo (QT)", "Lo contrario de las [[qe|compras de activos]]: el banco central deja vencer o vende sus bonos y retira el dinero que creó. Sube las tasas largas y encarece el financiamiento del Tesoro."],
       yield10: ["Rendimiento del bono a 10 años", "La tasa de interés de la deuda pública de largo plazo. Refleja las tasas de política esperadas más una prima de riesgo, y determina el costo de las hipotecas y del crédito a empresas."]
     }
   },
