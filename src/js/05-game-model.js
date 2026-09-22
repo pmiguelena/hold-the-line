@@ -45,9 +45,9 @@ function finFeed(s) {
 // Markets reprice the moment the decision lands.
 function finStep(s, n, prep, inp, sc, t, gdT, qe) {
   const ts = inp.tone === "hawkish" ? 1 : inp.tone === "dovish" ? -1 : 0;
-  const h = inp.move - prep.advisors.taylor + 0.25 * ts, dcred = n.cred - s.cred;
+  const h = (inp.move - prep.advisors.taylor + 0.25 * ts) * (inp.hDamp || 1), dcred = n.cred - s.cred;   // a good markets desk means smaller surprises
   const eqRet = 1.2 - 2.5 * h + 1.4 * (n.x - s.x) - 0.8 * Math.max(0, n.pi - 3) + 12 * dcred
-    + 4 * (sc.d[t] || 0) - 1.2 * (sc.s[t] || 0) + qe.eq + (gdT.eq || 0);
+    + 4 * (sc.d[t] || 0) * ((sc.d[t] || 0) < 0 ? inp.eqDamp || 1 : 1) - 1.2 * (sc.s[t] || 0) + qe.eq + (gdT.eq || 0);
   const fxRet = 1.6 * h + 25 * dcred - 0.3 * (n.pi - s.pi) - 1.2 * qe.eq;
   const yTarget = 1 + n.pe + 0.4 * (n.i - 1 - n.pi) + 3 * (0.8 - n.cred) + 0.015 * n.heat - qe.y;
   const eq = Math.max(20, s.eq * (1 + eqRet / 100)), fx = Math.max(30, s.fx * (1 + fxRet / 100));
@@ -89,25 +89,27 @@ function econDetail(s) {
   const dd = drawdown(s);
   return { cat, sec, jobs, fxDev, eqGap, hpYoY: 4 * (s.hpg || 0),
     credit: 6 + 1.5 * s.x - 1.2 * (s.i - 3) - 0.15 * dd + 0.3 * (s.hpg || 0),
-    bank: clamp(80 - 1.2 * dd - 6 * Math.max(0, y - 5) - 4 * Math.max(0, -s.x - 1) + 40 * ((s.cred || 0.8) - 0.75), 5, 100) };
+    bank: clamp(80 - 1.2 * dd - 6 * Math.max(0, y - 5) - 4 * Math.max(0, -s.x - 1) + 40 * ((s.cred || 0.8) - 0.75) + (s.macro ? 8 : 0) + 5 * ((s.dept || {}).supervision || 0), 5, 100) };
 }
 // Data fog: inflation and growth arrive as first estimates, get revised a quarter later, and are final after two.
 // Financial markets are observed in real time.
 const FOG = { pi: 0.3, x: 0.6 };
 function seenOf(h, sc, now) {
-  const age = now - h.t, f = age <= 0 ? 1 : age === 1 ? 0.4 : 0;
+  const age = now - h.t, f = (age <= 0 ? 1 : age === 1 ? 0.4 : 0) * (h.fogM ?? 1);   // a stronger statistics office publishes better first estimates
   if (!f || !sc.errPi) return h;
   return Object.assign({}, h, { pi: h.pi + f * (sc.errPi[h.t] || 0), x: h.x + f * (sc.errX[h.t] || 0) });
 }
 // Staff forecast: projects from the data the Bank sees, with no new shocks, this move now and the rate held after.
 function staffForecast(s, sc, inp, h = 4) {
-  const z = () => new Array(M.turns + h + 3).fill(0);
+  const z = () => new Array(M.turns + h + 3).fill(0), [fNow, fNext] = FORESIGHT[(s.dept || initDept()).research];
   const fs = { key: sc.key, year: sc.year, q: sc.q, cred: sc.cred, d: z(), s: z(), noiseD: z(), noiseS: z(), news: {}, dilemmas: {} };
+  const t0 = s.t + 1;                                   // research lets staff see part of the shocks in the news, and later the ones coming
+  [[t0, fNow], [t0 + 1, fNext]].forEach(([t, f]) => { fs.d[t] = f * (sc.d[t] || 0); fs.s[t] = f * (sc.s[t] || 0); });
   let st = seenOf(s, sc, s.t);
   const out = [];
   for (let k = 0; k < h; k++) {
     const p = prepGame(st, fs); p.gd = null;
-    st = stepGame(st, fs, p, { move: k ? 0 : inp.move, tone: k ? "neutral" : inp.tone || "neutral", choice: null, qa: null, qe: k ? 0 : inp.qe || 0 }).state;
+    st = stepGame(st, fs, p, { move: k ? 0 : inp.move, tone: k ? "neutral" : inp.tone || "neutral", choice: null, qa: null, qe: k ? 0 : inp.qe || 0, macro: inp.macro, noVote: true }).state;
     out.push({ pi: st.pi, x: st.x });
   }
   return out;
@@ -143,6 +145,47 @@ const scoreGame = s => {
   return { macro, cred: Math.round(300 * s.cred), pop: Math.round(150 * Math.min(1, s.pop / 60)), total: macro + Math.round(300 * s.cred) + Math.round(150 * Math.min(1, s.pop / 60)) };
 };
 /*FIN-END*/
+/*INST-START*/
+// Phase 3: the institution. Departments you fund once a year, a board that votes, and macroprudential rules.
+const DEPTS = ["stats", "research", "comms", "supervision", "markets"], DEPT_MAX = 3, BUDGET_START = 3, BUDGET_YEAR = 3;
+const deptCost = lvl => lvl + 1;                                   // level 1 costs 1 point, level 2 costs 2, level 3 costs 3
+const FOGM = [1, 0.7, 0.45, 0.2], FANM = [1, 0.85, 0.7, 0.55], TONEK = [1, 1.25, 1.5, 1.75], QEK = [1, 1.2, 1.4, 1.6];
+const FORESIGHT = [[0.5, 0], [0.7, 0], [0.9, 0.4], [1, 0.7]];     // share of this quarter's and next quarter's scripted shocks staff can see
+const initDept = () => ({ stats: 0, research: 0, comms: 0, supervision: 0, markets: 0 });
+const budgetQuarter = t => (t - 1) % 4 === 0;                     // quarters 1, 5, 9, 13 and 17 open with a budget meeting
+function buyCost(dept, buys) {
+  const d = Object.assign({}, dept); let c = 0;
+  for (const k of buys || []) { if (!(k in d) || d[k] >= DEPT_MAX) return Infinity; c += deptCost(d[k]); d[k]++; }
+  return c;
+}
+const RULE_BUILD = ["stats", "research", "comms", "supervision", "stats", "research", "markets", "comms", "supervision", "stats", "research", "markets", "comms", "supervision", "markets"];
+function ruleBuys(s) {                                             // the benchmark governor's fixed, sensible build order
+  const d = Object.assign({}, s.dept || initDept()), buys = [];
+  let pts = s.points ?? BUDGET_START;
+  for (const k of RULE_BUILD) { if (d[k] >= DEPT_MAX) continue; const c = deptCost(d[k]); if (c > pts) break; buys.push(k); d[k]++; pts -= c; }
+  return buys;
+}
+// The board: four members plus the Governor. A proposal needs three votes.
+const BOARD0 = ["vane", "lind", "mensah", "ortiz"];
+const BOARD_STYLE = { vane: "hawk", lind: "dove", mensah: "centrist", ortiz: "gradualist", rubio: "loyalist" };
+function boardPrefs(seen, prep) {
+  const out = {};
+  for (const id of seen.board || BOARD0) {
+    const st = BOARD_STYLE[id];
+    out[id] = st === "hawk" ? prep.advisors.friedman : st === "dove" ? prep.advisors.keynes : st === "centrist" ? prep.advisors.taylor
+      : st === "gradualist" ? bandMove(seen, seen.i + 0.5 * (Math.max(0, r25(taylorRate(seen))) - seen.i))
+      : prep.pressure === "cut" ? bandMove(seen, seen.i - 0.5) : prep.advisors.keynes;       // the loyalist reads the Palace
+  }
+  return out;
+}
+function boardVote(s, sc, prep, move) {
+  const prefs = boardPrefs(seenOf(s, sc, s.t), prep);
+  const votes = Object.entries(prefs).map(([id, pref]) => ({ id, pref, yes: Math.abs(pref - move) <= (BOARD_STYLE[id] === "gradualist" ? 0.5 : 0.25) + 1e-9 }));
+  const yes = 1 + votes.filter(v => v.yes).length, passed = yes >= 3;
+  const all = [move, ...votes.map(v => v.pref)].sort((a, b) => a - b);
+  return { votes, yes, no: 5 - yes, passed, implemented: passed ? move : all[2] };   // if you lose, the median member decides
+}
+/*INST-END*/
 /*HEAT-START*/
 // Political heat: how close the government is to removing the Governor (game layer, on top of the shared model).
 const HEAT0 = 15;
@@ -150,19 +193,24 @@ const DIL_HEAT = { financing: [18, -10], hearing: [10, -8], bank: [0, 0], leak: 
 const QA_HEAT = { q_markets: [0, -2, 0], q_pressure: [3, 0, -1], q_election: [4, -2, 0], q_jobs: [0, -2, 3], q_infl: [0, -2, 0], q_rift: [4, -4, 2], q_generic: [0, -1, 0] };
 const TRUCE = [{ cred: 0.02, heat: 5 }, { cred: -0.05, pop: 2, heat: -25 }];
 const GD = { truce: TRUCE, crash: CRASH };
-const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false, catP: {}, hp: 100, hpg: 0.8 });
+const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false, catP: {}, hp: 100, hpg: 0.8, dept: initDept(), points: BUDGET_START, board: BOARD0.slice(), macro: false, fogM: 1 });
 function prepGame(s, sc) {
-  const p = prepare(seenOf(s, sc, s.t), sc);        // advisors, the government and the press all read the published data
-  p.gd = p.dilemma ? null : drawdown(s) >= CRASH_DD && !s.crashUsed ? "crash" : s.heat >= 55 ? "truce" : null;
+  const p = prepare(seenOf(s, sc, s.t), sc), dept = s.dept || initDept();   // advisors, the government and the press all read the published data
+  p.gd = p.dilemma ? null : drawdown(s) >= CRASH_DD + 4 * dept.supervision && !s.crashUsed ? "crash" : s.heat >= 55 ? "truce" : null;
   p.qe = s.i <= QE_RATE;
+  p.budget = budgetQuarter(p.t); p.canMacro = dept.supervision >= 2;
   return p;
 }
 function stepGame(s, sc, prep, inp) {
-  const t = prep.t;
+  const t = prep.t, dept = s.dept || initDept();
+  const vote = inp.noVote ? null : boardVote(s, sc, prep, inp.move);
+  const macro = !!inp.macro && dept.supervision >= 2;
+  inp = Object.assign({}, inp, { move: vote && !vote.passed ? vote.implemented : inp.move, toneK: TONEK[dept.comms],
+    hDamp: 1 - 0.1 * dept.markets, eqDamp: 1 - 0.15 * dept.supervision - (macro ? 0.15 : 0) });
   const gdT = prep.gd && inp.choice != null ? GD[prep.gd][inp.choice] || {} : {};
-  const qe = QE[(prep.qe ? inp.qe : 0) || 0], ff = finFeed(s);
+  const q0 = QE[(prep.qe ? inp.qe : 0) || 0], qe = Object.assign({}, q0, { d: q0.d * QEK[dept.markets], y: q0.y * QEK[dept.markets] }), ff = finFeed(s);
   const dSave = sc.d[t], sSave = sc.s[t];                       // financial conditions enter as demand and price shocks
-  sc.d[t] = dSave + ff.d + (gdT.d || 0) + qe.d;
+  sc.d[t] = dSave + ff.d + (gdT.d || 0) + qe.d - (macro ? 0.15 : 0);
   sc.s[t] = sSave + ff.s + qe.s;
   const res = resolve(s, sc, prep, inp);
   sc.d[t] = dSave; sc.s[t] = sSave;
@@ -175,6 +223,8 @@ function stepGame(s, sc, prep, inp) {
   if (prep.gd && inp.choice != null) { bump(gdT.cred, gdT.pop, "dilemma"); if (gdT.heat) hp.push([prep.gd, gdT.heat]); }
   if (qe.cred) bump(n.pi > 3 ? qe.cred : qe.cred * 0.3, 0, "qe");
   if (qe.heat) hp.push(["qe", qe.heat]);
+  if (vote) { if (!vote.passed) bump(-0.04, 0, "outvoted"); else if (vote.no >= 2) bump(-0.01, 0, "divided"); else if (vote.no === 0) bump(0.005, 0, "united"); }
+  if (macro) bump(0, -0.5, "macro");
   hp.push(["drift", ((s.pop >= 50 ? 10 : 20) - s.heat) * 0.2]);
   if (prep.pressure === "cut" && inp.move > 0) hp.push(["defied", 5 * prep.level + (n.pop < 38 && prep.level >= 2 ? 10 : 0)]);
   else if (has("resisted")) hp.push(["resisted", 3 * prep.level]);
@@ -189,9 +239,18 @@ function stepGame(s, sc, prep, inp) {
   const shock = (sSave || 0) + (sc.noiseS[t] || 0), mix = supplyMix(sc, t), P0 = s.catP || {};
   n.catP = {};
   for (const c of ["food", "energy", "goods"]) n.catP[c] = 0.2 * (P0[c] || 0) + shock * (mix[c] || 0);
-  n.hpg = clamp(0.8 + 1.0 * n.x - 0.9 * (n.y10 - Y10_NEUTRAL) + 1.5 * (dSave || 0) + 0.5 * (n.x - s.x), -8, 8);   // house prices, % a quarter
+  n.hpg = clamp(0.8 + 1.0 * n.x - 0.9 * (n.y10 - Y10_NEUTRAL) + 1.5 * (dSave || 0) + 0.5 * (n.x - s.x) - (macro ? 1.5 : 0), -8, 8);   // house prices, % a quarter
   n.hp = (s.hp || 100) * (1 + n.hpg / 100);
   n.crashUsed = s.crashUsed || prep.gd === "crash";
+  const buys = budgetQuarter(t) ? inp.buy || [] : [], cost = buyCost(dept, buys);
+  n.dept = Object.assign({}, dept); n.points = s.points ?? BUDGET_START;          // upgrades bought now work from next quarter
+  if (buys.length && cost <= n.points) { for (const k of buys) n.dept[k]++; n.points -= cost; }
+  if (t % 4 === 0) n.points += BUDGET_YEAR + (n.cred >= 0.8 ? 1 : 0) - (n.heat >= 60 ? 1 : 0);
+  n.fogM = FOGM[dept.stats]; n.macro = macro;
+  n.board = (s.board || BOARD0).slice();
+  if (res.election === "defeated") n.board = n.board.map(id => (id === "rubio" ? "vane" : id));
+  else if (n.heat >= 75 && !n.board.includes("rubio")) { n.board = n.board.map(id => (id === "vane" ? "rubio" : id)); res.stacked = true; }
+  res.vote = vote;
   if (n.lost === "fired" && n.pop >= M.popFire) n.lost = null;               // the model's instant firing becomes heat instead
   if (!n.lost && n.cred < M.credLose) n.lost = "cred";
   if (!n.lost && (n.pop < M.popFire || heat >= 100 || (heat >= 80 && n.pop < 35))) n.lost = "fired";
@@ -200,7 +259,7 @@ function stepGame(s, sc, prep, inp) {
 }
 function ruleBoundGame(sc) {
   let s = initGame(sc);
-  while (s.t < M.turns && !s.lost) { const p = prepGame(s, sc); s = stepGame(s, sc, p, { move: p.advisors.taylor, tone: "neutral", choice: 0, qa: null, qe: p.qe && s.x < -0.5 ? 2 : 0 }).state; }
+  while (s.t < M.turns && !s.lost) { const p = prepGame(s, sc); s = stepGame(s, sc, p, { move: p.advisors.taylor, tone: "neutral", choice: 0, qa: null, qe: p.qe && s.x < -0.5 ? 2 : 0, buy: p.budget ? ruleBuys(s) : [] }).state; }
   return s;
 }
 /*HEAT-END*/

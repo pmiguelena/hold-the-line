@@ -42,6 +42,7 @@ function endLevel(restored) {
     <div class="score"><span>${esc(t.score)}</span><b id="scoreNum">${FAST ? sp.total : 0}</b></div>
     <dl>
       <dt>${esc(t.parts.macro)}</dt><dd>${sp.macro}</dd><dt>${esc(t.parts.cred)}</dt><dd>${sp.cred}</dd><dt>${esc(t.parts.pop)}</dt><dd>${sp.pop}</dd>
+      <dt>${esc(gg.instBuilt)}</dt><dd style="white-space:normal">${esc(DEPTS.map(k => `${gg.depts[k][0]} ${(s.dept || initDept())[k]}`).join(" · "))}</dd>
       <dt>${esc(gg.peakHeat)}</dt><dd>${Math.round(s.heatPeak || 0)}</dd>
       <dt>${esc(gg.ruleBound)}</dt><dd>${rule}</dd>
       <dt>${esc(t.avgGdp)}</dt><dd>${pc(avg(H[0].Y, s.Y))}</dd><dt>${esc(t.avgPrice)}</dt><dd>${pc(avg(H[0].P, s.P))}</dd>

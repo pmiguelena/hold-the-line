@@ -115,8 +115,9 @@ function resolve(s, sc, prep, inp) {
   const gExtra = s.gExtra * 0.6 + (eff.g || 0), peExtra = s.peExtra * 0.5 + (eff.pe || 0);
   const g = prep.g + gExtra;
 
-  const pe = s.cred * 2 + (1 - s.cred) * s.pi + toneSign * M.tonePe * s.cred + peExtra;
-  const x = M.rho * s.x - M.sigInv * (i - pe - M.rStar) + M.gMult * (g - M.g0) + toneSign * M.toneX
+  const tk = inp.toneK || 1;                                          // communications capacity scales how far words move expectations
+  const pe = s.cred * 2 + (1 - s.cred) * s.pi + toneSign * M.tonePe * tk * s.cred + peExtra;
+  const x = M.rho * s.x - M.sigInv * (i - pe - M.rStar) + M.gMult * (g - M.g0) + toneSign * M.toneX * tk
     + sc.d[t] + sc.noiseD[t] + (eff.d || 0);
   const pi = pe + M.kLag * s.x + M.kNow * x + sc.s[t] + sc.noiseS[t] + (eff.s || 0);
 

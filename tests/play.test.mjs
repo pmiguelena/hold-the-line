@@ -22,6 +22,9 @@ for (const p of plays) {
       assert.equal(r.reactions, 18);
       assert.equal(r.fans, 18, "the staff forecast should appear at every decision");
       assert.equal(r.maps, 18, "the economy map briefing should appear every quarter");
+      assert.equal(r.budgets, 5, "a budget meeting should open each of the five years");
+      assert.ok(r.buys >= 5, `only ${r.buys} upgrades bought`);
+      assert.equal(r.boards, 18, "the board vote should appear at every decision");
     }
   });
 }

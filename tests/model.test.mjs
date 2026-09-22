@@ -95,6 +95,55 @@ test("the map tells the right story: energy leads in 1973, construction suffers 
   assert.ok(worst < -0.5, "construction should fall more than the economy in the 2008 crisis");
 });
 
+test("budget: upgrades cost points, work from next quarter, and a new year brings new points", () => {
+  const S = m.extendScenario(m.buildScenario("random", "BUD"), "BUD");
+  let s = m.initGame(S);
+  assert.equal(s.points, 3);
+  assert.equal(m.buyCost(s.dept, ["stats", "stats"]), 3);        // level 1 costs 1, level 2 costs 2
+  assert.equal(m.buyCost(s.dept, ["stats", "stats", "stats", "stats"]), Infinity);
+  let p = m.prepGame(s, S);
+  assert.ok(p.budget);
+  s = m.stepGame(s, S, p, { ...POLICIES.rule(s, p), buy: ["stats", "research", "comms"] }).state;
+  assert.deepEqual([s.dept.stats, s.dept.research, s.dept.comms, s.points], [1, 1, 1, 0]);
+  assert.equal(s.fogM, 1, "quarter 1 was published before the upgrade");
+  for (let k = 0; k < 3; k++) { p = m.prepGame(s, S); assert.ok(!p.budget); s = m.stepGame(s, S, p, { ...POLICIES.rule(s, p), buy: ["markets"] }).state; }
+  assert.equal(s.dept.markets, 0, "no shopping outside the budget meeting");
+  assert.ok(s.points >= 3 && s.points <= 4, `year-end grant gave ${s.points}`);
+  assert.ok(s.fogM < 1, "better statistics should shrink later first estimates");
+});
+
+test("board: the rule's move passes, a wild move is overruled by the median member", () => {
+  const S = m.extendScenario(m.buildScenario("random", "BRD"), "BRD");
+  const s = m.initGame(S), p = m.prepGame(s, S);
+  const ok = m.boardVote(s, S, p, p.advisors.taylor);
+  assert.ok(ok.passed && ok.yes >= 3, `rule move got ${ok.yes} votes`);
+  const wild = m.boardVote(s, S, p, 1);
+  assert.ok(!wild.passed, "a one-point hike in calm times should lose");
+  const sorted = [1, ...wild.votes.map(v => v.pref)].sort((a, b) => a - b);
+  assert.equal(wild.implemented, sorted[2]);
+  const r = m.stepGame(s, S, p, { move: 1, tone: "neutral", choice: null, qa: null });
+  assert.equal(r.state.move, wild.implemented, "the board's decision is what happens");
+  assert.ok(r.credParts.some(q => q[0] === "outvoted"));
+});
+
+test("a government at war with the Bank stacks the board with a loyalist", () => {
+  const S = m.extendScenario(m.buildScenario("random", "STK"), "STK");
+  const s = Object.assign(m.initGame(S), { heat: 99 });
+  const r = m.stepGame(s, S, m.prepGame(s, S), { move: 0, tone: "neutral", choice: null, qa: null });
+  assert.ok(r.stacked);
+  assert.ok(r.state.board.includes("rubio") && !r.state.board.includes("vane"));
+});
+
+test("building the institution pays off", () => {
+  const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+  const builder = (s, p) => ({ ...POLICIES.rule(s, p), buy: p.budget ? m.ruleBuys(s) : [] });
+  for (const level of ["random", "crisis"]) {
+    const plain = mean(Array.from({ length: 80 }, (_, k) => m.scoreGame(simulate(m, level, "I" + k, POLICIES.rule)).total));
+    const built = mean(Array.from({ length: 80 }, (_, k) => m.scoreGame(simulate(m, level, "I" + k, builder)).total));
+    assert.ok(built > plain, `${level}: built ${built.toFixed(0)} vs plain ${plain.toFixed(0)}`);
+  }
+});
+
 test("financial variables stay in plausible ranges", () => {
   for (const level of LEVELS) for (const s of run(level, "rule", 40)) {
     assert.ok(s.eq > 30 && s.eq < 300, `${level} stocks ${s.eq}`);

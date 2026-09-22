@@ -55,6 +55,12 @@ export function playThrough(d, { level, lang = "en", hard = false, advisor = 2, 
       ov.querySelector("[data-hot]").click();
       continue;
     }
+    if (P.querySelector(".depts")) {                              // budget meeting: invest in the first affordable departments
+      seen.budgets = (seen.budgets || 0) + 1;
+      let b;
+      while ((b = P.querySelector("[data-buy]:not(:disabled)"))) { b.click(); seen.buys = (seen.buys || 0) + 1; }
+    }
+    if (P.querySelector(".board .bm")) seen.boards = (seen.boards || 0) + 1;
     if (P.querySelector(".paper")) seen.fronts++;
     if (P.querySelector(".emap")) {
       seen.maps = (seen.maps || 0) + 1;

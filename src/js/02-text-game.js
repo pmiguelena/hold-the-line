@@ -25,6 +25,29 @@ G.en = {
     housingBust: v => `House prices are falling, ${v} over a year.`
   },
   diff: { normal: "Normal", hard: "Hard" },
+  board: {
+    title: "Board vote", youShort: "You", noMove: "Pick a move to see how the board would vote.",
+    wants: m => `wants: ${m.toLowerCase()}`, pass: (y, n) => `Passes ${y}–${n}`,
+    fail: (y, n, m) => `You would lose ${y}–${n}: the board would impose “${m.toLowerCase()}”`,
+    overruled: "The board has voted down my proposal.", voteTag: (y, n) => `vote ${y}–${n}`, kickerOutvoted: "Governor outvoted",
+    stackCall: nm => `I have appointed ${nm} to the Bank's board. I trust the Bank will now see reason.`,
+    stackNews: nm => `President appoints loyalist ${nm} to the central bank's board`,
+    names: { vane: ["Helena Vane", "External member · hawk"], lind: ["Arturo Lind", "External member · dove"], mensah: ["Kofi Mensah", "Deputy Governor"],
+      ortiz: ["Ana Ortiz", "Chief Economist · gradualist"], rubio: ["Julián Rubio", "Government appointee"] }
+  },
+  budgetTitle: "Budget meeting", budgetRole: y => `Year ${y} of the term`,
+  points: n => `${n} budget point${n === 1 ? "" : "s"} to invest`,
+  budgetTip: "Upgrades work from next quarter. You earn 3 points a year, plus 1 with credibility of 80 or more, minus 1 if removal risk is above 60.",
+  invest: c => `Invest · ${c} pt${c === 1 ? "" : "s"}`, maxed: "Fully built", undo: "Undo last", nextLvl: l => `Next: ${l}`, instBuilt: "Institution built",
+  depts: {
+    stats: ["Statistics", ["First estimates are rough", "Data fog cut by 30%", "Data fog cut by 55%", "Data fog cut by 80%"]],
+    research: ["Research", ["Forecasts see half of today's shock", "Narrower fan; sees most of today's shock", "Sees next quarter's shocks coming", "The sharpest forecasts around"]],
+    comms: ["Communications", ["Statements at normal strength", "Statements 25% more powerful", "Statements 50% more powerful", "Statements 75% more powerful"]],
+    supervision: ["Supervision", ["Standard bank oversight", "Banks sturdier in a crash", "Unlocks mortgage rules", "Market crashes much rarer"]],
+    markets: ["Markets desk", ["Standard operations", "Asset purchases 20% stronger; calmer markets", "Asset purchases 40% stronger", "Asset purchases 60% stronger"]]
+  },
+  macro: { label: "Mortgage rules", off: ["Normal", "standard lending limits"], on: ["Tight", "cap loans against home values"],
+    tip: "Tight rules cool house prices and construction and make banks sturdier, at a small cost in popularity." },
   continueGame: (name, q) => `Continue: ${name}, quarter ${q}`,
   estTip: "First estimate: the statistics office will revise it next quarter.",
   fanTitle: "Staff forecast", fanHold: "If you hold the rate. Shaded bands show the likely range.",
@@ -43,7 +66,7 @@ G.en = {
     q_rift: ["Governor, is the Palace about to remove you?", ["I serve under the law, not at the Palace's pleasure.", "The President and I work very well together.", "Ask the President."]],
     q_generic: ["Are you done moving rates?", ["Nothing is pre-set. We react to the data.", "Households can relax — the worst is over.", "Ask me next quarter."]]
   },
-  whyExtra: { presser: "Press conference answer", qe: "Large asset purchases with inflation high" },
+  whyExtra: { presser: "Press conference answer", qe: "Large asset purchases with inflation high", outvoted: "Outvoted by your own board", divided: "A divided board (3–2)", united: "A united board", macro: "Stricter mortgage rules annoy buyers" },
   qeLabel: "Asset purchases", qeOnly: "Available only when the policy rate is near its floor.",
   qe: [["None", "no purchases"], ["Moderate", "buy bonds, ease conditions"], ["Large", "flood the market"]],
   qeTip: "With the policy rate near its floor, buying government bonds pushes long yields down and supports demand — but it looks like financing the Treasury if inflation is high.",
@@ -192,6 +215,7 @@ G.en = {
       ["okafor", "neutral", "Rates move output right away, but inflation only a quarter later. Don't chase the last number."],
       ["okafor", "neutral", "Watch the stock index, the currency and the 10-year yield. Markets move the moment you speak, and their mood feeds back into the economy a quarter later."],
       ["weiss", "neutral", "And remember: inflation and growth figures are first estimates, marked with ≈. They arrive late and get revised. Markets, at least, move in real time."],
+      ["okafor", "neutral", "Two more things. Once a year you set the Bank's budget and build its departments. And every quarter the board votes on your proposal: lose the vote and the board decides for you."],
       ["weiss", "neutral", "Guard your credibility. When markets stop believing you, your words stop working. Below 12, it's over."],
       ["harrow", "neutral", "And read the comments. If popularity collapses, the President will look for someone to blame. That someone is you."],
       ["weiss", "neutral", "One more meter: removal risk. Every time you tell the Palace no, it climbs. Say no when it matters, and let it cool when it doesn't."]
@@ -238,6 +262,29 @@ G.es = {
     housingBust: v => `Los precios de las viviendas caen: ${v} en un año.`
   },
   diff: { normal: "Normal", hard: "Difícil" },
+  board: {
+    title: "Votación del directorio", youShort: "Tú", noMove: "Elige un movimiento para ver cómo votaría el directorio.",
+    wants: m => `quiere: ${m.toLowerCase()}`, pass: (y, n) => `Se aprueba ${y}–${n}`,
+    fail: (y, n, m) => `Perderías ${y}–${n}: el directorio impondría “${m.toLowerCase()}”`,
+    overruled: "El directorio rechazó mi propuesta.", voteTag: (y, n) => `votación ${y}–${n}`, kickerOutvoted: "El directorio derrota a la autoridad",
+    stackCall: nm => `Nombré a ${nm} en el directorio del Banco. Confío en que ahora el Banco entrará en razón.`,
+    stackNews: nm => `El Presidente nombra a su leal ${nm} en el directorio del Banco Central`,
+    names: { vane: ["Helena Vane", "Miembro externo · halcón"], lind: ["Arturo Lind", "Miembro externo · paloma"], mensah: ["Kofi Mensah", "Vicepresidente del Banco"],
+      ortiz: ["Ana Ortiz", "Economista jefe · gradualista"], rubio: ["Julián Rubio", "Designado por el gobierno"] }
+  },
+  budgetTitle: "Reunión de presupuesto", budgetRole: y => `Año ${y} del mandato`,
+  points: n => `${n} punto${n === 1 ? "" : "s"} de presupuesto para invertir`,
+  budgetTip: "Las mejoras rigen desde el próximo trimestre. Ganas 3 puntos por año, 1 más con credibilidad de 80 o más, 1 menos si el riesgo de destitución supera 60.",
+  invest: c => `Invertir · ${c} pt${c === 1 ? "" : "s"}`, maxed: "Completo", undo: "Deshacer", nextLvl: l => `Siguiente: ${l}`, instBuilt: "Institución construida",
+  depts: {
+    stats: ["Estadística", ["Las primeras estimaciones son toscas", "Niebla de datos −30%", "Niebla de datos −55%", "Niebla de datos −80%"]],
+    research: ["Investigación", ["Los pronósticos ven la mitad del shock de hoy", "Abanico más angosto; ve casi todo el shock de hoy", "Anticipa los shocks del próximo trimestre", "Los pronósticos más finos de la región"]],
+    comms: ["Comunicación", ["Comunicados con fuerza normal", "Comunicados 25% más potentes", "Comunicados 50% más potentes", "Comunicados 75% más potentes"]],
+    supervision: ["Supervisión", ["Supervisión bancaria estándar", "Bancos más firmes ante un desplome", "Habilita reglas hipotecarias", "Desplomes mucho más raros"]],
+    markets: ["Mesa de mercados", ["Operaciones estándar", "Compras de activos 20% más fuertes; mercados más calmos", "Compras de activos 40% más fuertes", "Compras de activos 60% más fuertes"]]
+  },
+  macro: { label: "Reglas hipotecarias", off: ["Normales", "límites de crédito estándar"], on: ["Estrictas", "tope al crédito según el valor de la vivienda"],
+    tip: "Las reglas estrictas enfrían los precios de las viviendas y la construcción y fortalecen a los bancos, con un pequeño costo en popularidad." },
   continueGame: (name, q) => `Continuar: ${name}, trimestre ${q}`,
   estTip: "Primera estimación: el instituto de estadística la revisará el próximo trimestre.",
   fanTitle: "Pronóstico del staff", fanHold: "Si mantienes la tasa. Las bandas muestran el rango probable.",
@@ -256,7 +303,7 @@ G.es = {
     q_rift: ["¿El Palacio está por destituirlo?", ["Sirvo bajo la ley, no al gusto del Palacio.", "El Presidente y yo trabajamos muy bien juntos.", "Pregúntele al Presidente."]],
     q_generic: ["¿Terminó de mover la tasa?", ["Nada está predefinido. Reaccionamos a los datos.", "Los hogares pueden relajarse: lo peor ya pasó.", "Pregúnteme el próximo trimestre."]]
   },
-  whyExtra: { presser: "Respuesta en la conferencia de prensa", qe: "Compras masivas de activos con inflación alta" },
+  whyExtra: { presser: "Respuesta en la conferencia de prensa", qe: "Compras masivas de activos con inflación alta", outvoted: "Tu propio directorio te derrotó", divided: "Un directorio dividido (3–2)", united: "Un directorio unido", macro: "Las reglas hipotecarias estrictas molestan a los compradores" },
   qeLabel: "Compra de activos", qeOnly: "Disponible solo cuando la tasa está cerca de su piso.",
   qe: [["Ninguna", "sin compras"], ["Moderada", "comprar bonos, aflojar condiciones"], ["Grande", "inundar el mercado"]],
   qeTip: "Con la tasa cerca de su piso, comprar bonos del gobierno baja las tasas largas y sostiene la demanda — pero parece financiar al Tesoro si la inflación es alta.",
@@ -405,6 +452,7 @@ G.es = {
       ["okafor", "neutral", "La tasa mueve el producto enseguida, pero la inflación recién un trimestre después. No persigas el último dato."],
       ["okafor", "neutral", "Mira la bolsa, la moneda y el bono a 10 años. Los mercados se mueven apenas hablas, y su humor vuelve a la economía un trimestre después."],
       ["weiss", "neutral", "Y recuerda: las cifras de inflación y crecimiento son primeras estimaciones, marcadas con ≈. Llegan tarde y se revisan. Los mercados, al menos, se mueven en tiempo real."],
+      ["okafor", "neutral", "Dos cosas más. Una vez por año fijas el presupuesto del Banco y construyes sus departamentos. Y cada trimestre el directorio vota tu propuesta: si pierdes, decide el directorio."],
       ["weiss", "neutral", "Cuida tu credibilidad. Cuando los mercados dejan de creerte, tus palabras dejan de funcionar. Bajo 12, se acabó."],
       ["harrow", "neutral", "Y lee los comentarios. Si la popularidad se desploma, el Presidente buscará un culpable. Ese culpable eres tú."],
       ["weiss", "neutral", "Un medidor más: el riesgo de destitución. Cada vez que le dices no al Palacio, sube. Di que no cuando importa y déjalo enfriarse cuando no."]

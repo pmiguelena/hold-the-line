@@ -9,6 +9,7 @@ function pressItems(s, prep) {
   const P = tr().press, r = lastReport(), out = [], lastMove = r ? r.inp.move : 0;
   const rk = prep.t - 2, rev = rk >= 1 && game.sc.errX ? -0.6 * (game.sc.errX[rk] || 0) : 0;   // last quarter's growth, first estimate -> revised
   if (Math.abs(rev) >= 0.3) out.push(["wire", g()[rev > 0 ? "revUp" : "revDown"](quarterLabel(rk))]);
+  if (r && r.stacked) out.unshift(["ledger", g().board.stackNews(g().board.names.rubio[0])]);
   if (s.heat >= 60) out.push(["ledger", g().pressRift]);
   if (prep.t === M.election + 1 && s.govt === "opp") out.push(["ledger", P.newGov]);
   if (s.pi > 4) out.push(["ch9", P.hotPrices(pc(s.pi, 1))]); else if (s.pi < 0.5) out.push(["ch9", P.falling]);
@@ -41,7 +42,7 @@ function preComments(s, prep) {
   return out;
 }
 function reactions(r) {
-  const R = g().rx, inp = r.inp, p = r.prev, out = [], has = k => r.credParts.some(q => q[0] === k);
+  const R = g().rx, inp = Object.assign({}, r.inp, { move: r.state.move }), p = r.prev, out = [], has = k => r.credParts.some(q => q[0] === k);
   const add = (k, arg) => (R[k] || []).forEach(([who, txt]) => out.push([who, typeof txt === "function" ? txt(arg) : txt]));
   const dk = r.prep.dilemma || r.prep.gd; if (dk && inp.choice != null) add(`d_${dk}_${inp.choice}`);
   if (has("caved")) add("caved"); else if (has("resisted")) add("resisted");
@@ -70,6 +71,7 @@ function calls(s, prep) {
     else if (s.pop < 45 && prep.toElection >= 0) out.push({ id: "quiroga", role: t.roles.opp, text: m.oppFail, mood: "angry" });
   } else if (prep.t === M.election + 1) out.push({ id: "salas", role: t.roles.exPres, text: m.oppWatch, mood: "sad" });
   if (s.heat >= 60) out.push({ id: fin, role: finRole, text: g().threatFin[s.heat >= 85 ? 1 : 0], mood: "sad" });
+  if (r && r.stacked) out.unshift({ id: pres, role: presRole, text: g().board.stackCall(g().board.names.rubio[0]), mood: "happy", pres: true });
   return out;
 }
 function advisorText(key, s, prep) {
