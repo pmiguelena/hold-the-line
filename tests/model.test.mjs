@@ -341,3 +341,12 @@ test("selling the holdings: only after purchases and off the floor, and it tight
   assert.ok(sold.state.qeStock < kept.state.qeStock);
   assert.ok(sold.heatParts.some(q => q[0] === "qt"), "the Treasury is not pleased");
 });
+
+test("the currency is quoted as local money per US dollar", () => {
+  const s0 = m.initGame(m.applyMode(m.extendScenario(m.buildScenario("random", "FX9"), "FX9"), false, false));
+  assert.equal(m.fxRate(s0), m.FX0, "the term starts at par");
+  assert.ok(m.fxRate({ fx: 90 }) > m.FX0, "a weaker currency costs more local money per dollar");
+  assert.ok(m.fxRate({ fx: 110 }) < m.FX0, "a stronger currency costs less");
+  const em = Array.from({ length: 40 }, (_, k) => m.fxRate(simulate(m, "crisis", "FX" + k, POLICIES.rule, false, true)));
+  assert.ok(em.every(v => v > 20 && v < 400), `exchange rates out of range: ${Math.min(...em).toFixed(0)}–${Math.max(...em).toFixed(0)}`);
+});

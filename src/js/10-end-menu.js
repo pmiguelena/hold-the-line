@@ -93,7 +93,7 @@ function chartSpec(kind, reveal) {
     series: [{ values: H.map(h => h.lev || 0), color: "#E5484D", area: true }].concat(game.sc.em ? [{ values: H.map(h => h.reserves ?? 6), color: "#3FB68B" }] : []), include: [-2, 8], refs: [0] };
   if (kind === "fisc") return { title: c.fisc, keys: [[c.debt, "#C4A0FF"], [c.interest, "#F2B650"]],
     series: [{ values: H.map(h => h.interest ?? 1.8), color: "#F2B650" }, { values: H.map(h => h.debt ?? 60), color: "#C4A0FF", area: true }], include: [0, 80] };
-  if (kind === "mkt") return { title: c.mkt, keys: [[c.eq, "#5B9BD5"], [c.fx, "#F2B650"]], series: [{ values: H.map(h => h.eq || 100), color: "#5B9BD5", area: true }, { values: H.map(h => h.fx || 100), color: "#F2B650" }], include: [92, 108] };
+  if (kind === "mkt") return { title: c.mkt, keys: [[c.eq, "#5B9BD5"], [c.fx, "#F2B650"]], series: [{ values: H.map(h => h.eq || 100), color: "#5B9BD5", area: true }, { values: H.map(h => fxRate(h)), color: "#F2B650" }], include: [92, 108] };
   return { title: c.pol, keys: [[c.cred, "#3FB68B"], [c.pop, "#F2B650"], [c.heat, "#E5484D"]], series: [{ values: H.map(h => h.cred * 100), color: "#3FB68B", area: true }, { values: H.map(h => h.pop), color: "#F2B650" }, { values: H.map(h => h.heat || 0), color: "#E5484D" }], fixed: [0, 100], refs: [50] };
 }
 function chartCard(kind, qL, reveal) {

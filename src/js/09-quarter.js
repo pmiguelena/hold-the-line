@@ -221,16 +221,16 @@ function decisionHeadline(r) { return g().decisionHead(r.state.move, pc(r.state.
 
 function reactionBeat(r) {
   const gg = g(), t = tr(), head = decisionHeadline(r), posts = reactions(r), pv = r.prev, nx = r.state;
-  const mk = { fx: 100 * (nx.fx / pv.fx - 1), y10: (nx.y10 - pv.y10) * 100, stocks: 100 * (nx.eq / pv.eq - 1) };
+  const mk = { fx: 100 * (fxRate(nx) / fxRate(pv) - 1), y10: (nx.y10 - pv.y10) * 100, stocks: 100 * (nx.eq / pv.eq - 1) };   // + = the dollar costs more local money
   const kicker = r.vote && !r.vote.passed ? gg.board.kickerOutvoted : r.credParts.some(q => q[0] === "caved") ? gg.kicker.pressure : Math.abs(r.surprise) >= 0.25 ? gg.kicker.surprise : gg.kicker.expected;
   tvOn(head, gg.live, true);
   pushHeadline(`q${r.state.t}-dec`, "wire", () => decisionHeadline(r));
   const arrow = (v, invert) => { const cls = Math.abs(v) < 0.05 ? "flatc" : (v > 0) !== !!invert ? "upc" : "downc"; return [cls, Math.abs(v) < 0.05 ? "" : v > 0 ? ICON.up : ICON.down]; };
-  const cell = (label, v, fmt, k) => { const [cls, ic] = arrow(v); return `<div class="mkt" style="--n:${k}"><span>${esc(label)}</span><b class="${cls}">${ic}${fmt(v)}</b></div>`; };
+  const cell = (label, v, fmt, k, inv) => { const [cls, ic] = arrow(v, inv); return `<div class="mkt" style="--n:${k}"><span>${esc(label)}</span><b class="${cls}">${ic}${fmt(v)}</b></div>`; };
   say({ cast: [], name: gg.reactionTitle, role: quarterLabel(r.state.t), extra: `<div class="react">
       <div class="react-head"><div class="react-src"><span>${esc(t.outlets.wire)}</span><span class="pill ${kicker === gg.kicker.expected ? "" : "hot"}">${esc(kicker)}</span></div><h3>${esc(head)}</h3></div>
       <div class="dec-row"><span class="sec-lab">${esc(gg.marketsTitle)}</span><div class="mkts">
-        ${cell(gg.mkt.fx, mk.fx, v => `${sgn(v, 1)}%`, 0)}${cell(gg.mkt.y10, mk.y10, v => `${sgn(v, 0)} bp`, 1)}${cell(gg.mkt.stocks, mk.stocks, v => `${sgn(v, 1)}%`, 2)}
+        ${cell(gg.mkt.fx, mk.fx, v => `${sgn(v, 1)}%`, 0, true)}${cell(gg.mkt.y10, mk.y10, v => `${sgn(v, 0)} bp`, 1)}${cell(gg.mkt.stocks, mk.stocks, v => `${sgn(v, 1)}%`, 2)}
       </div></div>
       <div class="dec-row"><span class="sec-lab">${esc(gg.groups.title)}</span><div class="grp-row">${["savers", "borrowers", "workers", "retirees"].map(k => {
         const v = (nx.grp || {})[k] ?? 50, was = (pv.grp || {})[k] ?? 50, cls = v < 25 ? "bad" : v < 45 ? "warn" : "good";

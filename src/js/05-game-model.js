@@ -67,6 +67,8 @@ function finStep(s, n, prep, inp, sc, t, gdT, qe, ext = {}) {
     eqPeak: Math.max(s.eqPeak, eq), eqRet, fxRet };
 }
 const drawdown = s => 100 * (1 - (s.eq || 100) / (s.eqPeak || 100));
+// The currency as people quote it: units of local money for one US dollar. A stronger currency is a smaller number.
+const FX0 = 100, fxRate = s => FX0 * (100 / (s.fx || 100));
 // Inside the aggregates: price categories and sectors. A decomposition for the map; it never feeds back into the core model.
 const CPI_W = { food: 0.2, energy: 0.1, housing: 0.25, goods: 0.2, services: 0.25 };
 const SEC_W = { farms: 0.12, construction: 0.1, industry: 0.2, shops: 0.48, finance: 0.1 };

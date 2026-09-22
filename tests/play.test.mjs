@@ -81,6 +81,19 @@ test("charts and pause menu open mid-game", () => {
   assert.deepEqual(errors, []);
 });
 
+test("the panel shows the exchange rate and the reserves", () => {
+  const { d, errors } = boot();
+  playThrough(d, { level: "crisis", lang: "es", em: true });
+  const hud = d.getElementById("hud");
+  assert.ok(hud.querySelector("#hFx"), "exchange rate tile");
+  assert.ok(hud.querySelector("#hResv"), "reserves tile");
+  assert.match(d.querySelector("#hFx .t-val").textContent, /^[0-9]+\.[0-9]/, "a rate, not an index");
+  assert.match(d.querySelector("#hFx").textContent, /ML por US\$1/);
+  assert.match(d.querySelector("#hResv").textContent, /Reservas/);
+  assert.ok(!/NaN/.test(hud.textContent));
+  assert.deepEqual(errors, []);
+});
+
 test("phase 8 on screen: debt meter, household panel and the sell-holdings control", () => {
   const { d, errors } = boot();
   const r = playThrough(d, { level: "crisis", lang: "en", qe: 2 });

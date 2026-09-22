@@ -348,7 +348,8 @@ svg.chart{width:100%;height:auto;display:block}
 .hud{display:block;padding:0}
 .hud>*{padding:0;border:0}
 .hud-row{display:grid;background:#0A0F1D;border-bottom:1px solid var(--line)}
-.hud-row.a{grid-template-columns:auto repeat(5,minmax(0,1fr))}
+.hud-row.a{grid-template-columns:auto repeat(7,minmax(0,1fr))}
+@media (max-width:1280px){.hud-row.a{grid-template-columns:auto repeat(4,minmax(0,1fr))}.hud-row.a .hud-when{grid-row:span 2}}
 .hud-row.b{grid-template-columns:repeat(4,minmax(0,1fr)) auto}
 .hud-row>*{padding:9px 14px;border-right:1px solid var(--line);min-width:0;display:grid;align-content:center;gap:3px}
 .hud-row>*:last-child{border-right:0}
@@ -542,6 +543,8 @@ dl.gloss dd{margin:0;font-size:14.5px;line-height:1.5;color:#D5DAE6}
 .grp-n{grid-area:name;font:700 12px var(--f-ui);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .grp b{grid-area:val;font-variant-numeric:tabular-nums;font-size:13px}
 .grp .mbar{grid-area:bar}
+.hud-row.a .t-lab{white-space:normal;overflow:visible;line-height:1.2}
+@media (min-width:901px) and (max-width:1420px){.hud-row.a .t-lab{font-size:10px;letter-spacing:.04em}.hud-row.a .t-val{font-size:18px}.hud-row>*{padding:8px 10px}}
 </style>
 </head>
 <body>
@@ -1250,15 +1253,15 @@ G.en = {
     hawkish: "We will do whatever it takes to bring inflation back to 2%."
   },
   reactionTitle: "Live reaction", marketsTitle: "Markets", feedTitle: "What people are saying",
-  mkt: { fx: "Currency", y10: "10-year yield", stocks: "Stock index" },
+  mkt: { fx: "Currency (LC/US$)", y10: "10-year yield", stocks: "Stock index" },
   kicker: { surprise: "Surprise move", expected: "As expected", pressure: "Under political pressure" },
   decisionHead: (m, r, tone) => (m === 0 ? `Bank holds rates at ${r}` : m < 0 ? `Bank cuts rates by ${Math.abs(m).toFixed(2)} to ${r}` : `Bank raises rates by ${m.toFixed(2)} to ${r}`)
     + (tone === "hawkish" ? ", vows to beat inflation" : tone === "dovish" ? ", signals more support ahead" : ", says the data will decide"),
   resultTitle: "The fallout", streak: n => `On target ×${n}`,
   electionNight: "Election night", voteShare: "Government vote share", toWin: "50% to win",
-  hud: { infl: "Inflation", gap: "Output gap", rate: "Policy rate", cred: "Credibility", pop: "Popularity", charts: "Charts", menu: "Pause", jobs: "Unemployment", heat: "Removal risk", stocks: "Stock index", world: "world", y10: "10-year", reserves: "Reserves", months: "months", debt: "Public debt" },
+  hud: { infl: "Inflation", gap: "Output gap", rate: "Policy rate", cred: "Credibility", pop: "Popularity", charts: "Charts", menu: "Pause", jobs: "Unemployment", heat: "Removal risk", stocks: "Stock index", world: "world", y10: "10-year", reserves: "Reserves", months: "months", debt: "Public debt", fx: "Exchange rate", fxUnit: "LC per US$1", fxTip: "How much local money one US dollar buys. A bigger number means a weaker currency." },
   chartsTitle: "Economic monitor", close: "Close",
-  chart: { infl: "Inflation", gap: "Output gap", rate: "Policy rate", pol: "Credibility & popularity", exp: "expected", cred: "credibility", pop: "popularity", target: "target", heat: "removal risk", mkt: "Stocks and currency", eq: "stocks", fx: "currency", y10: "10-year yield", first: "first estimate", world: "world rate", fin: "Credit gap and reserves", lev: "credit gap, points", resv: "reserves, months", fisc: "Public debt", debt: "debt, % of GDP", interest: "interest bill, % of GDP" },
+  chart: { infl: "Inflation", gap: "Output gap", rate: "Policy rate", pol: "Credibility & popularity", exp: "expected", cred: "credibility", pop: "popularity", target: "target", heat: "removal risk", mkt: "Stocks and currency", eq: "stocks", fx: "local currency per US$1", y10: "10-year yield", first: "first estimate", world: "world rate", fin: "Credit gap and reserves", lev: "credit gap, points", resv: "reserves, months", fisc: "Public debt", debt: "debt, % of GDP", interest: "interest bill, % of GDP" },
   electionMark: "election",
   paused: "Paused", resume: "Resume", restart: "Restart level", quit: "Level select", toTitle: "Title screen",
   codeLine: c => `Shock code: ${c}`,
@@ -1544,15 +1547,15 @@ G.es = {
     hawkish: "Haremos todo lo necesario para devolver la inflación al 2%."
   },
   reactionTitle: "Reacción en vivo", marketsTitle: "Mercados", feedTitle: "Qué dice la gente",
-  mkt: { fx: "Moneda", y10: "Bono a 10 años", stocks: "Índice bursátil" },
+  mkt: { fx: "Moneda (ML/US$)", y10: "Bono a 10 años", stocks: "Índice bursátil" },
   kicker: { surprise: "Movimiento sorpresa", expected: "Lo esperado", pressure: "Bajo presión política" },
   decisionHead: (m, r, tone) => (m === 0 ? `El Banco mantiene la tasa en ${r}` : m < 0 ? `El Banco baja la tasa ${Math.abs(m).toFixed(2)} puntos, a ${r}` : `El Banco sube la tasa ${m.toFixed(2)} puntos, a ${r}`)
     + (tone === "hawkish" ? " y promete vencer a la inflación" : tone === "dovish" ? " y anticipa más apoyo" : " y dice que decidirán los datos"),
   resultTitle: "Las consecuencias", streak: n => `En meta ×${n}`,
   electionNight: "Noche electoral", voteShare: "Votos del gobierno", toWin: "50% para ganar",
-  hud: { infl: "Inflación", gap: "Brecha", rate: "Tasa", cred: "Credibilidad", pop: "Popularidad", charts: "Gráficos", menu: "Pausa", jobs: "Desempleo", heat: "Riesgo de destitución", stocks: "Bolsa", world: "mundo", y10: "10 años", reserves: "Reservas", months: "meses", debt: "Deuda pública" },
+  hud: { infl: "Inflación", gap: "Brecha", rate: "Tasa", cred: "Credibilidad", pop: "Popularidad", charts: "Gráficos", menu: "Pausa", jobs: "Desempleo", heat: "Riesgo de destitución", stocks: "Bolsa", world: "mundo", y10: "10 años", reserves: "Reservas", months: "meses", debt: "Deuda pública", fx: "Tipo de cambio", fxUnit: "ML por US$1", fxTip: "Cuánta moneda local compra un dólar. Un número más alto significa una moneda más débil." },
   chartsTitle: "Monitor económico", close: "Cerrar",
-  chart: { infl: "Inflación", gap: "Brecha del producto", rate: "Tasa de política", pol: "Credibilidad y popularidad", exp: "esperada", cred: "credibilidad", pop: "popularidad", target: "meta", heat: "riesgo de destitución", mkt: "Bolsa y moneda", eq: "bolsa", fx: "moneda", y10: "bono a 10 años", first: "primera estimación", world: "tasa mundial", fin: "Brecha de crédito y reservas", lev: "brecha de crédito, puntos", resv: "reservas, meses", fisc: "Deuda pública", debt: "deuda, % del PIB", interest: "intereses, % del PIB" },
+  chart: { infl: "Inflación", gap: "Brecha del producto", rate: "Tasa de política", pol: "Credibilidad y popularidad", exp: "esperada", cred: "credibilidad", pop: "popularidad", target: "meta", heat: "riesgo de destitución", mkt: "Bolsa y moneda", eq: "bolsa", fx: "moneda local por US$1", y10: "bono a 10 años", first: "primera estimación", world: "tasa mundial", fin: "Brecha de crédito y reservas", lev: "brecha de crédito, puntos", resv: "reservas, meses", fisc: "Deuda pública", debt: "deuda, % del PIB", interest: "intereses, % del PIB" },
   electionMark: "elección",
   paused: "Pausa", resume: "Seguir jugando", restart: "Reiniciar nivel", quit: "Elegir nivel", toTitle: "Pantalla de inicio",
   codeLine: c => `Código de shocks: ${c}`,
@@ -1699,7 +1702,7 @@ Object.assign(G.en, {
       board: "You chair a board of four. If your proposal loses the vote, the median member's preferred move is carried out instead. Extreme moves get overruled.",
       tone: "Words move markets too. [[forwardGuidance|Forward guidance]] shifts expectations today, but if you break your word next quarter, credibility suffers.",
       qe: "The rate is close to its floor, the [[zlb|lower bound]]. [[qe|Asset purchases]] can still push long-term rates down and support spending, at a credibility cost if inflation is high.",
-      fx: "In an emerging market the currency matters a lot: a weaker currency raises import prices fast ([[passthrough|pass-through]]). You can spend [[reserves|reserves]] to support it, but reserves run out.",
+      fx: "In an emerging market the currency matters a lot. The panel quotes it as [[exchangeRate|local money per US dollar]], so a rising number means a weaker currency, and that raises import prices fast ([[passthrough|pass-through]]). You can spend [[reserves|reserves]] to support it, but reserves run out.",
       macro: "Credit is booming. [[macroprudential|Mortgage rules]] cool lending directly, without raising the rate for everyone.",
       qa: "Every answer to the press is a signal. Clear, consistent answers build credibility; promises you may not keep are risky.",
       react: "Markets price the surprise, not the move. If they expected a hike and you hiked, little happens. A surprise moves the currency, [[yield10|bond yields]] and stocks.",
@@ -1728,6 +1731,7 @@ Object.assign(G.en, {
       qe: ["Asset purchases (QE)", "Buying government bonds with newly created central bank money. It lowers long-term interest rates when the policy rate cannot go lower. Used on a large scale after 2008 and in 2020."],
       zlb: ["Lower bound", "The floor below which the policy rate cannot usefully fall, near zero. When a slump is deep enough to need negative rates, the central bank needs other tools such as [[qe|asset purchases]]."],
       passthrough: ["Exchange-rate pass-through", "How much a change in the currency shows up in prices. Much higher in emerging markets, where many goods are imported or priced in dollars."],
+      exchangeRate: ["Exchange rate", "Here it is quoted the way most countries quote it: units of local currency for one US dollar. The number going up means the currency is worth less, which raises import prices; going down means it is worth more, which squeezes exporters."],
       reserves: ["Foreign reserves", "The central bank's stock of foreign currency. It can sell reserves to support its own currency in a panic, but only until they run out."],
       suddenStop: ["Sudden stop", "When foreign investors stop lending to a country all at once. The currency falls, borrowing costs jump and spending collapses. A classic emerging-market crisis."],
       macroprudential: ["Macroprudential rules", "Limits aimed at the financial system as a whole, such as caps on mortgage size relative to income or home value. They target a credit boom without raising the rate for everyone."],
@@ -1798,7 +1802,7 @@ Object.assign(G.es, {
       board: "Presides un directorio de cuatro. Si tu propuesta pierde la votación, se aplica la preferida del miembro mediano. Las decisiones extremas terminan rechazadas.",
       tone: "Las palabras también mueven mercados. La [[forwardGuidance|orientación futura]] cambia las expectativas hoy, pero si rompes tu palabra al trimestre siguiente, la credibilidad sufre.",
       qe: "La tasa está cerca de su piso, el [[zlb|límite inferior]]. Las [[qe|compras de activos]] todavía pueden bajar las tasas largas y sostener el gasto, con un costo de credibilidad si la inflación es alta.",
-      fx: "En un mercado emergente la moneda pesa mucho: una moneda más débil sube rápido los precios importados ([[passthrough|traspaso]]). Puedes usar [[reserves|reservas]] para sostenerla, pero se agotan.",
+      fx: "En un mercado emergente la moneda pesa mucho. El panel la cotiza como [[exchangeRate|moneda local por dólar]], así que un número que sube significa una moneda más débil, y eso encarece rápido lo importado ([[passthrough|traspaso]]). Puedes usar [[reserves|reservas]] para sostenerla, pero se agotan.",
       macro: "El crédito está en auge. Las [[macroprudential|reglas hipotecarias]] enfrían el crédito directamente, sin subir la tasa para todos.",
       qa: "Cada respuesta a la prensa es una señal. Las respuestas claras y coherentes construyen credibilidad; las promesas que quizá no cumplas son riesgosas.",
       react: "Los mercados valoran la sorpresa, no la decisión. Si esperaban una suba y subiste, pasa poco. Una sorpresa mueve la moneda, los [[yield10|bonos]] y las acciones.",
@@ -1827,6 +1831,7 @@ Object.assign(G.es, {
       qe: ["Compras de activos (QE)", "Comprar bonos del gobierno con dinero nuevo del banco central. Baja las tasas de largo plazo cuando la tasa de política no puede bajar más. Se usó a gran escala después de 2008 y en 2020."],
       zlb: ["Límite inferior", "El piso bajo el cual la tasa de política no puede bajar con utilidad, cerca de cero. Cuando una recesión es tan profunda que pediría tasas negativas, el banco central necesita otras herramientas, como las [[qe|compras de activos]]."],
       passthrough: ["Traspaso cambiario", "Cuánto de un cambio en la moneda se refleja en los precios. Es mucho mayor en mercados emergentes, donde muchos bienes son importados o se fijan en dólares."],
+      exchangeRate: ["Tipo de cambio", "Aquí se cotiza como lo hace la mayoría de los países: unidades de moneda local por un dólar. Que el número suba significa que la moneda vale menos, lo que encarece las importaciones; que baje significa que vale más, lo que aprieta a los exportadores."],
       reserves: ["Reservas internacionales", "El stock de moneda extranjera del banco central. Puede venderlas para sostener su moneda en un pánico, pero solo hasta que se agoten."],
       suddenStop: ["Parada súbita", "Cuando los inversores extranjeros dejan de prestarle a un país de golpe. La moneda cae, el costo de endeudarse salta y el gasto se desploma. Una crisis clásica de mercados emergentes."],
       macroprudential: ["Reglas macroprudenciales", "Límites dirigidos al sistema financiero en su conjunto, como topes al tamaño de las hipotecas respecto del ingreso o del valor de la vivienda. Apuntan a un auge de crédito sin subir la tasa para todos."],
@@ -2482,6 +2487,8 @@ function finStep(s, n, prep, inp, sc, t, gdT, qe, ext = {}) {
     eqPeak: Math.max(s.eqPeak, eq), eqRet, fxRet };
 }
 const drawdown = s => 100 * (1 - (s.eq || 100) / (s.eqPeak || 100));
+// The currency as people quote it: units of local money for one US dollar. A stronger currency is a smaller number.
+const FX0 = 100, fxRate = s => FX0 * (100 / (s.fx || 100));
 // Inside the aggregates: price categories and sectors. A decomposition for the map; it never feeds back into the core model.
 const CPI_W = { food: 0.2, energy: 0.1, housing: 0.25, goods: 0.2, services: 0.25 };
 const SEC_W = { farms: 0.12, construction: 0.1, industry: 0.2, shops: 0.48, finance: 0.1 };
@@ -3077,14 +3084,19 @@ function renderHUD(s, prev, turn) {
   const toE = M.election - turn, H = game.hist.slice(0, now + 1).map(h => seenOf(h, game.sc, now));
   const u = 5 - 0.5 * s.x, uFrom = 5 - 0.5 * from.x, uCls = u < 6 ? "good" : u < 7.5 ? "warn" : "bad";
   const dd = drawdown(s), eqCls = dd > 20 ? "bad" : dd > 10 ? "warn" : "good", iwT = game.sc.iw ? game.sc.iw[Math.min(turn, M.turns)] : 2.5;
+  const fxNow = fxRate(s), fxFrom = fxRate(from), fxDev = 100 * (fxNow / FX0 - 1);                       // above 100 means the currency has lost ground
+  const fxCls = Math.abs(fxDev) < 8 ? "good" : fxDev > 20 ? "bad" : "warn";
+  const resv = s.reserves ?? (game.sc.em ? 6 : 12), resvFrom = from.reserves ?? resv, resvCls = resv < 3 ? "bad" : resv < 5 ? "warn" : "good";
   const d = (a, b, dec) => prev ? `<small class="${Math.abs(a - b) < 0.005 ? "" : a > b ? "up" : "down"}">${sgn(a - b, dec)}</small>` : "";
   $("hud").innerHTML = `
     <div class="hud-row a"><div class="hud-when"><span class="hw-date">${esc(quarterLabel(turn))}${game.cfg.hard ? `<span class="hard-tag">${esc(gg.hardTag)}</span>` : ""}${game.cfg.em ? `<span class="hard-tag em">${esc(gg.econ.em)}</span>` : ""}${game.cfg.mandate === "dual" ? `<span class="hard-tag dual">${esc(gg.mandate.dualShort)}</span>` : ""}${game.cfg.career ? `<span class="hard-tag career">${esc(gg.career.tag)}</span>` : ""}</span><span class="hw-turn">${esc(gg.hudTurn(turn, M.turns))}</span><span class="pill ${toE === 0 ? "hot" : ""}">${esc(gg.hudElection(toE))}</span></div>
     <div id="hInfl"><span class="t-lab">${esc(gg.hud.infl)}</span><span class="t-val ${piCls}" title="${esc(gg.estTip)}">≈${pc(s.pi, 1)}${d(s.pi, from.pi, 1)}</span>${spark(H.map(h => h.pi), "var(--red)", 2)}</div>
     <div id="hGap"><span class="t-lab">${esc(gg.hud.gap)}</span><span class="t-val ${xCls}" title="${esc(gg.estTip)}">≈${pc(s.x, 1)}${d(s.x, from.x, 1)}</span>${spark(H.map(h => h.x), "var(--blue)", 0)}</div>
     <div id="hJobs"><span class="t-lab">${esc(gg.hud.jobs)}</span><span class="t-val ${uCls}" title="${esc(gg.estTip)}">≈${pc(u, 1)}${d(u, uFrom, 1)}</span>${spark(H.map(h => 5 - 0.5 * h.x), "var(--amber)", 5)}</div>
+    <div id="hFx"><span class="t-lab">${esc(gg.hud.fx)}</span><span class="t-val ${fxCls}" title="${esc(gg.hud.fxTip)}">${fxNow.toFixed(1)}${d(fxNow, fxFrom, 1)}</span><span class="t-lab">${esc(gg.hud.fxUnit)}</span>${spark(H.map(h => fxRate(h)), "var(--amber)", FX0)}</div>
+    <div id="hResv"><span class="t-lab">${esc(gg.hud.reserves)}</span><span class="t-val ${resvCls}">${resv.toFixed(1)}${d(resv, resvFrom, 1)}</span><span class="t-lab">${esc(gg.hud.months)}</span>${spark(H.map(h => h.reserves ?? (game.sc.em ? 6 : 12)), "var(--green)", 3)}</div>
     <div id="hEq"><span class="t-lab">${esc(gg.hud.stocks)}</span><span class="t-val ${eqCls}">${Math.round(s.eq || 100)}${d(s.eq || 100, from.eq || 100, 0)}</span>${spark(H.map(h => h.eq || 100), "var(--blue)", 100)}</div>
-    <div><span class="t-lab">${esc(gg.hud.rate)}</span><span class="t-val">${pc(s.i)}</span><span class="t-lab">${esc(gg.hud.y10)} ${pc(s.y10 || Y10_NEUTRAL, 1)} · ${esc(gg.hud.world)} ${pc(iwT, 1)}</span>${game.sc.em ? `<span class="t-lab">${esc(gg.hud.reserves)} ${(s.reserves ?? 6).toFixed(1)} ${esc(gg.hud.months)}</span>` : ""}</div></div>
+    <div><span class="t-lab">${esc(gg.hud.rate)}</span><span class="t-val">${pc(s.i)}</span><span class="t-lab">${esc(gg.hud.y10)} ${pc(s.y10 || Y10_NEUTRAL, 1)} · ${esc(gg.hud.world)} ${pc(iwT, 1)}</span></div></div>
     <div class="hud-row b">
     <div class="meter-tile" id="hCred"><div class="t-row"><span class="t-lab">${esc(gg.hud.cred)}</span><span class="t-num" data-count="${Math.round(from.cred * 100)}|${Math.round(s.cred * 100)}">${Math.round(from.cred * 100)}</span></div><div class="mbar" style="--c:var(--green)"><i style="width:${from.cred * 100}%" data-to="${s.cred * 100}"></i><em class="danger" style="left:12%"></em></div></div>
     <div class="meter-tile" id="hPop"><div class="t-row"><span class="t-lab">${esc(gg.hud.pop)}</span><span class="t-num" data-count="${Math.round(from.pop)}|${Math.round(s.pop)}">${Math.round(from.pop)}</span></div><div class="mbar" style="--c:var(--amber)"><i style="width:${from.pop}%" data-to="${s.pop}"></i><em class="danger" style="left:25%"></em><em style="left:50%"></em></div></div>
@@ -3441,16 +3453,16 @@ function decisionHeadline(r) { return g().decisionHead(r.state.move, pc(r.state.
 
 function reactionBeat(r) {
   const gg = g(), t = tr(), head = decisionHeadline(r), posts = reactions(r), pv = r.prev, nx = r.state;
-  const mk = { fx: 100 * (nx.fx / pv.fx - 1), y10: (nx.y10 - pv.y10) * 100, stocks: 100 * (nx.eq / pv.eq - 1) };
+  const mk = { fx: 100 * (fxRate(nx) / fxRate(pv) - 1), y10: (nx.y10 - pv.y10) * 100, stocks: 100 * (nx.eq / pv.eq - 1) };   // + = the dollar costs more local money
   const kicker = r.vote && !r.vote.passed ? gg.board.kickerOutvoted : r.credParts.some(q => q[0] === "caved") ? gg.kicker.pressure : Math.abs(r.surprise) >= 0.25 ? gg.kicker.surprise : gg.kicker.expected;
   tvOn(head, gg.live, true);
   pushHeadline(`q${r.state.t}-dec`, "wire", () => decisionHeadline(r));
   const arrow = (v, invert) => { const cls = Math.abs(v) < 0.05 ? "flatc" : (v > 0) !== !!invert ? "upc" : "downc"; return [cls, Math.abs(v) < 0.05 ? "" : v > 0 ? ICON.up : ICON.down]; };
-  const cell = (label, v, fmt, k) => { const [cls, ic] = arrow(v); return `<div class="mkt" style="--n:${k}"><span>${esc(label)}</span><b class="${cls}">${ic}${fmt(v)}</b></div>`; };
+  const cell = (label, v, fmt, k, inv) => { const [cls, ic] = arrow(v, inv); return `<div class="mkt" style="--n:${k}"><span>${esc(label)}</span><b class="${cls}">${ic}${fmt(v)}</b></div>`; };
   say({ cast: [], name: gg.reactionTitle, role: quarterLabel(r.state.t), extra: `<div class="react">
       <div class="react-head"><div class="react-src"><span>${esc(t.outlets.wire)}</span><span class="pill ${kicker === gg.kicker.expected ? "" : "hot"}">${esc(kicker)}</span></div><h3>${esc(head)}</h3></div>
       <div class="dec-row"><span class="sec-lab">${esc(gg.marketsTitle)}</span><div class="mkts">
-        ${cell(gg.mkt.fx, mk.fx, v => `${sgn(v, 1)}%`, 0)}${cell(gg.mkt.y10, mk.y10, v => `${sgn(v, 0)} bp`, 1)}${cell(gg.mkt.stocks, mk.stocks, v => `${sgn(v, 1)}%`, 2)}
+        ${cell(gg.mkt.fx, mk.fx, v => `${sgn(v, 1)}%`, 0, true)}${cell(gg.mkt.y10, mk.y10, v => `${sgn(v, 0)} bp`, 1)}${cell(gg.mkt.stocks, mk.stocks, v => `${sgn(v, 1)}%`, 2)}
       </div></div>
       <div class="dec-row"><span class="sec-lab">${esc(gg.groups.title)}</span><div class="grp-row">${["savers", "borrowers", "workers", "retirees"].map(k => {
         const v = (nx.grp || {})[k] ?? 50, was = (pv.grp || {})[k] ?? 50, cls = v < 25 ? "bad" : v < 45 ? "warn" : "good";
@@ -3698,7 +3710,7 @@ function chartSpec(kind, reveal) {
     series: [{ values: H.map(h => h.lev || 0), color: "#E5484D", area: true }].concat(game.sc.em ? [{ values: H.map(h => h.reserves ?? 6), color: "#3FB68B" }] : []), include: [-2, 8], refs: [0] };
   if (kind === "fisc") return { title: c.fisc, keys: [[c.debt, "#C4A0FF"], [c.interest, "#F2B650"]],
     series: [{ values: H.map(h => h.interest ?? 1.8), color: "#F2B650" }, { values: H.map(h => h.debt ?? 60), color: "#C4A0FF", area: true }], include: [0, 80] };
-  if (kind === "mkt") return { title: c.mkt, keys: [[c.eq, "#5B9BD5"], [c.fx, "#F2B650"]], series: [{ values: H.map(h => h.eq || 100), color: "#5B9BD5", area: true }, { values: H.map(h => h.fx || 100), color: "#F2B650" }], include: [92, 108] };
+  if (kind === "mkt") return { title: c.mkt, keys: [[c.eq, "#5B9BD5"], [c.fx, "#F2B650"]], series: [{ values: H.map(h => h.eq || 100), color: "#5B9BD5", area: true }, { values: H.map(h => fxRate(h)), color: "#F2B650" }], include: [92, 108] };
   return { title: c.pol, keys: [[c.cred, "#3FB68B"], [c.pop, "#F2B650"], [c.heat, "#E5484D"]], series: [{ values: H.map(h => h.cred * 100), color: "#3FB68B", area: true }, { values: H.map(h => h.pop), color: "#F2B650" }, { values: H.map(h => h.heat || 0), color: "#E5484D" }], fixed: [0, 100], refs: [50] };
 }
 function chartCard(kind, qL, reveal) {
