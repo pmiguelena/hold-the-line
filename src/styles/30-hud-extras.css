@@ -78,3 +78,11 @@
 .pips i.on{background:var(--amber)} .pips i.new{background:var(--green)}
 .dept p{margin:0;font:400 14px/1.4 var(--f-ui);color:#D5DAE6}
 .dept p.next{color:var(--muted);font-size:13px}
+@media (max-width:900px){.hud-row .meter-tile{grid-column:auto}}
+@media (max-width:520px){
+  .hud-row.a{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .hud-row>*{padding:7px 10px}
+  .hud-row.b .t-lab{font-size:10px;letter-spacing:.04em}
+  .hud-row.b .t-num{font-size:16px}
+  .hud-row.b .t-row{flex-wrap:wrap;gap:0 6px}
+}
