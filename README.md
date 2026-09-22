@@ -3,8 +3,9 @@
 A game about being a central bank governor, built for teaching monetary policy. English and Spanish.
 
 - **Play:** open `docs/index.html`, or the GitHub Pages site once published.
-- **The game** (`game.html`): 18 quarters, four historical crises, news, political pressure, press conferences, financial markets, data fog and a staff forecast.
-- **Classic version** (`index.html`, published as `docs/desk.html`): the simpler 12-quarter classroom version. It is frozen; new work goes into the game.
+- **The game** (`game.html`): 18 quarters, four historical crises, news, political pressure, press conferences, financial markets, data fog and a staff forecast, a four-era career mode, staff notes and a glossary, and an end-of-term debrief against the rule and against history.
+- **For teachers:** the teacher desk (title screen, or `game.html#teacher`) makes a class link with fixed shocks, builds your own scenario, and checks the result codes students hand in by replaying each game. Results export as CSV; each report prints.
+- **Classic version** (`classic/desk.html`, published at `docs/classic/`): the simpler 12-quarter classroom version. It is frozen, is not linked from the front page, and new work goes into the game.
 
 ## Working on the game
 
@@ -12,7 +13,7 @@ The game is built from `src/` into single files, so it still opens with a double
 
 ```
 npm install          # once: installs jsdom for the tests
-npm run build        # src/ -> game.html, docs/game.html, docs/index.html, docs/desk.html
+npm run build        # src/ -> game.html, docs/game.html, docs/index.html, docs/classic/index.html
 npm test             # build, then balance tests and full simulated playthroughs
 ```
 
@@ -21,7 +22,7 @@ npm test             # build, then balance tests and full simulated playthroughs
 | `src/js/00-model-core.js` | The New Keynesian core: expectations, IS curve, Phillips curve, credibility, popularity |
 | `src/js/05-game-model.js` | Game-layer economics: 18-quarter term, financial markets, asset purchases, removal risk, data fog, staff forecast, save/continue |
 | `src/js/01-…`, `02-…` | Text in English and Spanish |
-| `src/js/03-…` to `11-…` | Sound, art, news generators, screens and the quarter flow |
+| `src/js/03-…` to `11-…` | Sound, art, news generators, screens, the quarter flow, career mode, teaching layer and classroom tools |
 | `src/styles/` | CSS |
 | `tests/` | `model.test.mjs` (balance and economics), `play.test.mjs` (plays every level in a simulated browser) |
 | `legacy/` | Earlier versions and the original 2024 R Shiny code (kept locally, not published) |

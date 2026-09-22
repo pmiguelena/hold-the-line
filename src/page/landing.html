@@ -18,15 +18,6 @@ h1{margin:6px 0 0;font:800 clamp(52px,10vw,112px)/.9 "Archivo",sans-serif;font-s
 h1 span{display:block;color:var(--amber)}
 .lede{font:400 clamp(19px,2.2vw,23px)/1.5 "Newsreader",Georgia,serif;max-width:60ch;margin:18px 0 0;color:#D5DAE6}
 .lede em{color:var(--muted);font-size:.85em;display:block;margin-top:6px}
-.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-@media (max-width:720px){.cards{grid-template-columns:minmax(0,1fr)}}
-a.card{display:grid;gap:8px;padding:22px;border-radius:18px;background:linear-gradient(160deg,#1D2844,#161F36);box-shadow:inset 0 0 0 1px var(--line);color:inherit;text-decoration:none;transition:transform .15s,box-shadow .15s}
-a.card:hover,a.card:focus-visible{transform:translateY(-2px);box-shadow:inset 0 0 0 1px var(--amber),0 18px 34px -20px rgba(242,182,80,.6);outline:0}
-.card .tag{justify-self:start;font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:99px;background:rgba(242,182,80,.15);color:var(--amber)}
-.card.alt .tag{background:rgba(63,182,139,.15);color:#8FE3C0}
-.card h2{margin:0;font:800 26px/1.1 "Archivo",sans-serif}
-.card p{margin:0;color:#C9CFDD}
-.card .go{font-weight:700;color:var(--amber)}
 section h3{margin:0 0 12px;font:700 13px "Archivo",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 @media (max-width:720px){.grid3{grid-template-columns:minmax(0,1fr)}}
@@ -34,6 +25,15 @@ section h3{margin:0 0 12px;font:700 13px "Archivo",sans-serif;letter-spacing:.1e
 .pt b{display:block;font-size:16px;margin-bottom:4px}
 .pt p{margin:0;font-size:15px;color:#C9CFDD}
 .pt p i{color:var(--muted)}
+.play{display:grid;gap:10px;justify-items:start}
+a.cta{display:inline-block;padding:18px 34px;border-radius:16px;background:var(--amber);color:#1B1405;font:800 22px "Archivo",sans-serif;text-decoration:none;box-shadow:0 18px 40px -18px rgba(242,182,80,.8);transition:transform .15s}
+a.cta:hover,a.cta:focus-visible{transform:translateY(-2px);outline:0}
+.cta-note{color:var(--muted);font-size:15px}
+.teach{margin:16px 0 0}
+a.card-link{font-weight:700;color:var(--amber);text-decoration:none}
+a.card-link:hover{text-decoration:underline}
+.small{font-size:15px;color:#C9CFDD;max-width:75ch}
+.small i{color:var(--muted)}
 footer{color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:18px}
 </style>
 </head>
@@ -46,31 +46,32 @@ footer{color:var(--muted);font-size:14px;border-top:1px solid var(--line);paddin
       <em>Dieciocho trimestres al frente del banco central. Noticias de última hora, un Presidente que quiere tasas bajas antes de la elección, mercados que reaccionan apenas hablas y datos que llegan tarde.</em></p>
   </header>
 
-  <div class="cards">
-    <a class="card" href="game.html">
-      <span class="tag">The game · El juego</span>
-      <h2>Hold the Line</h2>
-      <p>Four crises, from 1973 to 2020. Stars, achievements, hard mode. English and Spanish.</p>
-      <span class="go">Play · Jugar →</span>
-    </a>
-    <a class="card alt" href="desk.html">
-      <span class="tag">Classic · Clásico</span>
-      <h2>Central Banker's Desk</h2>
-      <p>The simpler classroom version: one screen per quarter, equations visible, twelve quarters.</p>
-      <span class="go">Open · Abrir →</span>
-    </a>
+  <div class="play">
+    <a class="cta" href="game.html">Play · Jugar →</a>
+    <span class="cta-note">Free, in the browser, on phones too. English and Spanish. · Gratis, en el navegador, también en el celular.</span>
   </div>
+
+  <section>
+    <h3>The game · El juego</h3>
+    <div class="grid3">
+      <div class="pt"><b>Four crises</b><p>The 1973 oil shock, the 2008 crash, the 2020 pandemic, and a calm economy that won't stay calm. <i>Cuatro crisis, de 1973 a hoy.</i></p></div>
+      <div class="pt"><b>A whole central bank</b><p>Rates, forward guidance, asset purchases, a board that votes, a budget for your staff, mortgage rules, reserves. <i>Todo un banco central.</i></p></div>
+      <div class="pt"><b>Career mode</b><p>Four eras, one Bank. Your credibility and your institution carry forward, if the President reappoints you. <i>Modo carrera.</i></p></div>
+    </div>
+  </section>
 
   <section>
     <h3>For teachers · Para docentes</h3>
     <div class="grid3">
-      <div class="pt"><b>Same shocks for the whole class</b><p>Type the same shock code on the level screen and every student faces identical events. <i>Mismo código, mismos shocks.</i></p></div>
-      <div class="pt"><b>What it teaches</b><p>Lags, expectations and credibility, the zero lower bound, forward guidance, central bank independence, financial conditions. <i>Rezagos, expectativas, independencia.</i></p></div>
-      <div class="pt"><b>No accounts, no installs</b><p>It runs in any browser, on phones too. Progress stays in each student's browser. <i>Funciona en cualquier navegador.</i></p></div>
+      <div class="pt"><b>One link for the class</b><p>Pick a scenario, shocks and settings; share one link. Every student plays the same economy. <i>Un enlace para toda la clase.</i></p></div>
+      <div class="pt"><b>Results you can trust</b><p>Students hand in a short result code. The teacher desk replays each game to check it, then gives you a table, a CSV and a printable report per student. <i>Resultados verificables.</i></p></div>
+      <div class="pt"><b>Your own scenarios</b><p>Write the shocks and the headlines: a commodity boom, a banking panic, a drought. <i>Crea tus propios escenarios.</i></p></div>
     </div>
+    <p class="teach"><a class="card-link" href="game.html#teacher">Open the teacher desk · Abrir el escritorio docente →</a></p>
+    <p class="small">What it teaches: lags, expectations and credibility, the Taylor rule, the lower bound, forward guidance, central bank independence, financial stability, open-economy trade-offs. After each term, a debrief compares every decision with the rule and with what the real Fed did. <i>Qué enseña: rezagos, expectativas, credibilidad, regla de Taylor, independencia del banco central.</i></p>
   </section>
 
-  <footer>Based on a New Keynesian model first built in R Shiny (2024). Free to use in class.</footer>
+  <footer>Based on a New Keynesian model first built in R Shiny (2024). Free to use in class. · <a href="https://github.com/pmiguelena/hold-the-line" style="color:inherit">Source on GitHub</a></footer>
 </main>
 </body>
 </html>

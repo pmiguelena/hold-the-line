@@ -62,7 +62,8 @@ function openGlossary(back) {
 }
 
 // Debrief: your term against the rule, the decisions that mattered, and what history did.
-function openDebrief() {
+function openDebrief(o = {}) {
+  const back = o.back || (() => endLevel(true));
   const gg = g(), D = gg.debrief, t = tr(), H = game.hist, key = game.cfg.scenario;
   const R = rulePath(game.sc), data = debriefData(game.sc, game.inputs, game.reports), fed = FED_PATH[key];
   const qL = k => quarterLabel(k).replace(" ", "");
@@ -80,14 +81,16 @@ function openDebrief() {
   openOverlay(`<div class="scr debrief">
     <span class="q-date">${esc(gg.levels[key][0])} · ${esc(game.cfg.seed)}</span>
     <h2 class="scr-title">${esc(D.title)}</h2>
+    ${o.who || game.cfg.student ? `<p class="report-who">${esc(o.who || gg.cls.report.who(game.cfg.student, game.cfg.klass && game.cfg.klass.cl, new Date().toISOString().slice(0, 10)))}</p>` : ""}
     <p class="credits">${esc(D.sub)}</p>
     <div class="db-stats"><span>${esc(D.stats.onTarget(data.onTarget, data.N))}</span><span>${esc(D.stats.followed(data.N - data.deviations, data.N))}</span><span>${esc(D.stats.cred(Math.round(data.cred0 * 100), Math.round(data.cred1 * 100)))}</span></div>
     <div class="chart-grid db-charts">${rate}${infl}</div>
     <section class="db-sec"><span class="sec-lab">${esc(D.momentsTitle)}</span>
       ${data.moments.length ? `<div class="moments">${data.moments.map(moment).join("")}</div><p class="note">${esc(D.momentsNote)}</p>` : `<p class="note">${esc(D.noMoments)}</p>`}</section>
     ${fed ? `<section class="db-sec"><span class="sec-lab">${esc(D.histTitle)}</span><div class="db-hist">${hist}<p class="interlude">${esc(D.hist[key])}</p></div><p class="note">${esc(D.histCaveat)}</p></section>` : ""}
-    <div class="btns"><button class="btn big" id="dbBack" data-hot>← ${esc(D.back)}</button><button class="btn ghost" id="dbGloss">${esc(gg.gloss.title)}</button></div>
+    <div class="btns"><button class="btn big" id="dbBack" data-hot>← ${esc(D.back)}</button><button class="btn ghost" id="dbPrint">${esc(gg.cls.report.print)}</button><button class="btn ghost" id="dbGloss">${esc(gg.gloss.title)}</button></div>
   </div>`);
-  $("dbBack").onclick = () => endLevel(true);
-  $("dbGloss").onclick = () => openGlossary(openDebrief);
+  $("dbBack").onclick = back;
+  $("dbPrint").onclick = () => window.print();
+  $("dbGloss").onclick = () => openGlossary(() => openDebrief(o));
 }

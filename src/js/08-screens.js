@@ -21,12 +21,17 @@ function titleScreen() {
     <h1 class="wordmark"><span>Hold</span><span>the line</span></h1>
     <div class="lineup">${[["salas", "happy"], ["harrow", "neutral"], ["weiss", "neutral"], ["okafor", "happy"], ["quiroga", "angry"]].map(([id, m]) => portraitSVG(id, m)).join("")}</div>
     <p class="credits">${esc(gg.credits)}</p>
-    ${sv ? `<button class="btn big" id="tCont" data-hot>${esc(gg.continueGame(gg.levels[sv.cfg.scenario][0], sv.inputs.length + 1))} →</button>` : ""}
-    <button class="btn big ${sv ? "ghost" : ""}" id="tStart" ${sv ? "" : "data-hot"}>${esc(gg.play)} →</button>
+    ${classCardHTML()}
+    ${sv ? `<button class="btn big ${store.klass ? "ghost" : ""}" id="tCont" ${store.klass ? "" : "data-hot"}>${esc(gg.continueGame(gg.levels[sv.cfg.scenario][0], sv.inputs.length + 1))} →</button>` : ""}
+    <button class="btn big ${sv || store.klass ? "ghost" : ""}" id="tStart" ${sv || store.klass ? "" : "data-hot"}>${esc(gg.play)} →</button>
+    <div class="toggles"><button class="btn ghost small" id="tJoin">${esc(gg.cls.joinBtn)}</button><button class="btn ghost small" id="tTeach">${esc(gg.cls.teacherBtn)}</button></div>
     <div class="toggles">${langToggle()}${soundToggle()}</div>
   </div>`);
   $("tStart").onclick = () => { Sound.unlock(); Sound.confirm(); levelSelect(); };
-  if (sv) $("tCont").onclick = () => { Sound.unlock(); Sound.confirm(); startLevel(sv.cfg.scenario, sv.cfg.seed, sv.inputs, !!sv.cfg.hard, !!sv.cfg.em, { mandate: sv.cfg.mandate, carry: sv.cfg.carry, career: sv.cfg.career }); };
+  if (sv) $("tCont").onclick = () => { Sound.unlock(); Sound.confirm(); startLevel(sv.cfg.scenario, sv.cfg.seed, sv.inputs, !!sv.cfg.hard, !!sv.cfg.em, optsOf(sv.cfg)); };
+  bindClassCard();
+  $("tJoin").onclick = () => { Sound.unlock(); Sound.select(); joinClass(); };
+  $("tTeach").onclick = () => { Sound.unlock(); Sound.select(); teacherDesk(); };
   bindToggles(titleScreen);
 }
 
@@ -67,8 +72,9 @@ function startLevel(scenario, seed, inputs = [], hard = false, em = false, opts 
   closeOverlay(); resetStage();
   screen = "game";
   const mandate = opts.mandate === "dual" ? "dual" : "price";
+  if (scenario === "custom" && opts.cs) installCustom(opts.cs);
   const sc = applyMode(extendScenario(buildScenario(scenario, seed), seed), hard, em, mandate, opts.carry);
-  game = { cfg: { scenario, seed, hard: !!hard, em: !!em, mandate, carry: opts.carry || null, career: !!opts.career }, sc, hist: [initGame(sc)], reports: [], inputs: [], hud: null, headlines: [] };
+  game = { cfg: { scenario, seed, hard: !!hard, em: !!em, mandate, carry: opts.carry || null, career: !!opts.career, klass: opts.klass || null, student: opts.student || "", cs: opts.cs || null }, sc, hist: [initGame(sc)], reports: [], inputs: [], hud: null, headlines: [] };
   g().tickerStart.forEach((x, k) => game.headlines.push({ key: "start" + k, src: "wire", textFn: () => g().tickerStart[k] }));
   inputs.forEach(advance);
   saveGame();

@@ -273,3 +273,19 @@ test("debrief: easing too much every quarter shows up as costly decisions with l
   }
   assert.ok(total > 0 && hurt / total > 0.6, `${hurt}/${total} moments hurt`);
 });
+
+test("teacher scenarios: events become fading shocks, and surprises can be switched off", () => {
+  const spec = { n: "Boom", y: 1995, q: 2, c: 0.6, x: false, ev: [[4, "d", 2, 3, "Boom"], [10, "s", 1.5, 1, "Drought"]], dl: [[6, "financing"]] };
+  const base = m.customScenario(spec);
+  assert.deepEqual(base.d.slice(3, 7).map(v => +v.toFixed(2)), [2, 1.33, 0.67, 0]);
+  assert.equal(base.s[9], 1.5); assert.equal(base.news[4], "cu4"); assert.equal(base.dilemmas[6], "financing");
+  const sc = m.applyMode(m.extendScenario(m.buildScenario("custom", "CU1"), "CU1"), false, false);
+  assert.equal(sc.year, 1995); assert.equal(sc.cred, 0.6);
+  assert.deepEqual(Object.keys(sc.dilemmas), ["6"], "no surprise desk decisions");
+  assert.ok(Object.values(sc.news).every(id => /^cu|^gl_/.test(id)), "no surprise events");
+  m.customScenario({ ...spec, x: true });
+  const sc2 = m.applyMode(m.extendScenario(m.buildScenario("custom", "CU1"), "CU1"), false, false);
+  assert.ok(Object.keys(sc2.dilemmas).length > 1, "surprises add desk decisions");
+  const played = simulate(m, "custom", "CU1", POLICIES.rule);
+  assert.equal(played.t, m.M.turns);
+});

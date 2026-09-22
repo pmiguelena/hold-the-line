@@ -33,7 +33,7 @@ function endLevel(restored) {
     persist();
   }
   const T_ = Math.max(1, s.t), avg = (a, b) => ((b / a) ** (1 / T_) - 1) * 400;
-  const elec = game.reports.find(r => r.election), nextKey = LEVEL_ORDER[LEVEL_ORDER.indexOf(key) + 1];
+  const elec = game.reports.find(r => r.election), nextKey = LEVEL_ORDER.includes(key) && !game.cfg.klass ? LEVEL_ORDER[LEVEL_ORDER.indexOf(key) + 1] : null;
   const front = s.lost ? gg.finalFront[s.lost] : s.cred > 0.8 ? gg.finalFront.good : gg.finalFront.mixed;
   const qL = k => quarterLabel(k).replace(" ", "");
   openOverlay(`<div class="scr end">
@@ -53,18 +53,20 @@ function endLevel(restored) {
     </dl>
     <p class="note">${esc(gg.starsNote)}</p>
     ${fresh.length ? `<div class="achs"><span class="sec-lab">${esc(gg.newAch)}</span>${fresh.map(a => `<div class="ach"><b>${esc(gg.ach[a][0])}</b><small>${esc(gg.ach[a][1])}</small></div>`).join("")}</div>` : ""}
+    ${handInHTML()}
     <div class="end-charts">${["infl", "mkt", "pol"].map(k => chartCard(k, qL, true)).join("")}</div>
     ${game.cfg.career ? `<div class="btns"><button class="btn big" id="eCareer" data-hot>${esc(gg.career.continueStory)} →</button><button class="btn ghost" id="eDebrief">${esc(gg.debrief.btn)}</button></div>` : `<div class="btns">
       <button class="btn big" id="eRetry" data-hot>${esc(gg.retry)}</button>
       <button class="btn" id="eDebrief">${esc(gg.debrief.btn)}</button>
-      <button class="btn ghost" id="eFresh">${esc(gg.newShocks)}</button>
+      ${game.cfg.klass ? "" : `<button class="btn ghost" id="eFresh">${esc(gg.newShocks)}</button>`}
       ${nextKey && !s.lost ? `<button class="btn ghost" id="eNext">${esc(gg.nextLevel)} →</button>` : ""}
       <button class="btn ghost" id="eLevels">${esc(gg.toLevels)}</button>
     </div>`}
   </div>`);
   $("eDebrief").onclick = () => { Sound.select(); openDebrief(); };
   if ($("eCareer")) $("eCareer").onclick = () => { Sound.confirm(); careerAfterTerm(); };
-  const opts = { mandate: game.cfg.mandate };
+  bindHandIn();
+  const opts = optsOf(game.cfg);
   if ($("eRetry")) $("eRetry").onclick = () => { Sound.confirm(); startLevel(key, game.cfg.seed, [], game.cfg.hard, game.cfg.em, opts); };
   if ($("eFresh")) $("eFresh").onclick = () => { Sound.confirm(); startLevel(key, randomCode(), [], game.cfg.hard, game.cfg.em, opts); };
   if ($("eNext")) $("eNext").onclick = () => { Sound.confirm(); startLevel(nextKey, randomCode(), [], game.cfg.hard, game.cfg.em, opts); };
@@ -130,7 +132,7 @@ function openMenu() {
     <div class="toggles">${langToggle()}${soundToggle()}${tipsToggle()}</div>
     <p class="hint">${esc(gg.codeLine(game.cfg.seed))}</p></div>`);
   $("mResume").onclick = resume;
-  if ($("mRestart")) $("mRestart").onclick = () => startLevel(game.cfg.scenario, game.cfg.seed, [], game.cfg.hard, game.cfg.em, { mandate: game.cfg.mandate });
+  if ($("mRestart")) $("mRestart").onclick = () => startLevel(game.cfg.scenario, game.cfg.seed, [], game.cfg.hard, game.cfg.em, optsOf(game.cfg));
   $("mLevels").onclick = levelSelect;
   $("mTitle").onclick = titleScreen;
   $("mGloss").onclick = () => openGlossary(openMenu);

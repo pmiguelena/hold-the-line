@@ -21,15 +21,22 @@ mkdirSync(join(root, "docs"), { recursive: true });
 const full = `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n${head}${css.map(c => `<style>\n${c}</style>\n`).join("\n")}</head>\n<body>\n${body}<script>\n(() => {\n"use strict";\n${js}\n})();\n</script>\n</body>\n</html>\n`;
 writeFileSync(join(root, "docs/game.html"), full);
 
-// GitHub Pages site: landing page, the game, and the frozen classic version (index.html is its claude.ai source).
+// GitHub Pages site: the landing page and the game. The frozen classic version lives apart, in classic/ (not linked from the front page).
 writeFileSync(join(root, "docs/index.html"), rd("src/page/landing.html"));
-const desk = rd("index.html");
-writeFileSync(join(root, "docs/desk.html"), `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n</head>\n<body>\n${desk}\n</body>\n</html>\n`);
+const desk = rd("classic/desk.html");
+mkdirSync(join(root, "docs/classic"), { recursive: true });
+writeFileSync(join(root, "docs/desk.html"), `<!doctype html>
+<meta charset="utf-8">
+<meta http-equiv="refresh" content="0; url=classic/">
+<link rel="canonical" href="classic/">
+<a href="classic/">Moved to classic/</a>
+`);
+writeFileSync(join(root, "docs/classic/index.html"), `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n</head>\n<body>\n${desk}\n</body>\n</html>\n`);
 writeFileSync(join(root, "docs/.nojekyll"), "");
 
 // Model bundle for Node: everything that does not touch the DOM.
 const modelParts = ["src/js/00-model-core.js", "src/js/05-game-model.js"].map(rd).join("\n");
 const cut = modelParts.indexOf("function advance(inp)");
 writeFileSync(join(root, "tools/model.cjs"), modelParts.slice(0, cut) +
-  "\nmodule.exports = { M, MOVES, SCEN, buildScenario, extendScenario, initGame, prepGame, stepGame, scoreGame, ruleBoundGame, drawdown, taylorRate, seenOf, staffForecast, FOG, econDetail, CPI_W, DEPTS, initDept, buyCost, ruleBuys, budgetQuarter, boardVote, boardPrefs, FOGM, BOARD0, applyMode, finFeed, MANDATE, FED_PATH, rulePath, replayGame, debriefData };\n");
+  "\nmodule.exports = { M, MOVES, SCEN, buildScenario, extendScenario, initGame, prepGame, stepGame, scoreGame, ruleBoundGame, drawdown, taylorRate, seenOf, staffForecast, FOG, econDetail, CPI_W, DEPTS, initDept, buyCost, ruleBuys, budgetQuarter, boardVote, boardPrefs, FOGM, BOARD0, applyMode, finFeed, MANDATE, FED_PATH, rulePath, replayGame, debriefData, customScenario };\n");
 console.log(`built game.html (${fragment.length} chars), docs/game.html, tools/model.cjs`);

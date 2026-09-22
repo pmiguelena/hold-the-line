@@ -136,3 +136,86 @@ test("teaching: every glossary link points to a real term, in both languages", (
   }
   assert.deepEqual(errors, []);
 });
+
+// Teacher desk helpers
+function makeAssignment(d, { cl = "Macro 101", level = "crisis", hard = false } = {}) {
+  d.getElementById("tTeach").click();
+  d.querySelector('[data-tab="0"]').click();
+  const cls = d.getElementById("aCl"); cls.value = cl; cls.dispatchEvent(new d.defaultView.Event("input"));
+  const lv = d.getElementById("aLv"); lv.value = level; lv.dispatchEvent(new d.defaultView.Event("change"));
+  if (hard) d.querySelector('[data-ah="1"]').click();
+  return { code: d.getElementById("aCode").value, link: d.getElementById("aLink").value };
+}
+const joinAndStart = (code, name) => d => {
+  d.getElementById("tJoin").click();
+  d.getElementById("joinIn").value = code; d.getElementById("joinGo").click();
+  d.getElementById("stName").value = name; d.getElementById("caGo").click();
+};
+function checkCodes(d, text) {
+  d.getElementById("tTeach").click();
+  d.querySelector('[data-tab="2"]').click();
+  d.getElementById("rIn").value = text; d.getElementById("rGo").click();
+  return [...d.querySelectorAll(".res-tbl tbody tr")].map(tr => [...tr.children].map(td => td.textContent.trim()));
+}
+
+test("classroom: assignment link, a student's result code, and the teacher's verified table and report", () => {
+  const t1 = boot(), a = makeAssignment(t1.d, { cl: "Macro 101", level: "crisis", hard: true });
+  assert.match(a.code, /^HTLC1\./); assert.match(a.link, /\?class=HTLC1\./);
+  assert.deepEqual(t1.errors, []);
+
+  const st = boot(), r = playThrough(st.d, { lang: "en", start: joinAndStart(a.code, "Ana Pérez"), advisor: 0 });
+  const result = st.d.getElementById("hiCode").value;
+  assert.match(result, /^HTLR1\./);
+  assert.ok(!st.d.getElementById("eFresh"), "no new shocks inside a class assignment");
+  assert.deepEqual(st.errors, []);
+
+  const t2 = boot(), rows = checkCodes(t2.d, `Hi teacher, here is mine:
+${result}
+thanks`);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0][0], "Ana Pérez"); assert.equal(rows[0][1], "Macro 101");
+  assert.equal(+rows[0][3], r.score, "the replayed score matches the student's screen");
+  assert.equal(rows[0][10], "Verified");
+  t2.d.querySelector("[data-rep]").click();
+  assert.match(t2.d.querySelector(".report-who").textContent, /Ana Pérez · Macro 101/);
+  assert.ok(t2.d.getElementById("dbPrint"));
+  t2.d.getElementById("dbBack").click();
+  assert.ok(t2.d.querySelector(".res-tbl"), "back on the results table");
+  assert.deepEqual(t2.errors, []);
+});
+
+test("classroom: an altered result code is flagged; junk is reported, not crashed on", () => {
+  const st = boot(), r = playThrough(st.d, { level: "random", lang: "en" });
+  const code = st.d.getElementById("hiCode").value;
+  const body = JSON.parse(Buffer.from(code.slice(6).replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8"));
+  body.nm = "Someone else";
+  const forged = "HTLR1." + Buffer.from(JSON.stringify(body)).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const t = boot(), rows = checkCodes(t.d, forged + "\nHTLR1.garbage");
+  assert.equal(rows[0][10], "Code altered");
+  assert.match(rows[1][0], /Unreadable/);
+  assert.ok(r.score >= 0);
+  assert.deepEqual(t.errors, []);
+});
+
+test("classroom: a class link in the URL shows the assignment; a teacher's own scenario plays end to end", () => {
+  const t = boot(), d = t.d;
+  d.getElementById("tTeach").click();
+  d.querySelector('[data-tab="1"]').click();
+  const set = (el, v, ev = "input") => { el.value = v; el.dispatchEvent(new d.defaultView.Event(ev)); };
+  set(d.getElementById("bN"), "Copper boom");
+  set(d.querySelector('.ev [data-f="4"]'), "Copper hits a record");
+  d.getElementById("bAdd").click();
+  set(d.querySelectorAll(".ev")[1].querySelector('[data-f="4"]'), "Drought hits farms");
+  d.getElementById("bAddD").click();
+  assert.ok(d.querySelector("#bPrev svg.chart"), "shock preview");
+  d.getElementById("bUse").click();
+  assert.equal(d.getElementById("aLv").value, "custom");
+  const code = d.getElementById("aCode").value;
+  assert.deepEqual(t.errors, []);
+
+  const st = boot("", "https://example.org/game.html?class=" + code);
+  assert.match(st.d.querySelector(".class-card").textContent, /Copper boom/);
+  const r = playThrough(st.d, { lang: "es", start: dd => { dd.getElementById("stName").value = "Luis"; dd.getElementById("caGo").click(); } });
+  assert.ok(ENDINGS.includes(r.end), r.end);
+  assert.deepEqual(st.errors, []);
+});

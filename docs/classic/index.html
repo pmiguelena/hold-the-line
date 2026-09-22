@@ -1,0 +1,1236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Central Banker's Desk</title>
+<meta name="description" content="A turn-based monetary policy game: steer inflation through news shocks, political pressure before an election, and advisors who disagree.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#EDEFE6; --panel:#E1E6D6; --raised:#F8F9F3;
+  --ink:#1D2B26; --ink-soft:#56645C; --rule:#C3CBB8;
+  --accent:#2F5D4E; --accent-ink:#F4F6EE; --gold:#9A6D22; --gold-soft:rgba(154,109,34,.12);
+  --good:#2F7A4F; --warn:#A8741A; --crit:#A63A2B; --crit-ink:#FFF6F2;
+  --pi:#A63A2B; --gap:#2E5A87; --rate:#2F5D4E; --cred:#2F5D4E; --pop:#9A6D22;
+  --band:rgba(47,93,78,.10); --shadow:0 1px 0 rgba(29,43,38,.06), 0 8px 24px -14px rgba(29,43,38,.35);
+  --f-display:"Old Standard TT", "Iowan Old Style", Georgia, serif;
+  --f-body:"Public Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111714; --panel:#18211D; --raised:#1F2A25;
+    --ink:#E3E8DC; --ink-soft:#9AA79E; --rule:#2F3B34;
+    --accent:#7FB39F; --accent-ink:#0F1512; --gold:#D6A75A; --gold-soft:rgba(214,167,90,.12);
+    --good:#6FC08F; --warn:#E0AE55; --crit:#E47C67; --crit-ink:#1A0F0C;
+    --pi:#E47C67; --gap:#86ADDB; --rate:#7FB39F; --cred:#7FB39F; --pop:#D6A75A;
+    --band:rgba(127,179,159,.12); --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 26px -14px rgba(0,0,0,.7); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111714; --panel:#18211D; --raised:#1F2A25;
+  --ink:#E3E8DC; --ink-soft:#9AA79E; --rule:#2F3B34;
+  --accent:#7FB39F; --accent-ink:#0F1512; --gold:#D6A75A; --gold-soft:rgba(214,167,90,.12);
+  --good:#6FC08F; --warn:#E0AE55; --crit:#E47C67; --crit-ink:#1A0F0C;
+  --pi:#E47C67; --gap:#86ADDB; --rate:#7FB39F; --cred:#7FB39F; --pop:#D6A75A;
+  --band:rgba(127,179,159,.12); --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 26px -14px rgba(0,0,0,.7); color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font:15px/1.5 var(--f-body);margin:0}
+.wrap{max-width:1280px;margin:0 auto;padding-inline:20px;padding-block:14px 48px;display:grid;gap:16px}
+@media (max-width:480px){.wrap{padding-inline:16px}}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.label{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+h1,h2,h3{margin:0;text-wrap:balance}
+
+/* Masthead */
+.mast{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;justify-content:space-between;border-bottom:1px solid var(--rule);padding-bottom:12px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand svg{flex:none;color:var(--accent)}
+.brand h1{font:700 clamp(24px,3vw,32px)/1.05 var(--f-display);letter-spacing:-.01em}
+.brand p{margin:2px 0 0;color:var(--ink-soft);font-size:13px}
+.setup{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:end}
+.field{display:grid;gap:3px}
+.field select,.field input{background:var(--raised);border:1px solid var(--rule);border-radius:4px;padding:6px 8px;min-width:0}
+.field input{width:8ch;text-transform:uppercase;font-family:var(--f-mono)}
+.btn{border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:4px;padding:7px 14px;font-weight:700}
+.btn:hover{background:var(--band)}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn.big{padding:12px 20px;font-size:16px}
+.lang{display:flex;border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+.lang button{border:0;background:transparent;padding:6px 9px;font-size:13px;font-weight:700;color:var(--ink-soft)}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+
+/* HUD */
+.hud{display:grid;grid-template-columns:auto repeat(5,minmax(0,1fr));border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--rule);gap:1px}
+.hud > div{background:var(--raised);padding:9px 12px;display:grid;gap:2px;align-content:start;min-width:0}
+.hud .when{background:var(--ink);color:var(--paper)}
+.hud .when .label{color:inherit;opacity:.7}
+.hud .when b{font:700 22px/1.1 var(--f-display)}
+.hud .when span.sub{font-size:12.5px;opacity:.85}
+.hud b.v{font:500 21px/1.1 var(--f-mono);font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:6px}
+.hud small{font:500 12px var(--f-mono)}
+.up{color:var(--crit)} .dn{color:var(--good)} .flat{color:var(--ink-soft)}
+.meter{position:relative;height:6px;background:var(--rule);border-radius:3px;margin-top:4px}
+.meter i{position:absolute;inset:0 auto 0 0;border-radius:3px;background:var(--c,var(--accent))}
+.meter em{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.55}
+@media (max-width:900px){.hud{grid-template-columns:repeat(3,minmax(0,1fr))}.hud .when{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline}}
+@media (max-width:480px){.hud{grid-template-columns:repeat(2,minmax(0,1fr))}.hud b.v{font-size:18px}}
+.chip{justify-self:start;font-size:11px;font-weight:700;letter-spacing:.03em;padding:0 7px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.chip.good{color:var(--good)} .chip.warn{color:var(--warn)} .chip.crit{color:var(--crit)}
+
+/* Main layout */
+.game{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);gap:22px;align-items:start}
+@media (max-width:980px){.game{grid-template-columns:minmax(0,1fr)}}
+.stage{display:grid;gap:14px;min-width:0}
+.steps{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.steps span{font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:99px;color:var(--ink-soft);border:1px solid var(--rule)}
+.steps span.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.steps span.done{color:var(--accent);border-color:var(--accent)}
+.steps i{flex:none;width:14px;height:1px;background:var(--rule)}
+.stage-title{font:700 clamp(24px,2.8vw,30px)/1.1 var(--f-display)}
+.feed{display:grid;gap:14px}
+@media (prefers-reduced-motion: no-preference){
+  .feed > *{animation:rise .5s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--n,0) * 140ms)}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+}
+
+/* Breaking news lower-third */
+.banner{display:grid;grid-template-columns:auto minmax(0,1fr);border-radius:6px;overflow:hidden;box-shadow:var(--shadow);background:var(--raised);border:1px solid var(--rule)}
+.banner .tag{background:var(--crit);color:var(--crit-ink);font:800 12px/1 var(--f-body);letter-spacing:.12em;text-transform:uppercase;padding:12px;writing-mode:vertical-rl;transform:rotate(180deg);text-align:center}
+.banner.data .tag{background:var(--accent);color:var(--accent-ink)}
+.banner .body{padding:12px 16px;display:grid;gap:4px}
+.banner h3{font:700 clamp(20px,2.4vw,26px)/1.15 var(--f-display)}
+.banner p{margin:0;color:var(--ink-soft)}
+
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:640px){.two{grid-template-columns:minmax(0,1fr)}}
+.block{display:grid;gap:8px;align-content:start}
+.press{display:grid;gap:0;border-top:2px solid var(--ink)}
+.press div{padding:8px 0;border-bottom:1px solid var(--rule);display:grid;gap:1px}
+.press b{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.press span{font:400 16.5px/1.25 var(--f-display)}
+.voice{font:italic 400 16px/1.35 var(--f-display);color:var(--ink-soft);padding-left:12px;border-left:2px solid var(--rule);margin:4px 0 0}
+
+.phone{display:grid;gap:10px}
+.msg{display:grid;grid-template-columns:38px minmax(0,1fr);gap:10px;align-items:start}
+.av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font:700 13px var(--f-body);background:var(--panel);border:1px solid var(--rule)}
+.av.pres{background:var(--crit);color:var(--crit-ink);border-color:var(--crit)}
+.av.fin{background:var(--gold);color:var(--paper);border-color:var(--gold)}
+.bubble{background:var(--raised);border:1px solid var(--rule);border-radius:2px 12px 12px 12px;padding:8px 12px;box-shadow:var(--shadow)}
+.bubble .who{font-size:12px;font-weight:700;display:flex;flex-wrap:wrap;gap:0 6px;align-items:baseline}
+.bubble .who em{font-style:normal;font-weight:500;color:var(--ink-soft)}
+.bubble p{margin:2px 0 0}
+.pressure{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--crit)}
+.pressure i{width:18px;height:6px;border-radius:1px;background:var(--rule)}
+.pressure i.on{background:var(--crit)}
+.quiet{color:var(--ink-soft);font-size:14px}
+
+.alert{border:1px solid var(--crit);color:var(--crit);background:var(--raised);border-radius:4px;padding:8px 12px;font-size:14px;font-weight:600}
+
+/* Dilemma */
+.dilemma{border:2px solid var(--gold);background:var(--gold-soft);border-radius:8px;padding:14px 16px;display:grid;gap:10px}
+.dilemma h3{font:700 21px/1.2 var(--f-display)}
+.dilemma p{margin:0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:minmax(0,1fr)}}
+.opt{text-align:left;border:1px solid var(--rule);background:var(--raised);border-radius:6px;padding:10px 12px;font-weight:600;line-height:1.35}
+.opt:hover{border-color:var(--gold)}
+.opt[aria-pressed="true"]{border:2px solid var(--ink);padding:9px 11px;background:var(--paper)}
+
+/* Advisors */
+.advisors{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:760px){.advisors{grid-template-columns:minmax(0,1fr)}}
+.adv{border:1px solid var(--rule);border-radius:8px;background:var(--raised);padding:12px;display:grid;gap:8px;align-content:start}
+.adv header{display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;align-items:center}
+.adv svg{width:44px;height:44px;border-radius:50%;background:var(--panel);border:1px solid var(--rule)}
+.adv h3{font:700 15.5px/1.15 var(--f-display)}
+.adv .school{font-size:11.5px;color:var(--ink-soft)}
+.adv p{margin:0;font-size:14px}
+.adv footer{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.rec{font:500 13px var(--f-mono);padding:2px 8px;border-radius:4px;background:var(--panel)}
+.adv .follow{border:0;background:none;color:var(--accent);font-weight:700;text-decoration:underline;text-underline-offset:3px;padding:0}
+
+/* Decision */
+.decide{border:1px solid var(--rule);border-radius:8px;background:var(--panel);padding:16px;display:grid;gap:14px}
+.decide h3{font:700 20px/1.2 var(--f-display)}
+.seg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.seg.tones{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:560px){.seg{grid-template-columns:repeat(4,minmax(0,1fr))}.seg.tones{grid-template-columns:minmax(0,1fr)}}
+.seg button{border:1px solid var(--rule);background:var(--raised);border-radius:4px;padding:8px 4px;font:600 13px/1.2 var(--f-body);display:grid;gap:1px;justify-items:center}
+.seg button small{font:500 11.5px var(--f-mono);color:var(--ink-soft)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.seg button[aria-pressed="true"] small{color:inherit;opacity:.8}
+.seg button:disabled{opacity:.35;cursor:not-allowed}
+.seg.tones button{padding:8px 10px;text-align:center}
+.decide-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.newrate{font:500 15px var(--f-mono)}
+.newrate b{font-size:24px;font-weight:500}
+.tip{font-size:13px;color:var(--ink-soft);margin:0}
+
+/* Reaction */
+.verdict{display:grid;gap:4px}
+.verdict h3{font:700 clamp(22px,2.6vw,28px)/1.15 var(--f-display)}
+.moves-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+@media (max-width:560px){.moves-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.moves-row div{background:var(--raised);padding:8px 12px;display:grid;gap:1px}
+.moves-row b{font:500 20px/1.15 var(--f-mono)}
+.ledger{border:1px solid var(--rule);border-radius:8px;background:var(--raised);padding:12px 14px;display:grid;gap:6px;align-content:start}
+.ledger h4{margin:0;display:flex;justify-content:space-between;align-items:baseline;font:700 16px var(--f-display)}
+.ledger h4 span{font:500 18px var(--f-mono)}
+.ledger ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.ledger li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;font-size:13.5px;border-top:1px dashed var(--rule);padding-top:4px}
+.ledger li span:last-child{font-family:var(--f-mono)}
+.pos{color:var(--good)} .neg{color:var(--crit)}
+.market{display:grid;gap:6px}
+.market p{margin:0}
+.election{border:2px solid var(--ink);border-radius:8px;padding:14px 16px;background:var(--raised);display:grid;gap:4px}
+.election h3{font:700 22px/1.2 var(--f-display)}
+.election p{margin:0}
+
+/* Side charts */
+.side{display:grid;gap:14px;min-width:0}
+@media (max-width:980px) and (min-width:641px){.side{grid-template-columns:repeat(2,minmax(0,1fr))}}
+figure{margin:0;display:grid;gap:3px;min-width:0}
+figcaption{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 10px;align-items:baseline}
+figcaption strong{font:700 15px/1.2 var(--f-display)}
+.keys{display:flex;flex-wrap:wrap;gap:8px;font-size:11.5px;color:var(--ink-soft)}
+.keys span::before{content:"";display:inline-block;width:12px;height:3px;margin-right:4px;vertical-align:middle;background:var(--c)}
+.keys span.dash::before{background:repeating-linear-gradient(90deg,var(--c) 0 4px,transparent 4px 7px)}
+svg.chart{width:100%;height:auto;display:block}
+svg.chart text{font:11.5px var(--f-mono);fill:var(--ink-soft)}
+svg.chart .grid{stroke:var(--rule);stroke-width:1}
+svg.chart .zero{stroke:var(--ink-soft);stroke-width:1}
+
+/* Tables */
+section > h2{font:700 20px/1.2 var(--f-display);margin:0 0 8px}
+.tbl{overflow-x:auto;border:1px solid var(--rule);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:6px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--rule)}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;background:var(--panel)}
+td{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+th:first-child,td:first-child,td.txt,th.txt{text-align:left}
+td.txt{font-family:var(--f-body);white-space:normal;min-width:200px}
+tr:last-child td{border-bottom:0}
+td.empty{text-align:left;font-family:var(--f-body);color:var(--ink-soft)}
+.lower{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:22px}
+@media (max-width:1000px){.lower{grid-template-columns:minmax(0,1fr)}}
+details{border-top:1px solid var(--rule);padding-top:12px}
+summary{cursor:pointer;font:700 18px/1.3 var(--f-display)}
+.explain{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px 24px;margin-top:12px;font-size:14px}
+.explain p{margin:4px 0 0;max-width:62ch}
+.eq{font-family:var(--f-mono);font-size:13px;background:var(--panel);border-radius:4px;padding:8px 10px;overflow-x:auto;white-space:nowrap}
+
+/* Result dialog */
+dialog{border:1px solid var(--rule);border-radius:10px;background:var(--raised);color:var(--ink);padding:0;width:min(580px,calc(100vw - 32px));max-height:calc(100vh - 32px)}
+dialog::backdrop{background:rgba(10,16,13,.6)}
+.res{padding:22px;display:grid;gap:14px}
+.res h2{font:700 30px/1.1 var(--f-display)}
+.res .big{font:500 58px/1 var(--f-mono);font-variant-numeric:tabular-nums;color:var(--accent)}
+.res .big.zero{color:var(--crit)}
+.res dl{display:grid;grid-template-columns:1fr auto;gap:6px 16px;margin:0;font-size:14px}
+.res dt{color:var(--ink-soft)} .res dd{margin:0;font-family:var(--f-mono);text-align:right}
+.res .row{display:flex;flex-wrap:wrap;gap:10px}
+.res p{margin:0}
+.footnote{font-size:12.5px;color:var(--ink-soft)}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="brand">
+      <svg id="seal" width="44" height="44" viewBox="-50 -50 100 100" aria-hidden="true"></svg>
+      <div>
+        <h1>Central Banker's Desk</h1>
+        <p data-t="tagline"></p>
+      </div>
+    </div>
+    <div class="setup">
+      <label class="field"><span class="label" data-t="scenario"></span><select id="scenario"></select></label>
+      <label class="field"><span class="label" data-t="seed"></span><input id="seed" maxlength="8" spellcheck="false" autocomplete="off"></label>
+      <button class="btn" id="newGame" data-t="newGame"></button>
+      <div class="lang" role="group" aria-label="Language">
+        <button id="lang-en" aria-pressed="true">EN</button>
+        <button id="lang-es" aria-pressed="false">ES</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="hud" id="hud"></div>
+
+  <div class="game">
+    <main class="stage">
+      <div class="steps" id="steps"></div>
+      <h2 class="stage-title" id="stageTitle"></h2>
+      <div class="feed" id="feed" aria-live="polite"></div>
+    </main>
+    <aside class="side">
+      <figure><figcaption><strong data-t="chInfl"></strong><span class="keys"><span style="--c:var(--pi)" data-t="kInfl"></span><span class="dash" style="--c:var(--ink-soft)" data-t="kExp"></span></span></figcaption><svg class="chart" id="chInfl" viewBox="0 0 380 170"></svg></figure>
+      <figure><figcaption><strong data-t="chGap"></strong><span class="keys"><span style="--c:var(--gap)" data-t="kGap"></span></span></figcaption><svg class="chart" id="chGap" viewBox="0 0 380 170"></svg></figure>
+      <figure><figcaption><strong data-t="chRate"></strong><span class="keys"><span style="--c:var(--rate)" data-t="kRate"></span></span></figcaption><svg class="chart" id="chRate" viewBox="0 0 380 170"></svg></figure>
+      <figure><figcaption><strong data-t="chPol"></strong><span class="keys"><span style="--c:var(--cred)" data-t="kCred"></span><span style="--c:var(--pop)" data-t="kPop"></span></span></figcaption><svg class="chart" id="chPol" viewBox="0 0 380 170"></svg></figure>
+    </aside>
+  </div>
+
+  <div class="lower">
+    <section>
+      <h2 data-t="minutes"></h2>
+      <div class="tbl"><table id="minutes"></table></div>
+    </section>
+    <section>
+      <h2 data-t="record"></h2>
+      <div class="tbl"><table id="board"></table></div>
+    </section>
+  </div>
+
+  <details>
+    <summary data-t="howTitle"></summary>
+    <div class="explain" id="explain"></div>
+  </details>
+</div>
+
+<dialog id="result"><div class="res" id="resBody"></div></dialog>
+
+<script>
+(() => {
+"use strict";
+
+/* ═══════════════ MODEL (pure: no DOM) ═══════════════ */
+const M = {
+  piStar: 2, rStar: 1, rho: 0.6, sigInv: 0.35, gMult: 0.3, g0: 20,
+  kLag: 0.3, kNow: 0.1, sdD: 0.15, sdS: 0.12,
+  turns: 12, election: 8, iMin: 0, iMax: 10,
+  toneX: 0.2, tonePe: 0.35,
+  credLose: 0.12, popFire: 25, popFireDefy: 38
+};
+const MOVES = [-1, -0.5, -0.25, 0, 0.25, 0.5, 1];
+
+const SCEN = {
+  random:   { year: 2027, q: 1, cred: 0.75 },
+  oil:      { year: 1973, q: 3, cred: 0.6,
+              d: [0, 0, -0.5, -0.3, 0, 0, 0, 0, 0, 0, 0, 0],
+              s: [0, 1.6, 1.3, 0.8, 0.5, 0.3, 0, 0, 0, 0, 0, 0],
+              news: { 1: "oil1", 2: "oil2", 3: "oil3", 6: "oil4" },
+              dilemmas: { 3: "wages", 5: "financing", 9: "hearing" } },
+  crisis:   { year: 2007, q: 3, cred: 0.8,
+              d: [0, 0, -1.1, -1.6, -1.1, -0.6, -0.3, 0, 0, 0, 0, 0],
+              s: [0, 0.3, 0.3, -0.3, -0.3, 0, 0, 0, 0, 0, 0, 0],
+              news: { 1: "cr1", 2: "cr2", 3: "cr3", 4: "cr4", 7: "cr5" },
+              dilemmas: { 2: "bank", 6: "financing", 10: "leak" } },
+  pandemic: { year: 2020, q: 1, cred: 0.8,
+              d: [0, -3.5, 1.6, 0.5, 0, 0, 0, 0, 0, 0, 0, 0],
+              s: [0, -0.5, 0, 0, 0.8, 1.1, 0.8, 0.5, 0, 0, 0, 0],
+              news: { 1: "pa1", 2: "pa2", 4: "pa3", 5: "pa4", 8: "pa5" },
+              dilemmas: { 3: "financing", 6: "currency", 10: "office" } }
+};
+const EVENT_POOL = [
+  { id: "ev_house", kind: "d", sign: -1 }, { id: "ev_stocks", kind: "d", sign: -1 },
+  { id: "ev_credit", kind: "d", sign: 1 }, { id: "ev_exports", kind: "d", sign: 1 },
+  { id: "ev_drought", kind: "s", sign: 1 }, { id: "ev_oil", kind: "s", sign: 1 },
+  { id: "ev_tech", kind: "s", sign: -1 }, { id: "ev_commod", kind: "s", sign: -1 }
+];
+// Option 0 is always the institutional answer; option 1 the politically convenient one.
+const DILEMMAS = {
+  financing: [{ cred: 0.05, pop: -3 }, { cred: -0.15, pop: 5, g: 1.5, pe: 0.4 }],
+  hearing:   [{ cred: 0.04, pop: -2 }, { cred: -0.06, pop: 3 }],
+  bank:      [{ cred: 0.02, d: -0.3 }, { cred: 0.01, d: -1.4, pop: -4 }],
+  leak:      [{ cred: 0.03 }, { cred: -0.07, pop: 1 }],
+  currency:  [{ cred: 0.03, s: 0.6 }, { cred: -0.04 }],
+  office:    [{ cred: 0.03 }, { cred: -0.06, pop: 2 }],
+  wages:     [{ cred: 0.03, pop: -3 }, { cred: -0.03, pop: 3, pe: 0.5 }]
+};
+
+function hashStr(str) {
+  let h = 1779033703 ^ str.length;
+  for (let k = 0; k < str.length; k++) { h = Math.imul(h ^ str.charCodeAt(k), 3432918353); h = (h << 13) | (h >>> 19); }
+  h = Math.imul(h ^ (h >>> 16), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return (h ^= h >>> 16) >>> 0;
+}
+function rngFrom(seed) {
+  let a = hashStr(seed);
+  return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+const gauss = rng => { let u = 0; while (!u) u = rng(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rng()); };
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const r25 = v => Math.round(v * 4) / 4;
+
+function buildScenario(key, seed) {
+  const base = SCEN[key], rng = rngFrom(key + ":" + seed);
+  const sc = { key, year: base.year, q: base.q, cred: base.cred, d: Array(13).fill(0), s: Array(13).fill(0), news: {}, dilemmas: {} };
+  if (key === "random") {
+    const used = new Set();
+    for (let e = 0; e < 2; e++) {
+      let t; do { t = 2 + Math.floor(rng() * 8); } while (used.has(t) || used.has(t - 1) || used.has(t + 1));
+      used.add(t);
+      const ev = EVENT_POOL[Math.floor(rng() * EVENT_POOL.length)], mag = 0.8 + rng() * 0.7;
+      [1, 0.6, 0.3].forEach((w, j) => { if (t + j <= 12) sc[ev.kind][t + j] += ev.sign * mag * w; });
+      sc.news[t] = ev.id;
+    }
+    const ids = Object.keys(DILEMMAS).map(id => [rng(), id]).sort((a, b) => a[0] - b[0]).slice(0, 3).map(p => p[1]);
+    [2 + Math.floor(rng() * 3), 5 + Math.floor(rng() * 3), 9 + Math.floor(rng() * 3)].forEach((t, k) => (sc.dilemmas[t] = ids[k]));
+  } else {
+    base.d.forEach((v, j) => (sc.d[j + 1] = v)); base.s.forEach((v, j) => (sc.s[j + 1] = v));
+    sc.news = base.news; sc.dilemmas = base.dilemmas;
+  }
+  sc.noiseD = Array.from({ length: 13 }, () => gauss(rng) * M.sdD);
+  sc.noiseS = Array.from({ length: 13 }, () => gauss(rng) * M.sdS);
+  return sc;
+}
+
+const initState = sc => ({ t: 0, pi: 2, pe: 2, x: 0, i: 3, g: 20, gExtra: 0, peExtra: 0, cred: sc.cred, pop: 55,
+  P: 100, Y: 100, pot: 100, neg: 0, hot: 0, L: 0, lost: null, tone: "neutral", move: 0, govt: "inc", honey: 0 });
+
+const taylorRate = s => M.rStar + s.pi + 0.5 * (s.pi - 2) + 0.5 * s.x;
+const bandMove = (s, target) => {
+  const raw = clamp(r25(target) - s.i, -1, 1);
+  return MOVES.reduce((b, m) => (Math.abs(m - raw) < Math.abs(b - raw) && s.i + m >= 0 ? m : b), 0);
+};
+
+// What the government, press and advisors do before the governor decides turn t = s.t + 1
+function prepare(s, sc) {
+  const t = s.t + 1, toElection = M.election - t;
+  let gTarget = s.govt === "opp" ? 19 : 20;
+  if (toElection >= 0 && toElection <= 3 && s.pop < 58) gTarget += (4 - toElection) * 0.6;
+  if (s.x < -1.5) gTarget += 1.5;
+  const g = clamp(s.g + clamp(gTarget - s.g, -1, 1), 16, 26);
+  let pressure = null, level = 0;
+  if (s.pi > 6) { pressure = "hike"; level = 2; }
+  else if (s.i > 0.25 && toElection >= 0 && (toElection <= 3 || s.pop < 45)) { pressure = "cut"; level = toElection <= 1 ? 3 : toElection <= 3 ? 2 : 1; }
+  else if (s.i > 0.25 && toElection < 0 && s.pop < 40) { pressure = "cut"; level = 1; }
+  const advisors = {
+    keynes: bandMove(s, M.rStar + s.pe + 0.25 * (s.pi - 2) + 1.0 * s.x),
+    friedman: bandMove(s, M.rStar + s.pe + 1.0 * (s.pi - 2) + 0.1 * s.x + (s.cred < 0.5 ? 0.5 : 0)),
+    taylor: bandMove(s, taylorRate(s))
+  };
+  return { t, g, pressure, level, toElection, dilemma: sc.dilemmas[t] || null, news: sc.news[t] || null, advisors };
+}
+
+function resolve(s, sc, prep, inp) {
+  const t = prep.t, move = inp.move, i = clamp(s.i + move, M.iMin, M.iMax);
+  const eff = prep.dilemma && inp.choice != null ? DILEMMAS[prep.dilemma][inp.choice] : {};
+  const toneSign = inp.tone === "hawkish" ? -1 : inp.tone === "dovish" ? 1 : 0;
+  const credParts = [], popParts = [];
+  const gExtra = s.gExtra * 0.6 + (eff.g || 0), peExtra = s.peExtra * 0.5 + (eff.pe || 0);
+  const g = prep.g + gExtra;
+
+  const pe = s.cred * 2 + (1 - s.cred) * s.pi + toneSign * M.tonePe * s.cred + peExtra;
+  const x = M.rho * s.x - M.sigInv * (i - pe - M.rStar) + M.gMult * (g - M.g0) + toneSign * M.toneX
+    + sc.d[t] + sc.noiseD[t] + (eff.d || 0);
+  const pi = pe + M.kLag * s.x + M.kNow * x + sc.s[t] + sc.noiseS[t] + (eff.s || 0);
+
+  const miss = Math.abs(pi - 2);
+  if (miss < 1) credParts.push(["onTarget", 0.02]);
+  else credParts.push(["offTarget", -Math.min(0.15, 0.05 * (miss - 1))]);
+  if (prep.pressure === "cut" && s.pi > 2.5) credParts.push(move < 0 ? ["caved", -0.06] : ["resisted", 0.02]);
+  if (s.tone === "hawkish" && move < 0) credParts.push(["brokeHawk", -0.07]);
+  else if (s.tone === "dovish" && move > 0) credParts.push(["brokeDove", -0.07]);
+  else if (s.tone !== "neutral") credParts.push(["keptWord", 0.01]);
+  if (eff.cred) credParts.push(["dilemma", eff.cred]);
+  const cred = clamp(s.cred + credParts.reduce((a, p) => a + p[1], 0), 0.05, 0.95);
+
+  const econTarget = 50 + 5 * x - 3 * Math.max(0, pi - 3) - 4 * Math.max(0, -pi) + s.honey;
+  popParts.push(["economy", 0.3 * (econTarget - s.pop)]);
+  if (move > 0) popParts.push(["hike", -2.5 * move]);
+  if (move < 0) popParts.push(["cut", -1 * move]);
+  if (g - s.g > 0.05) popParts.push(["spending", 0.8 * (g - s.g)]);
+  if (eff.pop) popParts.push(["dilemma", eff.pop]);
+  let pop = clamp(s.pop + popParts.reduce((a, p) => a + p[1], 0), 0, 100);
+
+  let govt = s.govt, honey = Math.max(0, s.honey - 2), election = null;
+  if (t === M.election) {
+    election = pop >= 50 ? "reelected" : "defeated";
+    if (election === "defeated") { govt = "opp"; honey = 8; popParts.push(["newGov", 58 - pop]); pop = 58; }
+  }
+
+  const pot = s.pot * 1.005;
+  const n = { t, pi, pe, x, i, g, gExtra, peExtra, cred, pop, pot, P: s.P * (1 + pi / 400), Y: pot * (1 + x / 100),
+    neg: pi < 0 ? s.neg + 1 : 0, hot: pi > 10 ? s.hot + 1 : 0, L: s.L + (pi - 2) ** 2 + 0.5 * x ** 2,
+    tone: inp.tone, move, govt, honey, lost: null };
+  const fired = pop < M.popFire || (pop < M.popFireDefy && prep.pressure === "cut" && prep.level >= 2 && move > 0);
+  n.lost = n.neg >= 3 ? "defl" : n.hot >= 3 ? "infl" : cred < M.credLose ? "cred" : fired ? "fired" : null;
+  return { state: n, credParts, popParts, election, surprise: move - prep.advisors.taylor };
+}
+
+const scoreParts = s => {
+  if (s.lost) return { macro: 0, cred: 0, pop: 0, total: 0 };
+  const macro = Math.round(550 * Math.exp(-s.L / 25)), cred = Math.round(300 * s.cred), pop = Math.round(150 * Math.min(1, s.pop / 60));
+  return { macro, cred, pop, total: macro + cred + pop };
+};
+function ruleBound(sc) {
+  let s = initState(sc);
+  while (s.t < M.turns && !s.lost) { const p = prepare(s, sc); s = resolve(s, sc, p, { move: p.advisors.taylor, tone: "neutral", choice: 0 }).state; }
+  return s;
+}
+/* ═══════════════ END MODEL ═══════════════ */
+
+
+/* ═══════════════ TEXT ═══════════════ */
+const PEOPLE = { salas: "Víctor Salas", rios: "Elena Ríos", quiroga: "Marta Quiroga", brandt: "Tomás Brandt" };
+const sgn = (v, d = 2) => (v > 0.0049 ? "+" : v < -0.0049 ? "−" : "") + Math.abs(v).toFixed(d);
+const pc = (v, d = 2) => `${(Math.abs(v) < 0.005 ? 0 : v).toFixed(d).replace("-", "−")}%`;
+
+const T = {
+  en: {
+    tagline: "Twelve quarters, one election, and everyone has an opinion about your interest rate.",
+    scenario: "Scenario", seed: "Shock code", newGame: "New game",
+    scen: { random: "Random times", oil: "1973 oil shock", crisis: "2008 financial crisis", pandemic: "2020 pandemic" },
+    steps: ["Briefing", "Board meeting", "Reaction"],
+    turn: (t, n) => `Turn ${t} of ${n}`,
+    electionIn: n => n > 0 ? `Election in ${n} quarter${n > 1 ? "s" : ""}` : n === 0 ? "Election this quarter" : "Election held",
+    hud: { pi: "Inflation", x: "Output gap", i: "Policy rate", cred: "Bank credibility", pop: "Government popularity" },
+    st: { onTarget: "on target", off: "off target", danger: "danger", closed: "closed", slack: "slack", hot: "overheating", deep: "slump", anchored: "anchored", shaky: "shaky", lost: "collapsing", safe: "comfortable", tense: "under 50", risk: "firing risk" },
+    titles: { brief: q => `${q}: the morning briefing`, board: q => `${q}: the board meeting`, react: q => `${q}: the reaction`, over: "Term over" },
+    breaking: "Breaking", dataRelease: "Data release",
+    quietHead: (pi, x) => `Statistics office: inflation at ${pi}, output gap ${x}`,
+    quietDek: "No major events this quarter — just the numbers, and the people reading them.",
+    news: {
+      oil1: ["OPEC embargo: crude prices quadruple", "Petrol stations ration fuel; transport costs jump across the economy."],
+      oil2: ["Petrol queues stretch around the block", "Consumer confidence falls to a record low."],
+      oil3: ["Unions demand wages indexed to inflation", "Strike threats at the ports and in the car plants."],
+      oil4: ["Oil prices plateau at their new, higher level", "The shock is fading — but prices won't come back down."],
+      cr1: ["Subprime mortgage defaults climb", "Two investment funds freeze redemptions."],
+      cr2: ["Interbank lending seizes up", "Banks no longer trust each other's balance sheets."],
+      cr3: ["Major investment bank collapses over the weekend", "Stock markets fall 20% in a week."],
+      cr4: ["Credit crunch: banks slash lending", "Small firms report credit lines cancelled overnight."],
+      cr5: ["Credit markets begin to thaw", "Lending spreads narrow for the first time in a year."],
+      pa1: ["Lockdowns shut shops, offices and airports", "Output is collapsing faster than in any recession on record."],
+      pa2: ["Economy reopens; pent-up demand floods back", "Restaurants are full and factories scramble to restart."],
+      pa3: ["Supply chains snarl; shipping costs soar", "A container from Asia now costs five times last year's price."],
+      pa4: ["Energy prices spike", "Household utility bills jump for the third month."],
+      pa5: ["Port backlogs finally clear", "Freight rates fall back toward normal."],
+      ev_house: ["Housing correction hits construction", "Home sales fall for a third month; builders cut jobs."],
+      ev_stocks: ["Stock slump wipes out household wealth", "Retirement savings take a hit and spending plans shrink."],
+      ev_credit: ["Credit boom: household borrowing surges", "Banks compete to lend; car and home loans soar."],
+      ev_exports: ["Export boom as trading partners grow fast", "Factory order books are full."],
+      ev_drought: ["Drought pushes food prices higher", "Harvests are down a quarter; vegetables cost more."],
+      ev_oil: ["Supply disruption sends oil prices up", "Pump prices rise six weeks in a row."],
+      ev_tech: ["Productivity surge from new technology", "Firms produce more with the same staff; costs fall."],
+      ev_commod: ["Commodity prices slump worldwide", "Import costs fall for metals, fuel and grain."]
+    },
+    pressHead: "In the press", phoneHead: "Your phone", voiceHead: "On the street",
+    outlets: { ledger: "The Ledger", ch9: "Channel 9", wire: "Market Wire" },
+    press: {
+      hikeHit: "Mortgage holders brace for higher payments",
+      cutInfl: "Critics: the Bank is feeding the inflation fire",
+      cutWelcome: "Rate cut welcomed by shoppers and builders",
+      hotPrices: pi => `Prices rising at the fastest pace in years: ${pi}`,
+      falling: "Shops slash prices as demand dries up",
+      layoffs: "Layoffs spread; factories run below capacity",
+      shortage: "Help wanted: labour shortages as economy runs hot",
+      doubt: "Markets doubt the Bank's resolve; long-term yields climb",
+      trusted: "Analysts: when this Bank speaks, markets listen",
+      pollLow: p => `Poll: government approval sinks to ${p}%`,
+      pollHigh: p => `Poll: government rides high at ${p}%`,
+      campaign: n => n === 0 ? "Voters go to the polls this quarter" : `Campaign heats up with ${n} quarter${n > 1 ? "s" : ""} to go`,
+      newGov: "New government sworn in, vows to balance the budget",
+      calm: "A quiet week on the markets"
+    },
+    street: {
+      prices: "My rent went up again. My wages didn't.",
+      jobs: "Third job application this week. Nothing.",
+      mortgage: "So my mortgage goes up because of them?",
+      deflation: "Why buy a car now if it'll be cheaper next year?",
+      boom: "Every shop on my street is hiring. Wild.",
+      fine: "Honestly? Things feel fine right now."
+    },
+    roles: { pres: "President", fin: "Finance Minister", opp: "Opposition leader", exPres: "Former president" },
+    pressureLabel: { cut: "Pressure to cut", hike: "Pressure to hike" },
+    msgs: {
+      cut1: "Families are feeling the squeeze from high rates. I trust the Bank sees it too.",
+      cut2: n => `The election is ${n} quarter${n > 1 ? "s" : ""} away. A rate cut would show the Bank is on the side of jobs.`,
+      cut3: "Governor, I'm asking you directly: cut rates this quarter. If you hike while this country struggles, I will ask Parliament to replace you.",
+      cutPost: "Approval is sinking and borrowing costs are to blame. Give people some relief.",
+      hike: "Prices are killing us in the polls. Do something about inflation — now.",
+      steady: "Steady as she goes, Governor. Keep it that way.",
+      spend: dg => `We're adding ${dg} points of GDP in spending to support households. Please don't cancel it out.`,
+      austerity: "The new government will balance the books. Spending is coming down.",
+      oppFail: "This government has failed — and the Bank looks like its accomplice.",
+      oppCut: "Rate cuts on the eve of an election? So much for an independent central bank.",
+      oppWatch: "We will be watching this Bank very closely."
+    },
+    noMsgs: "No calls this quarter. Enjoy the silence.",
+    toBoard: "Go to the board meeting",
+    advisorsHead: "Your advisors",
+    adv: {
+      keynes: { name: "Dr. Harrow", school: "Keynesian" },
+      friedman: { name: "Dr. Weiss", school: "Monetarist" },
+      taylor: { name: "Dr. Okafor", school: "Rules-based" }
+    },
+    advText: {
+      kCut: x => `Demand is too weak — the gap is ${x}. Idle workers are a loss nobody gets back. Ease.`,
+      kHike: x => `Even I say tighten: at a ${x} gap the economy is overheating.`,
+      kHold: "Output is close to potential. No reason to move.",
+      kZlb: "Rates are at zero and the economy is still weak. Tell the Treasury it's their turn.",
+      fHike: pi => `Inflation at ${pi} is a monetary phenomenon. Raise rates and say so firmly.`,
+      fCut: "Inflation is below target. A modest cut is consistent with sound money.",
+      fHold: "Hold. Predictability is what builds credibility.",
+      fCred: " Your credibility is thin — a hawkish statement would help.",
+      tRule: r => `The rule gives r* + π + ½(π − 2) + ½·gap = ${r}. Move toward it, one step at a time.`
+    },
+    moveName: m => m === 0 ? "Hold" : m < 0 ? `Cut ${Math.abs(m).toFixed(2)}` : `Hike ${m.toFixed(2)}`,
+    follow: "Follow",
+    dilemmaHead: "On your desk",
+    dilemmas: {
+      financing: ["The Treasury wants a loan", "The Finance Minister asks the Bank to buy government bonds directly to pay for new programmes.", "Refuse: the Bank does not finance the Treasury", "Agree, just this once"],
+      hearing: ["Summoned to Parliament", "A committee wants you to explain why rates are where they are — cameras rolling.", "Defend the Bank's independence firmly", "Promise to “consider the government's priorities”"],
+      bank: ["A bank is running out of cash", "A mid-sized bank can't meet withdrawals. Depositors are queuing outside branches.", "Lend against good collateral at a penalty rate", "Let it fail — no bailouts"],
+      leak: ["A board member goes public", "One of your board members tells a newspaper your policy is a mistake.", "Publish the minutes and explain the vote", "Ask the government to replace them"],
+      currency: ["The currency is sliding", "The currency fell 8% this week. Import prices will follow.", "Let it float and explain the shock is temporary", "Spend reserves to defend it"],
+      office: ["“Will you run for office?”", "A TV host asks whether you'd join politics after your term.", "Rule it out flatly", "“Never say never”"],
+      wages: ["Unions want your blessing", "Unions ask the Bank to endorse indexing wages to past inflation.", "Decline: indexing locks inflation in", "Endorse it to protect workers"]
+    },
+    chooseFirst: "Answer the item on your desk first.",
+    decisionHead: "Your decision",
+    rateLabel: "Policy rate move", toneLabel: "Statement tone",
+    tones: { dovish: ["Dovish", "signal easier policy"], neutral: ["Neutral", "data dependent"], hawkish: ["Hawkish", "signal tighter policy"] },
+    toneTip: c => `A strong statement moves expectations more when credibility is high (now ${c}). Break your word next quarter and you lose credibility.`,
+    newRate: "New rate",
+    announce: "Announce the decision",
+    warnDefl: n => `Deflation warning: ${n} of 3 quarters below zero. Three in a row is a deflation trap.`,
+    warnInfl: n => `Runaway inflation: ${n} of 3 quarters above 10%.`,
+    warnCred: "Credibility is dangerously low. Below 12 the Bank loses control of expectations.",
+    warnFire: "The President is furious. Hiking now, with popularity under 38, will get you fired.",
+    warnPop: "Popularity is near 25. If it falls below, the government will blame you and replace you.",
+    decided: (m, r, tone) => `${m === 0 ? "Rates held" : m < 0 ? "Rates cut" : "Rates raised"} at ${r} · ${tone} statement`,
+    outcomeHead: "What happened",
+    credHead: "Credibility", popHead: "Popularity",
+    credWhy: { onTarget: "Inflation close to target", offTarget: "Inflation off target", caved: "Cut under political pressure with inflation above 2.5%", resisted: "Held firm against political pressure", brokeHawk: "Broke last quarter's hawkish guidance", brokeDove: "Broke last quarter's dovish guidance", keptWord: "Kept last quarter's guidance", dilemma: "Your answer on the desk item" },
+    popWhy: { economy: "How voters feel about the economy", hike: "Rate hike hits mortgages", cut: "Rate cut eases borrowing costs", spending: "New government spending", dilemma: "Your answer on the desk item", newGov: "New government's honeymoon" },
+    market: { hawk: "Hawkish surprise: the currency jumps and bond yields rise.", dove: "Dovish surprise: the currency slides and stocks rally.", none: "In line with expectations: markets barely move." },
+    verdict: { uu: "The Ledger: “A steady hand at the Bank.”", ud: "Channel 9: “Tough medicine from the Bank.”", du: "Market Wire: “Crowd-pleaser — but at what cost?”", dd: "The Ledger: “A quarter to forget for the Bank.”" },
+    elec: {
+      reelected: p => [`${PEOPLE.salas} re-elected`, `With ${p}% approval, the government wins another term. The pressure on the Bank eases — for now.`],
+      defeated: () => [`${PEOPLE.salas} defeated`, `${PEOPLE.quiroga}'s opposition takes power, promising to balance the budget. Spending will fall.`]
+    },
+    next: "Next quarter", seeVerdict: "See your verdict",
+    chInfl: "Inflation", kInfl: "% a year", kExp: "expected",
+    chGap: "Output gap", kGap: "% of potential",
+    chRate: "Policy rate", kRate: "%",
+    chPol: "Credibility and popularity", kCred: "credibility", kPop: "popularity",
+    target: "target", electionMark: "election",
+    minutes: "Meeting minutes", record: "Your last 10 terms",
+    mCols: ["Quarter", "Headline", "Move", "Rate", "Infl.", "Gap", "Cred.", "Pop."],
+    bCols: ["Date", "Scenario", "Code", "Score", "Outcome"],
+    noMinutes: "No meetings yet — your first decision will appear here.",
+    noBoard: "Finished terms appear here (stored in this browser only).",
+    outcome: { done: "Completed", defl: "Deflation trap", infl: "Inflation spiral", cred: "Confidence collapse", fired: "Fired" },
+    lostWhy: {
+      defl: "Prices fell for three quarters in a row. Households postponed spending and real debts swelled.",
+      infl: "Inflation stayed above 10% for three quarters. Nobody believes the target any more.",
+      cred: "Credibility fell below 12. Savers fled to foreign currency and the Bank's words stopped moving anything.",
+      fired: "Popularity crashed and the President blamed the Bank. Parliament voted to replace you."
+    },
+    doneTitle: "Your term is complete",
+    epilogue: c => c > 0.8 ? "History will remember a governor whose word was trusted." : c > 0.5 ? "You made it — though markets still wonder what you'll do next." : "You survived, but the next governor inherits a Bank nobody quite believes.",
+    score: "Score",
+    parts: { macro: "Inflation and output stability (of 550)", cred: "Final credibility (of 300)", pop: "Relationship with government (of 150)" },
+    rule: "Rule-bound governor, same shocks",
+    ruleNote: "Follows the Taylor rule, never changes tone, always picks the institutional answer.",
+    beat: d => `You beat the rule-bound governor by ${d} points.`, lostTo: d => `The rule-bound governor beat you by ${d} points.`, tied: "You matched the rule-bound governor.",
+    avgGdp: "Average GDP growth, % a year", avgPrice: "Average inflation, % a year", elecRes: "Election",
+    replay: "Replay same shocks", fresh: "New shocks", close: "Review the charts",
+    howTitle: "How this economy works",
+    explain: [
+      ["Expectations", "πᵉ = c·2% + (1 − c)·π₋₁ ± tone", "People expect inflation between the target and last quarter's rate. The more credible the Bank (c), the closer to target — and the more a hawkish or dovish statement moves them."],
+      ["Demand (IS curve)", "x = 0.6·x₋₁ − 0.35·(i − πᵉ − 1) + 0.3·(G − 20) + shock", "A real rate above the neutral 1% cools demand. The government raises spending before the election, and a new government may cut it."],
+      ["Prices (Phillips curve)", "π = πᵉ + 0.3·x₋₁ + 0.1·x + shock", "Most of the output gap reaches prices a quarter later: your decision moves output now and inflation next quarter."],
+      ["Credibility", "+2 on target · −5 per point off target · −6 caving · −7 broken guidance", "Credibility rises when inflation stays within 1 point of target. It falls when you miss, cave to pressure with inflation above 2.5%, or say one thing and do another. Below 12, you lose."],
+      ["Popularity", "moves 30% toward 50 + 5·gap − 3·(π − 3)⁺ each quarter", "Voters like a strong economy and dislike high prices and rate hikes. The election is at turn 8: below 50% the government falls. Below 25% — or hiking under heavy pressure below 38% — you are fired."],
+      ["Score", "550·e^(−loss/25) + 300·credibility + 150·min(1, popularity/60)", "Loss adds up (π − 2)² + ½·gap² every quarter. Any loss condition scores zero."]
+    ]
+  },
+
+  es: {
+    tagline: "Doce trimestres, una elección, y todos opinan sobre tu tasa de interés.",
+    scenario: "Escenario", seed: "Código de shocks", newGame: "Nuevo juego",
+    scen: { random: "Tiempos aleatorios", oil: "Shock petrolero de 1973", crisis: "Crisis financiera de 2008", pandemic: "Pandemia de 2020" },
+    steps: ["Informe", "Reunión de directorio", "Reacción"],
+    turn: (t, n) => `Turno ${t} de ${n}`,
+    electionIn: n => n > 0 ? `Elección en ${n} trimestre${n > 1 ? "s" : ""}` : n === 0 ? "Elección este trimestre" : "Elección realizada",
+    hud: { pi: "Inflación", x: "Brecha del producto", i: "Tasa de política", cred: "Credibilidad del Banco", pop: "Popularidad del gobierno" },
+    st: { onTarget: "en meta", off: "fuera de meta", danger: "peligro", closed: "cerrada", slack: "holgura", hot: "recalentada", deep: "recesión", anchored: "anclada", shaky: "frágil", lost: "en colapso", safe: "cómoda", tense: "bajo 50", risk: "riesgo de despido" },
+    titles: { brief: q => `${q}: el informe matinal`, board: q => `${q}: la reunión de directorio`, react: q => `${q}: la reacción`, over: "Mandato terminado" },
+    breaking: "Última hora", dataRelease: "Dato oficial",
+    quietHead: (pi, x) => `Instituto de estadística: inflación ${pi}, brecha ${x}`,
+    quietDek: "Sin grandes eventos este trimestre — solo los números, y quienes los leen.",
+    news: {
+      oil1: ["Embargo de la OPEP: el crudo se cuadruplica", "Las gasolineras racionan combustible; el transporte se encarece en toda la economía."],
+      oil2: ["Filas interminables en las gasolineras", "La confianza del consumidor cae a mínimos históricos."],
+      oil3: ["Los sindicatos exigen indexar salarios a la inflación", "Amenazas de huelga en puertos y automotrices."],
+      oil4: ["El petróleo se estabiliza en su nuevo nivel, más alto", "El shock se desvanece, pero los precios no bajarán."],
+      cr1: ["Suben los impagos de hipotecas subprime", "Dos fondos de inversión congelan rescates."],
+      cr2: ["Se paraliza el crédito interbancario", "Los bancos ya no confían en los balances de los demás."],
+      cr3: ["Colapsa un gran banco de inversión durante el fin de semana", "Las bolsas caen 20% en una semana."],
+      cr4: ["Contracción del crédito: los bancos recortan préstamos", "Pymes reportan líneas de crédito canceladas de un día para otro."],
+      cr5: ["Los mercados de crédito empiezan a descongelarse", "Los diferenciales se reducen por primera vez en un año."],
+      pa1: ["Confinamientos cierran comercios, oficinas y aeropuertos", "La producción cae más rápido que en cualquier recesión registrada."],
+      pa2: ["Reapertura: vuelve la demanda contenida", "Restaurantes llenos y fábricas corriendo para reiniciar."],
+      pa3: ["Cadenas de suministro colapsadas; se disparan los fletes", "Un contenedor desde Asia cuesta cinco veces más que el año pasado."],
+      pa4: ["Se disparan los precios de la energía", "Las facturas de servicios suben por tercer mes."],
+      pa5: ["Por fin se despejan los puertos", "Los fletes vuelven a la normalidad."],
+      ev_house: ["Corrección inmobiliaria golpea a la construcción", "Las ventas de viviendas caen por tercer mes; las constructoras despiden."],
+      ev_stocks: ["Caída bursátil borra riqueza de los hogares", "Los ahorros para la jubilación sufren y los planes de gasto se achican."],
+      ev_credit: ["Boom de crédito: se dispara el endeudamiento", "Los bancos compiten por prestar; crecen los créditos para autos y casas."],
+      ev_exports: ["Boom exportador: los socios comerciales crecen rápido", "Las fábricas tienen la cartera de pedidos llena."],
+      ev_drought: ["La sequía encarece los alimentos", "Las cosechas caen un cuarto; las verduras cuestan más."],
+      ev_oil: ["Una disrupción de oferta encarece el petróleo", "La nafta sube seis semanas seguidas."],
+      ev_tech: ["Salto de productividad por nueva tecnología", "Las empresas producen más con el mismo personal; bajan los costos."],
+      ev_commod: ["Caen los precios de las materias primas", "Se abaratan metales, combustibles y granos importados."]
+    },
+    pressHead: "En la prensa", phoneHead: "Tu teléfono", voiceHead: "En la calle",
+    outlets: { ledger: "El Balance", ch9: "Canal 9", wire: "Cable Financiero" },
+    press: {
+      hikeHit: "Los deudores hipotecarios se preparan para cuotas más altas",
+      cutInfl: "Críticos: el Banco alimenta el fuego inflacionario",
+      cutWelcome: "Consumidores y constructoras celebran la baja de tasas",
+      hotPrices: pi => `Los precios suben al mayor ritmo en años: ${pi}`,
+      falling: "Los comercios rebajan precios ante la caída de la demanda",
+      layoffs: "Se extienden los despidos; fábricas bajo su capacidad",
+      shortage: "Se busca personal: faltan trabajadores en una economía recalentada",
+      doubt: "Los mercados dudan del Banco; suben las tasas largas",
+      trusted: "Analistas: cuando este Banco habla, los mercados escuchan",
+      pollLow: p => `Encuesta: la aprobación del gobierno cae a ${p}%`,
+      pollHigh: p => `Encuesta: el gobierno vuela alto con ${p}%`,
+      campaign: n => n === 0 ? "Los votantes van a las urnas este trimestre" : `Se calienta la campaña: faltan ${n} trimestre${n > 1 ? "s" : ""}`,
+      newGov: "Asume el nuevo gobierno y promete equilibrar el presupuesto",
+      calm: "Una semana tranquila en los mercados"
+    },
+    street: {
+      prices: "El alquiler subió otra vez. Mi sueldo no.",
+      jobs: "Tercera postulación esta semana. Nada.",
+      mortgage: "¿Así que mi hipoteca sube por culpa de ellos?",
+      deflation: "¿Para qué comprar un auto ahora si el año que viene será más barato?",
+      boom: "Todos los negocios de mi cuadra están contratando. Increíble.",
+      fine: "¿Sinceramente? Las cosas se sienten bien ahora."
+    },
+    roles: { pres: "Presidente", fin: "Ministra de Economía", opp: "Líder opositora", exPres: "Expresidente" },
+    pressureLabel: { cut: "Presión para bajar", hike: "Presión para subir" },
+    msgs: {
+      cut1: "Las familias sienten el peso de las tasas altas. Confío en que el Banco también lo ve.",
+      cut2: n => `Faltan ${n} trimestre${n > 1 ? "s" : ""} para la elección. Una baja de tasas mostraría que el Banco está del lado del empleo.`,
+      cut3: "Presidente del Banco, se lo pido directamente: baje las tasas este trimestre. Si las sube mientras el país sufre, pediré al Congreso que lo reemplace.",
+      cutPost: "La aprobación se hunde y el costo del crédito tiene la culpa. Denle un respiro a la gente.",
+      hike: "Los precios nos están matando en las encuestas. Hagan algo con la inflación — ya.",
+      steady: "Siga así, presidente del Banco. Que nada cambie.",
+      spend: dg => `Vamos a sumar ${dg} puntos del PIB en gasto para apoyar a los hogares. Por favor, no lo neutralicen.`,
+      austerity: "El nuevo gobierno ordenará las cuentas. El gasto va a bajar.",
+      oppFail: "Este gobierno fracasó — y el Banco parece su cómplice.",
+      oppCut: "¿Bajas de tasas en la víspera de una elección? Adiós a la independencia del Banco Central.",
+      oppWatch: "Vamos a vigilar muy de cerca a este Banco."
+    },
+    noMsgs: "Nadie llamó este trimestre. Disfruta el silencio.",
+    toBoard: "Ir a la reunión de directorio",
+    advisorsHead: "Tus asesores",
+    adv: {
+      keynes: { name: "Dra. Harrow", school: "Keynesiana" },
+      friedman: { name: "Dr. Weiss", school: "Monetarista" },
+      taylor: { name: "Dr. Okafor", school: "Basado en reglas" }
+    },
+    advText: {
+      kCut: x => `La demanda es débil — la brecha es ${x}. Los trabajadores ociosos son una pérdida que no se recupera. Afloja.`,
+      kHike: x => `Hasta yo digo endurecer: con una brecha de ${x} la economía se recalienta.`,
+      kHold: "El producto está cerca de su potencial. No hay por qué moverse.",
+      kZlb: "La tasa está en cero y la economía sigue débil. Dile al Tesoro que es su turno.",
+      fHike: pi => `Una inflación de ${pi} es un fenómeno monetario. Sube la tasa y dilo con firmeza.`,
+      fCut: "La inflación está bajo la meta. Una baja moderada es compatible con una moneda sana.",
+      fHold: "Mantén. La previsibilidad construye credibilidad.",
+      fCred: " Tu credibilidad es escasa — un comunicado duro ayudaría.",
+      tRule: r => `La regla da r* + π + ½(π − 2) + ½·brecha = ${r}. Acércate a ella, paso a paso.`
+    },
+    moveName: m => m === 0 ? "Mantener" : m < 0 ? `Bajar ${Math.abs(m).toFixed(2)}` : `Subir ${m.toFixed(2)}`,
+    follow: "Seguir",
+    dilemmaHead: "Sobre tu escritorio",
+    dilemmas: {
+      financing: ["El Tesoro pide un préstamo", "La ministra de Economía pide al Banco comprar bonos del gobierno directamente para financiar nuevos programas.", "Rechazar: el Banco no financia al Tesoro", "Aceptar, solo esta vez"],
+      hearing: ["Citado al Congreso", "Una comisión quiere que expliques por qué las tasas están donde están — con cámaras.", "Defender con firmeza la independencia del Banco", "Prometer “considerar las prioridades del gobierno”"],
+      bank: ["Un banco se queda sin liquidez", "Un banco mediano no puede atender retiros. Hay filas de depositantes en las sucursales.", "Prestar contra buen colateral a tasa de penalización", "Dejarlo quebrar — sin rescates"],
+      leak: ["Un director habla en público", "Uno de tus directores dice a un diario que tu política es un error.", "Publicar las actas y explicar la votación", "Pedir al gobierno que lo reemplace"],
+      currency: ["La moneda se deprecia", "La moneda cayó 8% esta semana. Los precios importados la seguirán.", "Dejarla flotar y explicar que el shock es temporal", "Gastar reservas para defenderla"],
+      office: ["“¿Será candidato?”", "Un conductor de TV pregunta si entrarías en política al terminar tu mandato.", "Descartarlo de plano", "“Nunca digas nunca”"],
+      wages: ["Los sindicatos piden tu apoyo", "Los sindicatos piden al Banco respaldar la indexación de salarios a la inflación pasada.", "Rechazar: indexar perpetúa la inflación", "Respaldarla para proteger a los trabajadores"]
+    },
+    chooseFirst: "Primero responde el tema sobre tu escritorio.",
+    decisionHead: "Tu decisión",
+    rateLabel: "Movimiento de tasa", toneLabel: "Tono del comunicado",
+    tones: { dovish: ["Paloma", "anticipa relajar"], neutral: ["Neutral", "según los datos"], hawkish: ["Halcón", "anticipa endurecer"] },
+    toneTip: c => `Un comunicado firme mueve más las expectativas cuando la credibilidad es alta (ahora ${c}). Si no cumples tu palabra el próximo trimestre, pierdes credibilidad.`,
+    newRate: "Nueva tasa",
+    announce: "Anunciar la decisión",
+    warnDefl: n => `Alerta de deflación: ${n} de 3 trimestres bajo cero. Tres seguidos es una trampa deflacionaria.`,
+    warnInfl: n => `Inflación descontrolada: ${n} de 3 trimestres sobre 10%.`,
+    warnCred: "La credibilidad es peligrosamente baja. Bajo 12 el Banco pierde el control de las expectativas.",
+    warnFire: "El Presidente está furioso. Subir la tasa ahora, con popularidad bajo 38, te costará el cargo.",
+    warnPop: "La popularidad está cerca de 25. Si cae más, el gobierno te culpará y te reemplazará.",
+    decided: (m, r, tone) => `${m === 0 ? "Tasa mantenida" : m < 0 ? "Tasa recortada" : "Tasa aumentada"} en ${r} · comunicado ${tone.toLowerCase()}`,
+    outcomeHead: "Qué pasó",
+    credHead: "Credibilidad", popHead: "Popularidad",
+    credWhy: { onTarget: "Inflación cerca de la meta", offTarget: "Inflación fuera de la meta", caved: "Bajaste por presión política con inflación sobre 2,5%", resisted: "Resististe la presión política", brokeHawk: "Rompiste la señal halcón del trimestre pasado", brokeDove: "Rompiste la señal paloma del trimestre pasado", keptWord: "Cumpliste la señal del trimestre pasado", dilemma: "Tu respuesta al tema del escritorio" },
+    popWhy: { economy: "Cómo ven los votantes la economía", hike: "La suba de tasas golpea las hipotecas", cut: "La baja de tasas abarata el crédito", spending: "Nuevo gasto del gobierno", dilemma: "Tu respuesta al tema del escritorio", newGov: "Luna de miel del nuevo gobierno" },
+    market: { hawk: "Sorpresa halcón: la moneda se aprecia y suben los rendimientos.", dove: "Sorpresa paloma: la moneda se deprecia y suben las acciones.", none: "En línea con lo esperado: los mercados casi no se mueven." },
+    verdict: { uu: "El Balance: “Mano firme en el Banco.”", ud: "Canal 9: “Medicina amarga del Banco.”", du: "Cable Financiero: “Popular — ¿pero a qué costo?”", dd: "El Balance: “Un trimestre para olvidar.”" },
+    elec: {
+      reelected: p => [`${PEOPLE.salas} reelecto`, `Con ${p}% de aprobación, el gobierno gana otro mandato. La presión sobre el Banco afloja — por ahora.`],
+      defeated: () => [`${PEOPLE.salas} derrotado`, `La oposición de ${PEOPLE.quiroga} llega al poder prometiendo equilibrar el presupuesto. El gasto bajará.`]
+    },
+    next: "Siguiente trimestre", seeVerdict: "Ver tu veredicto",
+    chInfl: "Inflación", kInfl: "% anual", kExp: "esperada",
+    chGap: "Brecha del producto", kGap: "% del potencial",
+    chRate: "Tasa de política", kRate: "%",
+    chPol: "Credibilidad y popularidad", kCred: "credibilidad", kPop: "popularidad",
+    target: "meta", electionMark: "elección",
+    minutes: "Actas de reunión", record: "Tus últimos 10 mandatos",
+    mCols: ["Trimestre", "Titular", "Mov.", "Tasa", "Infl.", "Brecha", "Cred.", "Pop."],
+    bCols: ["Fecha", "Escenario", "Código", "Puntaje", "Resultado"],
+    noMinutes: "Aún no hay reuniones — tu primera decisión aparecerá aquí.",
+    noBoard: "Los mandatos terminados aparecen aquí (solo en este navegador).",
+    outcome: { done: "Completado", defl: "Trampa deflacionaria", infl: "Espiral inflacionaria", cred: "Colapso de confianza", fired: "Despedido" },
+    lostWhy: {
+      defl: "Los precios cayeron tres trimestres seguidos. Los hogares postergaron el gasto y las deudas reales crecieron.",
+      infl: "La inflación superó el 10% durante tres trimestres. Nadie cree ya en la meta.",
+      cred: "La credibilidad cayó bajo 12. Los ahorristas huyeron a la moneda extranjera y las palabras del Banco dejaron de mover algo.",
+      fired: "La popularidad se desplomó y el Presidente culpó al Banco. El Congreso votó tu reemplazo."
+    },
+    doneTitle: "Tu mandato terminó",
+    epilogue: c => c > 0.8 ? "La historia recordará a una autoridad cuya palabra valía." : c > 0.5 ? "Lo lograste — aunque los mercados aún se preguntan qué harás después." : "Sobreviviste, pero quien te suceda hereda un Banco al que nadie le cree del todo.",
+    score: "Puntaje",
+    parts: { macro: "Estabilidad de inflación y producto (de 550)", cred: "Credibilidad final (de 300)", pop: "Relación con el gobierno (de 150)" },
+    rule: "Autoridad apegada a la regla, mismos shocks",
+    ruleNote: "Sigue la regla de Taylor, nunca cambia el tono y siempre elige la respuesta institucional.",
+    beat: d => `Superaste a la autoridad de la regla por ${d} puntos.`, lostTo: d => `La autoridad de la regla te superó por ${d} puntos.`, tied: "Empataste con la autoridad de la regla.",
+    avgGdp: "Crecimiento promedio del PIB, % anual", avgPrice: "Inflación promedio, % anual", elecRes: "Elección",
+    replay: "Repetir mismos shocks", fresh: "Nuevos shocks", close: "Revisar gráficos",
+    howTitle: "Cómo funciona esta economía",
+    explain: [
+      ["Expectativas", "πᵉ = c·2% + (1 − c)·π₋₁ ± tono", "La gente espera una inflación entre la meta y la del trimestre anterior. Cuanto más creíble el Banco (c), más cerca de la meta — y más mueve las expectativas un comunicado halcón o paloma."],
+      ["Demanda (curva IS)", "x = 0.6·x₋₁ − 0.35·(i − πᵉ − 1) + 0.3·(G − 20) + shock", "Una tasa real sobre el 1% neutral enfría la demanda. El gobierno sube el gasto antes de la elección, y un nuevo gobierno puede recortarlo."],
+      ["Precios (curva de Phillips)", "π = πᵉ + 0.3·x₋₁ + 0.1·x + shock", "Casi toda la brecha llega a los precios un trimestre después: tu decisión mueve el producto hoy y la inflación el próximo trimestre."],
+      ["Credibilidad", "+2 en meta · −5 por punto fuera · −6 ceder · −7 señal rota", "Sube cuando la inflación está a menos de 1 punto de la meta. Cae si te alejas, si cedes a la presión con inflación sobre 2,5%, o si dices una cosa y haces otra. Bajo 12, pierdes."],
+      ["Popularidad", "se mueve 30% hacia 50 + 5·brecha − 3·(π − 3)⁺ cada trimestre", "Los votantes quieren una economía fuerte y odian la inflación y las subas de tasas. La elección es en el turno 8: bajo 50% cae el gobierno. Bajo 25% — o si subes bajo fuerte presión con menos de 38% — te despiden."],
+      ["Puntaje", "550·e^(−pérdida/25) + 300·credibilidad + 150·mín(1, popularidad/60)", "La pérdida suma (π − 2)² + ½·brecha² cada trimestre. Cualquier condición de derrota da cero."]
+    ]
+  }
+};
+
+/* ═══════════════ GAME STATE ═══════════════ */
+let lang = "en", game, draft;
+const tr = () => T[lang];
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const randomCode = () => { const c = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let s = ""; for (let k = 0; k < 5; k++) s += c[Math.floor(Math.random() * c.length)]; return s; };
+
+const cur = () => game.hist[game.hist.length - 1];
+const over = () => cur().t >= M.turns || !!cur().lost;
+const freshDraft = () => ({ move: null, tone: "neutral", choice: null });
+
+function startGame(cfg, inputs = [], phase = "brief") {
+  const sc = buildScenario(cfg.scenario, cfg.seed);
+  game = { cfg, sc, hist: [initState(sc)], reports: [], inputs: [], phase: "brief", saved: false };
+  inputs.forEach(inp => advance(inp));
+  game.phase = over() ? "react" : (phase === "board" ? "board" : "brief");
+  game.prep = over() ? null : prepare(cur(), sc);
+  if (over()) game.saved = true;
+  draft = freshDraft();
+  render(true);
+}
+function advance(inp) {
+  const s = cur(), prep = prepare(s, game.sc), res = resolve(s, game.sc, prep, inp);
+  game.inputs.push(inp); game.hist.push(res.state);
+  game.reports.push({ prep, inp, prev: s, ...res });
+}
+function quarterLabel(k) {
+  const z = game.sc.q - 1 + k;
+  return `${game.sc.year + Math.floor(z / 4)} Q${(z % 4) + 1}`;
+}
+
+/* ═══════════════ BUILDERS: what the world says ═══════════════ */
+function pressItems(s, prep) {
+  const t = tr(), P = t.press, r = game.reports[game.reports.length - 1], out = [];
+  const lastMove = r ? r.inp.move : 0;
+  if (prep.t === M.election + 1 && s.govt === "opp") out.push(["ledger", P.newGov]);
+  if (s.pi > 4) out.push(["ch9", P.hotPrices(pc(s.pi, 1))]);
+  else if (s.pi < 0.5) out.push(["ch9", P.falling]);
+  if (s.x < -2) out.push(["wire", P.layoffs]);
+  else if (s.x > 2) out.push(["wire", P.shortage]);
+  if (lastMove > 0) out.push(["ledger", P.hikeHit]);
+  else if (lastMove < 0) out.push(["ledger", s.pi > 3 ? P.cutInfl : P.cutWelcome]);
+  if (prep.toElection >= 0 && prep.toElection <= 3) out.push(["ch9", P.campaign(prep.toElection)]);
+  if (s.pop < 40) out.push(["ledger", P.pollLow(Math.round(s.pop))]);
+  else if (s.pop > 60) out.push(["ledger", P.pollHigh(Math.round(s.pop))]);
+  if (s.cred < 0.4) out.push(["wire", P.doubt]);
+  else if (s.cred > 0.85 && s.t > 0) out.push(["wire", P.trusted]);
+  if (!out.length) out.push(["wire", P.calm]);
+  return out.slice(0, 3);
+}
+function streetVoice(s) {
+  const V = tr().street, r = game.reports[game.reports.length - 1];
+  if (s.pi > 4) return V.prices;
+  if (s.x < -2) return V.jobs;
+  if (s.pi < 0.3) return V.deflation;
+  if (r && r.inp.move > 0) return V.mortgage;
+  if (s.x > 1.5) return V.boom;
+  return V.fine;
+}
+function messages(s, prep) {
+  const t = tr(), m = t.msgs, out = [];
+  const pres = s.govt === "opp" ? PEOPLE.quiroga : PEOPLE.salas;
+  const fin = s.govt === "opp" ? PEOPLE.brandt : PEOPLE.rios;
+  const r = game.reports[game.reports.length - 1];
+  if (prep.pressure === "hike") out.push(["pres", pres, t.roles.pres, m.hike]);
+  else if (prep.pressure === "cut") {
+    const txt = prep.toElection < 0 ? m.cutPost : prep.level === 3 ? m.cut3 : prep.level === 2 ? m.cut2(Math.max(1, prep.toElection)) : m.cut1;
+    out.push(["pres", pres, t.roles.pres, txt]);
+  } else if (s.pop > 55 && s.t > 0 && s.t % 3 === 0) out.push(["pres", pres, t.roles.pres, m.steady]);
+  if (prep.g - s.g > 0.2) out.push(["fin", fin, t.roles.fin, m.spend((prep.g - s.g).toFixed(1))]);
+  else if (s.govt === "opp" && prep.g < s.g - 0.2) out.push(["fin", fin, t.roles.fin, m.austerity]);
+  if (s.govt === "inc") {
+    if (r && r.inp.move < 0 && prep.toElection >= 0 && prep.toElection <= 3) out.push(["opp", PEOPLE.quiroga, t.roles.opp, m.oppCut]);
+    else if (s.pop < 45 && prep.toElection >= 0) out.push(["opp", PEOPLE.quiroga, t.roles.opp, m.oppFail]);
+  } else if (prep.t === M.election + 1) out.push(["opp", PEOPLE.salas, t.roles.exPres, m.oppWatch]);
+  return out;
+}
+function advisorText(key, s, prep) {
+  const A = tr().advText, m = prep.advisors[key];
+  if (key === "keynes") {
+    if (s.i <= 0.25 && s.x < -1) return A.kZlb;
+    return m < 0 ? A.kCut(pc(s.x, 1)) : m > 0 ? A.kHike(pc(s.x, 1)) : A.kHold;
+  }
+  if (key === "friedman") return (m > 0 ? A.fHike(pc(s.pi, 1)) : m < 0 ? A.fCut : A.fHold) + (s.cred < 0.5 ? A.fCred : "");
+  return A.tRule(pc(Math.max(0, taylorRate(s)), 2));
+}
+function warnings(s, prep) {
+  const t = tr(), w = [];
+  if (s.neg > 0) w.push(t.warnDefl(s.neg));
+  if (s.hot > 0) w.push(t.warnInfl(s.hot));
+  if (s.cred < 0.25) w.push(t.warnCred);
+  if (prep.pressure === "cut" && prep.level >= 2 && s.pop < 42) w.push(t.warnFire);
+  else if (s.pop < 32) w.push(t.warnPop);
+  return w;
+}
+
+/* ═══════════════ PORTRAITS ═══════════════ */
+const FACES = {
+  keynes: `<circle cx="32" cy="36" r="17" fill="var(--raised)" stroke="var(--ink)" stroke-width="1.5"/><path d="M15 30 Q18 14 32 15 Q46 14 49 30 Q44 22 32 22 Q22 22 15 30Z" fill="var(--ink)"/><circle cx="25.5" cy="34" r="1.8" fill="var(--ink)"/><circle cx="38.5" cy="34" r="1.8" fill="var(--ink)"/><path d="M21 43 Q26 39 32 42 Q38 39 43 43 Q38 47 32 44 Q26 47 21 43Z" fill="var(--ink)"/>`,
+  friedman: `<circle cx="32" cy="35" r="17" fill="var(--raised)" stroke="var(--ink)" stroke-width="1.5"/><path d="M15 34 Q15 25 19 24 L19 32Z M49 34 Q49 25 45 24 L45 32Z" fill="var(--ink-soft)"/><circle cx="25" cy="33" r="5" fill="none" stroke="var(--ink)" stroke-width="2"/><circle cx="39" cy="33" r="5" fill="none" stroke="var(--ink)" stroke-width="2"/><path d="M30 33 H34" stroke="var(--ink)" stroke-width="2"/><circle cx="25" cy="33" r="1.4" fill="var(--ink)"/><circle cx="39" cy="33" r="1.4" fill="var(--ink)"/><path d="M25 43 Q32 49 39 43" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/>`,
+  taylor: `<circle cx="32" cy="33" r="16" fill="var(--raised)" stroke="var(--ink)" stroke-width="1.5"/><path d="M16 30 Q17 16 32 16 Q47 16 48 30 Q40 20 26 23 Q20 25 16 30Z" fill="var(--ink-soft)"/><circle cx="26" cy="32" r="1.8" fill="var(--ink)"/><circle cx="38" cy="32" r="1.8" fill="var(--ink)"/><path d="M26 40 H38" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/><path d="M20 64 L27 50 H37 L44 64Z" fill="var(--accent)"/><path d="M32 50 L29.5 55 L32 64 L34.5 55Z" fill="var(--gold)"/>`
+};
+const initials = n => n.split(" ").map(w => w[0]).join("");
+
+/* ═══════════════ RENDER ═══════════════ */
+function chip(cls, text) { return `<span class="chip ${cls}">${esc(text)}</span>`; }
+function delta(v, d, unit = "") { if (v == null) return ""; const cls = Math.abs(v) < 0.005 ? "flat" : v > 0 ? "pos" : "neg"; return `<small class="${cls}">${sgn(v, d)}${unit}</small>`; }
+
+function renderHUD() {
+  const t = tr(), s = cur(), prev = game.hist.length > 1 ? game.hist[game.hist.length - 2] : null, st = t.st;
+  const miss = Math.abs(s.pi - 2);
+  const piChip = s.pi < 0 || miss >= 3 ? chip("crit", st.danger) : miss < 1 ? chip("good", st.onTarget) : chip("warn", st.off);
+  const xChip = Math.abs(s.x) < 1 ? chip("good", st.closed) : s.x < -3 ? chip("crit", st.deep) : s.x < 0 ? chip("warn", st.slack) : chip(s.x > 3 ? "crit" : "warn", st.hot);
+  const cChip = s.cred > 0.7 ? chip("good", st.anchored) : s.cred > 0.3 ? chip("warn", st.shaky) : chip("crit", st.lost);
+  const pChip = s.pop >= 50 ? chip("good", st.safe) : s.pop >= 35 ? chip("warn", st.tense) : chip("crit", st.risk);
+  const toE = M.election - (game.phase === "react" ? s.t : s.t + 1);
+  const turnNo = Math.min(M.turns, game.phase === "react" ? s.t : s.t + 1);
+  const qLabel = quarterLabel(turnNo);
+  const dv = (k, mult = 1) => prev ? (s[k] - prev[k]) * mult : null;
+  $("hud").innerHTML = `
+    <div class="when"><span class="label">${esc(t.turn(turnNo, M.turns))}</span><b>${qLabel}</b><span class="sub">${esc(t.electionIn(toE))}</span></div>
+    <div><span class="label">${t.hud.pi}</span><b class="v">${pc(s.pi)} ${delta(dv("pi"), 2)}</b>${piChip}</div>
+    <div><span class="label">${t.hud.x}</span><b class="v">${pc(s.x)} ${delta(dv("x"), 2)}</b>${xChip}</div>
+    <div><span class="label">${t.hud.i}</span><b class="v">${pc(s.i)} ${prev ? `<small class="flat">${sgn(s.i - prev.i)}</small>` : ""}</b></div>
+    <div><span class="label">${t.hud.cred}</span><b class="v">${Math.round(s.cred * 100)} ${delta(dv("cred", 100), 0)}</b><div class="meter" style="--c:var(--cred)"><i style="width:${s.cred * 100}%"></i><em style="left:12%"></em></div>${cChip}</div>
+    <div><span class="label">${t.hud.pop}</span><b class="v">${Math.round(s.pop)}% ${delta(dv("pop"), 0)}</b><div class="meter" style="--c:var(--pop)"><i style="width:${s.pop}%"></i><em style="left:50%"></em></div>${pChip}</div>`;
+}
+
+function renderSteps() {
+  const t = tr(), idx = { brief: 0, board: 1, react: 2 }[game.phase];
+  $("steps").innerHTML = t.steps.map((name, k) => `${k ? "<i></i>" : ""}<span class="${k === idx ? "on" : k < idx ? "done" : ""}">${k + 1}. ${esc(name)}</span>`).join("");
+}
+
+const n = k => `style="--n:${k}"`;
+
+function renderBrief() {
+  const t = tr(), s = cur(), prep = game.prep;
+  $("stageTitle").textContent = t.titles.brief(quarterLabel(prep.t));
+  const nk = prep.news, isNews = !!nk;
+  const [head, dek] = isNews ? t.news[nk] : [t.quietHead(pc(s.pi, 1), pc(s.x, 1)), t.quietDek];
+  const press = pressItems(s, prep).map(([o, h]) => `<div><b>${esc(t.outlets[o])}</b><span>${esc(h)}</span></div>`).join("");
+  const msgs = messages(s, prep);
+  const pressure = prep.pressure ? `<div class="pressure">${esc(t.pressureLabel[prep.pressure])} ${[1, 2, 3].map(k => `<i class="${k <= prep.level ? "on" : ""}"></i>`).join("")}</div>` : "";
+  const phone = msgs.length ? msgs.map(([cls, name, role, text], k) => `<div class="msg" ${n(k + 3)}><span class="av ${cls}" aria-hidden="true">${esc(initials(name))}</span><div class="bubble"><div class="who">${esc(name)} <em>${esc(role)}</em></div><p>${esc(text)}</p></div></div>`).join("") : `<p class="quiet">${esc(t.noMsgs)}</p>`;
+  $("feed").innerHTML = `
+    <div class="banner ${isNews ? "" : "data"}" ${n(0)}><span class="tag">${esc(isNews ? t.breaking : t.dataRelease)}</span><div class="body"><h3>${esc(head)}</h3><p>${esc(dek)}</p></div></div>
+    <div class="two" ${n(1)}>
+      <div class="block"><span class="label">${esc(t.pressHead)}</span><div class="press">${press}</div>
+        <span class="label" style="margin-top:6px">${esc(t.voiceHead)}</span><p class="voice">“${esc(streetVoice(s))}”</p></div>
+      <div class="block"><span class="label">${esc(t.phoneHead)}</span>${pressure}<div class="phone">${phone}</div></div>
+    </div>
+    <div ${n(2)}><button class="btn primary big" id="toBoard">${esc(t.toBoard)} →</button></div>`;
+  $("toBoard").onclick = () => { game.phase = "board"; render(true); };
+}
+
+function renderBoard() {
+  const t = tr(), s = cur(), prep = game.prep;
+  $("stageTitle").textContent = t.titles.board(quarterLabel(prep.t));
+  const warns = warnings(s, prep).map(w => `<div class="alert" role="status">${esc(w)}</div>`).join("");
+  let dil = "";
+  if (prep.dilemma) {
+    const [h, body, a, b] = t.dilemmas[prep.dilemma];
+    dil = `<div class="dilemma" ${n(1)}><span class="label">${esc(t.dilemmaHead)}</span><h3>${esc(h)}</h3><p>${esc(body)}</p>
+      <div class="opts">${[a, b].map((txt, k) => `<button class="opt" data-choice="${k}" aria-pressed="${draft.choice === k}">${esc(txt)}</button>`).join("")}</div></div>`;
+  }
+  const advs = ["keynes", "friedman", "taylor"].map(key => {
+    const m = prep.advisors[key], who = t.adv[key];
+    return `<article class="adv"><header><svg viewBox="0 0 64 64" aria-hidden="true">${FACES[key]}</svg><div><span class="school">${esc(who.school)}</span><h3>${esc(who.name)}</h3></div></header>
+      <p>${esc(advisorText(key, s, prep))}</p>
+      <footer><span class="rec">${esc(t.moveName(m))}</span><button class="follow" data-follow="${m}">${esc(t.follow)}</button></footer></article>`;
+  }).join("");
+  const moves = MOVES.map(m => {
+    const ok = s.i + m >= M.iMin - 1e-9 && s.i + m <= M.iMax + 1e-9;
+    return `<button data-move="${m}" aria-pressed="${draft.move === m}" ${ok ? "" : "disabled"}>${esc(m === 0 ? t.moveName(0) : sgn(m))}<small>${pc(s.i + m)}</small></button>`;
+  }).join("");
+  const tones = ["dovish", "neutral", "hawkish"].map(k => `<button data-tone="${k}" aria-pressed="${draft.tone === k}">${esc(t.tones[k][0])}<small>${esc(t.tones[k][1])}</small></button>`).join("");
+  const ready = draft.move != null && (!prep.dilemma || draft.choice != null);
+  const newRate = draft.move == null ? "—" : pc(s.i + draft.move);
+  $("feed").innerHTML = `
+    ${warns ? `<div class="feed" ${n(0)}>${warns}</div>` : ""}
+    ${dil}
+    <div class="block" ${n(2)}><span class="label">${esc(t.advisorsHead)}</span><div class="advisors">${advs}</div></div>
+    <div class="decide" ${n(3)}>
+      <h3>${esc(t.decisionHead)}</h3>
+      <div class="block"><span class="label">${esc(t.rateLabel)}</span><div class="seg" role="group">${moves}</div></div>
+      <div class="block"><span class="label">${esc(t.toneLabel)}</span><div class="seg tones" role="group">${tones}</div><p class="tip">${esc(t.toneTip(Math.round(s.cred * 100)))}</p></div>
+      <div class="decide-foot"><span class="newrate">${esc(t.newRate)}: <b>${newRate}</b></span>
+        <span style="display:grid;gap:4px;justify-items:end">${prep.dilemma && draft.choice == null ? `<span class="tip">${esc(t.chooseFirst)}</span>` : ""}<button class="btn primary big" id="announce" ${ready ? "" : "disabled"}>${esc(t.announce)}</button></span></div>
+    </div>`;
+  const rerender = () => { const y = window.scrollY; renderBoardNoAnim(); window.scrollTo(0, y); };
+  $("feed").querySelectorAll("[data-choice]").forEach(b => b.onclick = () => { draft.choice = +b.dataset.choice; rerender(); });
+  $("feed").querySelectorAll("[data-move]").forEach(b => b.onclick = () => { draft.move = +b.dataset.move; rerender(); });
+  $("feed").querySelectorAll("[data-follow]").forEach(b => b.onclick = () => { draft.move = +b.dataset.follow; rerender(); });
+  $("feed").querySelectorAll("[data-tone]").forEach(b => b.onclick = () => { draft.tone = b.dataset.tone; rerender(); });
+  $("announce").onclick = () => {
+    if (!ready) return;
+    advance({ move: draft.move, tone: draft.tone, choice: prep.dilemma ? draft.choice : null });
+    game.phase = "react"; draft = freshDraft();
+    render(true);
+    window.scrollTo({ top: Math.min(window.scrollY, $("hud").offsetTop - 8), behavior: "smooth" });
+  };
+}
+function renderBoardNoAnim() {
+  const feed = $("feed"); feed.style.setProperty("--anim", "none");
+  renderBoard();
+  feed.querySelectorAll(":scope > *").forEach(el => (el.style.animation = "none"));
+}
+
+function renderReact() {
+  const t = tr(), r = game.reports[game.reports.length - 1], s = r.state, p = r.prev;
+  $("stageTitle").textContent = over() && game.saved && !r ? t.titles.over : t.titles.react(quarterLabel(s.t));
+  const toneName = t.tones[r.inp.tone][0];
+  const cd = (s.cred - p.cred) * 100, pd = s.pop - p.pop;
+  const ledger = (title, total, parts, why, scale, d) => `<div class="ledger"><h4>${esc(title)} <span class="${total >= 0 ? "pos" : "neg"}">${sgn(total, d)}</span></h4><ul>${parts.map(([k, v]) => `<li><span>${esc(why[k])}</span><span class="${v >= 0 ? "pos" : "neg"}">${sgn(v * scale, d)}</span></li>`).join("")}</ul></div>`;
+  const market = r.surprise >= 0.25 ? t.market.hawk : r.surprise <= -0.25 ? t.market.dove : t.market.none;
+  const verdict = t.verdict[(cd >= 0 ? "u" : "d") + (pd >= 0 ? "u" : "d")];
+  let elec = "";
+  if (r.election) {
+    const [h, body] = r.election === "reelected" ? t.elec.reelected(Math.round(s.pop)) : t.elec.defeated();
+    elec = `<div class="election" ${n(1)}><span class="label">${esc(t.elecRes)}</span><h3>${esc(h)}</h3><p>${esc(body)}</p></div>`;
+  }
+  const lost = s.lost ? `<div class="alert" ${n(1)}><strong>${esc(t.outcome[s.lost])}.</strong> ${esc(t.lostWhy[s.lost])}</div>` : "";
+  const cell = (label, val, dv) => `<div><span class="label">${esc(label)}</span><b>${val}</b>${dv}</div>`;
+  $("feed").innerHTML = `
+    <div class="verdict" ${n(0)}><span class="label">${esc(t.outcomeHead)}</span><h3>${esc(t.decided(r.inp.move, pc(s.i), toneName))}</h3></div>
+    ${lost}${elec}
+    <div class="moves-row" ${n(2)}>
+      ${cell(t.hud.pi, pc(s.pi), delta(s.pi - p.pi, 2))}
+      ${cell(t.hud.x, pc(s.x), delta(s.x - p.x, 2))}
+      ${cell(t.hud.cred, Math.round(s.cred * 100), delta(cd, 0))}
+      ${cell(t.hud.pop, Math.round(s.pop) + "%", delta(pd, 0))}
+    </div>
+    <div class="two" ${n(3)}>
+      ${ledger(t.credHead, cd, r.credParts, t.credWhy, 100, 0)}
+      ${ledger(t.popHead, pd, r.popParts, t.popWhy, 1, 1)}
+    </div>
+    <div class="market" ${n(4)}><span class="label">${esc(t.pressHead)}</span><p><strong>${esc(market)}</strong></p><p class="voice">${esc(verdict)}</p></div>
+    <div ${n(5)}><button class="btn primary big" id="nextQ">${esc(over() ? t.seeVerdict : t.next)} →</button></div>`;
+  $("nextQ").onclick = () => {
+    if (over()) { finish(); return; }
+    game.prep = prepare(cur(), game.sc); game.phase = "brief"; render(true);
+  };
+}
+
+function niceTicks(lo, hi, cnt = 4) {
+  const span = hi - lo || 1, raw = span / cnt, mag = 10 ** Math.floor(Math.log10(raw));
+  const stepv = [1, 2, 2.5, 5, 10].map(m => m * mag).find(m => m >= raw);
+  const a = Math.floor(lo / stepv) * stepv, b = Math.ceil(hi / stepv) * stepv, out = [];
+  for (let v = a; v <= b + stepv / 2; v += stepv) out.push(+v.toFixed(6));
+  return out;
+}
+function drawChart(svg, { series, refs = [], band, include = [], fixed }) {
+  const W = 380, H = 170, ml = 34, mr = 8, mt = 16, mb = 22, N = M.turns;
+  let lo, hi;
+  if (fixed) [lo, hi] = fixed;
+  else {
+    const vals = include.slice();
+    series.forEach(se => vals.push(...se.values)); refs.forEach(r => vals.push(r.y)); if (band) vals.push(...band);
+    lo = Math.min(...vals); hi = Math.max(...vals);
+    const pad = (hi - lo) * 0.08 || 1; lo -= pad; hi += pad;
+  }
+  const ticks = niceTicks(lo, hi); lo = ticks[0]; hi = ticks[ticks.length - 1];
+  const X = k => ml + (k * (W - ml - mr)) / N, Y = v => mt + ((hi - v) * (H - mt - mb)) / (hi - lo);
+  const t = tr();
+  let o = "";
+  ticks.forEach(v => { o += `<line class="grid" x1="${ml}" x2="${W - mr}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${ml - 5}" y="${Y(v) + 4}" text-anchor="end">${+v.toFixed(2)}</text>`; });
+  [0, 4, 8, 12].forEach(k => { o += `<text x="${X(k)}" y="${H - 5}" text-anchor="${k === 0 ? "start" : k === 12 ? "end" : "middle"}">${quarterLabel(k).replace(" ", "")}</text>`; });
+  o += `<line x1="${X(M.election)}" x2="${X(M.election)}" y1="${mt - 4}" y2="${H - mb}" stroke="var(--gold)" stroke-dasharray="3 3"/><text x="${X(M.election) + 4}" y="${mt - 4}" style="fill:var(--gold)">${esc(t.electionMark)}</text>`;
+  if (band) o += `<rect x="${ml}" width="${W - ml - mr}" y="${Y(band[1])}" height="${Y(band[0]) - Y(band[1])}" fill="var(--band)"/>`;
+  if (lo < 0 && hi > 0) o += `<line class="zero" x1="${ml}" x2="${W - mr}" y1="${Y(0)}" y2="${Y(0)}"/>`;
+  refs.forEach(r => { o += `<line x1="${ml}" x2="${W - mr}" y1="${Y(r.y)}" y2="${Y(r.y)}" stroke="var(--accent)" stroke-dasharray="2 3"/>`; if (r.label) o += `<text x="${ml + 4}" y="${Y(r.y) - 4}" style="fill:var(--accent)">${esc(r.label)}</text>`; });
+  series.forEach(se => {
+    const v = se.values;
+    if (se.type === "bar") {
+      const bw = ((W - ml - mr) / N) * 0.56;
+      v.forEach((val, k) => { if (k === 0) return; const y0 = Y(Math.max(0, val)), y1 = Y(Math.min(0, val));
+        o += `<rect x="${X(k) - bw / 2}" y="${y0}" width="${bw}" height="${Math.max(1, y1 - y0)}" fill="${se.color}" opacity="${k === v.length - 1 ? 1 : 0.55}"/>`; });
+      return;
+    }
+    let d = "";
+    v.forEach((val, k) => { d += se.type === "step" && k > 0 ? ` H${X(k)} V${Y(val)}` : `${k ? " L" : "M"}${X(k)} ${Y(val)}`; });
+    o += `<path d="${d}" fill="none" stroke="${se.color}" stroke-width="${se.dash ? 1.5 : 2.2}" ${se.dash ? 'stroke-dasharray="4 3"' : ""} stroke-linejoin="round" stroke-linecap="round"/>`;
+    if (!se.dash) { const k = v.length - 1; o += `<circle cx="${X(k)}" cy="${Y(v[k])}" r="3.4" fill="${se.color}" stroke="var(--paper)" stroke-width="1.5"/>`; }
+  });
+  svg.innerHTML = o;
+}
+
+function renderCharts() {
+  const t = tr(), H = game.hist;
+  drawChart($("chInfl"), { series: [{ values: H.map(h => h.pe), color: "var(--ink-soft)", dash: true }, { values: H.map(h => h.pi), color: "var(--pi)" }], band: [1, 3], refs: [{ y: 2, label: t.target }], include: [0, 4] });
+  drawChart($("chGap"), { series: [{ values: H.map(h => h.x), color: "var(--gap)", type: "bar" }], include: [-2, 2] });
+  drawChart($("chRate"), { series: [{ values: H.map(h => h.i), color: "var(--rate)", type: "step" }], include: [0, 5] });
+  drawChart($("chPol"), { series: [{ values: H.map(h => h.cred * 100), color: "var(--cred)" }, { values: H.map(h => h.pop), color: "var(--pop)" }], fixed: [0, 100], refs: [{ y: 50 }] });
+}
+
+function renderMinutes() {
+  const t = tr();
+  let rows = game.reports.map(r => {
+    const s = r.state, nk = r.prep.news;
+    return `<tr><td>${quarterLabel(s.t)}</td><td class="txt">${esc(nk ? t.news[nk][0] : "—")}</td><td>${esc(r.inp.move === 0 ? "0" : sgn(r.inp.move))}</td><td>${s.i.toFixed(2)}</td><td>${s.pi.toFixed(2)}</td><td>${s.x.toFixed(2)}</td><td>${Math.round(s.cred * 100)}</td><td>${Math.round(s.pop)}</td></tr>`;
+  }).reverse().join("");
+  if (!rows) rows = `<tr><td colspan="8" class="empty">${esc(t.noMinutes)}</td></tr>`;
+  $("minutes").innerHTML = `<thead><tr>${t.mCols.map((c, j) => `<th class="${j < 2 ? "txt" : ""}">${c}</th>`).join("")}</tr></thead><tbody>${rows}</tbody>`;
+}
+
+const BOARD_KEY = "cbdesk.board.v2";
+function loadBoard() { try { return JSON.parse(localStorage.getItem(BOARD_KEY)) || []; } catch { return []; } }
+function saveBoard(b) { try { localStorage.setItem(BOARD_KEY, JSON.stringify(b.slice(0, 10))); } catch {} }
+function renderRecord() {
+  const t = tr(), b = loadBoard();
+  let rows = b.map(r => `<tr><td>${esc(r.date)}</td><td class="txt">${esc(t.scen[r.scenario] || r.scenario)}</td><td>${esc(r.seed)}</td><td>${r.score}</td><td class="txt">${esc(t.outcome[r.outcome] || "")}</td></tr>`).join("");
+  if (!rows) rows = `<tr><td colspan="5" class="empty">${esc(t.noBoard)}</td></tr>`;
+  $("board").innerHTML = `<thead><tr>${t.bCols.map((c, j) => `<th class="${j < 2 || j === 4 ? "txt" : ""}">${c}</th>`).join("")}</tr></thead><tbody>${rows}</tbody>`;
+}
+
+function render(animate) {
+  const t = tr();
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-t]").forEach(el => { const v = t[el.dataset.t]; if (typeof v === "string") el.textContent = v; });
+  $("lang-en").setAttribute("aria-pressed", lang === "en"); $("lang-es").setAttribute("aria-pressed", lang === "es");
+  $("scenario").innerHTML = Object.keys(SCEN).map(k => `<option value="${k}"${k === game.cfg.scenario ? " selected" : ""}>${esc(t.scen[k])}</option>`).join("");
+  $("seed").value = game.cfg.seed;
+  renderHUD(); renderSteps();
+  if (game.phase === "brief") renderBrief();
+  else if (game.phase === "board") animate ? renderBoard() : renderBoardNoAnim();
+  else renderReact();
+  if (!animate) $("feed").querySelectorAll(":scope > *").forEach(el => (el.style.animation = "none"));
+  renderCharts(); renderMinutes(); renderRecord();
+  $("explain").innerHTML = t.explain.map(([h, eq, p]) => `<div><span class="label">${esc(h)}</span><div class="eq">${esc(eq)}</div><p>${esc(p)}</p></div>`).join("");
+}
+
+/* ═══════════════ END OF TERM ═══════════════ */
+function finish() {
+  const t = tr(), s = cur(), H = game.hist, T_ = s.t || 1;
+  const sp = scoreParts(s), rb = ruleBound(game.sc), rbs = scoreParts(rb).total;
+  if (!game.saved) {
+    game.saved = true;
+    const b = loadBoard();
+    b.unshift({ date: new Date().toISOString().slice(0, 10), scenario: game.cfg.scenario, seed: game.cfg.seed, score: sp.total, outcome: s.lost || "done" });
+    saveBoard(b); renderRecord();
+  }
+  const avg = (a, b) => (((b / a) ** (1 / T_) - 1) * 400);
+  const diff = sp.total - rbs;
+  const elecR = game.reports.find(r => r.election);
+  const verdict = s.lost ? t.lostWhy[s.lost] : t.epilogue(s.cred);
+  const cmp = diff > 0 ? t.beat(diff) : diff < 0 ? t.lostTo(-diff) : t.tied;
+  $("resBody").innerHTML = `
+    <span class="label">${esc(t.scen[game.cfg.scenario])} · ${esc(game.cfg.seed)}</span>
+    <h2>${esc(s.lost ? t.outcome[s.lost] : t.doneTitle)}</h2>
+    <p>${esc(verdict)}</p>
+    <div><span class="label">${esc(t.score)}</span><div class="big${sp.total ? "" : " zero"}">${sp.total}</div></div>
+    <dl>
+      <dt>${esc(t.parts.macro)}</dt><dd>${sp.macro}</dd>
+      <dt>${esc(t.parts.cred)}</dt><dd>${sp.cred}</dd>
+      <dt>${esc(t.parts.pop)}</dt><dd>${sp.pop}</dd>
+      <dt>${esc(t.rule)}</dt><dd>${rbs}</dd>
+      <dt>${esc(t.avgGdp)}</dt><dd>${pc(avg(H[0].Y, s.Y))}</dd>
+      <dt>${esc(t.avgPrice)}</dt><dd>${pc(avg(H[0].P, s.P))}</dd>
+      ${elecR ? `<dt>${esc(t.elecRes)}</dt><dd>${esc(elecR.election === "reelected" ? t.elec.reelected(0)[0] : t.elec.defeated()[0])}</dd>` : ""}
+    </dl>
+    <p><strong>${esc(cmp)}</strong></p>
+    <p class="footnote">${esc(t.ruleNote)}</p>
+    <div class="row">
+      <button class="btn primary" id="rReplay">${esc(t.replay)}</button>
+      <button class="btn" id="rFresh">${esc(t.fresh)}</button>
+      <button class="btn" id="rClose">${esc(t.close)}</button>
+    </div>`;
+  const dlg = $("result");
+  $("rReplay").onclick = () => { dlg.close(); startGame({ ...game.cfg }); };
+  $("rFresh").onclick = () => { dlg.close(); startGame({ scenario: game.cfg.scenario, seed: randomCode() }); };
+  $("rClose").onclick = () => dlg.close();
+  if (typeof dlg.showModal === "function") { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute("open", "");
+}
+
+/* ═══════════════ WIRING ═══════════════ */
+function drawSeal() {
+  let o = "";
+  for (let r = 0; r < 3; r++) {
+    let d = "";
+    for (let a = 0; a <= 360; a += 3) {
+      const th = (a * Math.PI) / 180, rad = 34 + r * 5 + 4 * Math.sin(12 * th + r);
+      d += `${a ? "L" : "M"}${(rad * Math.cos(th)).toFixed(2)} ${(rad * Math.sin(th)).toFixed(2)}`;
+    }
+    o += `<path d="${d}Z" fill="none" stroke="currentColor" stroke-width="0.9" opacity="${0.9 - r * 0.25}"/>`;
+  }
+  o += `<circle r="26" fill="none" stroke="currentColor" stroke-width="1.5"/><text y="9" text-anchor="middle" font-family="Old Standard TT, Georgia, serif" font-size="26" font-weight="700" fill="currentColor">%</text>`;
+  $("seal").innerHTML = o;
+}
+
+function bind() {
+  $("newGame").onclick = () => {
+    const code = ($("seed").value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+    startGame({ scenario: $("scenario").value, seed: code && code !== game.cfg.seed ? code : randomCode() });
+  };
+  $("scenario").onchange = e => startGame({ scenario: e.target.value, seed: game.cfg.seed });
+  const setLang = l => { lang = l; try { localStorage.setItem("cbdesk.lang", l); } catch {} render(false); if ($("result").open) finish(); };
+  $("lang-en").onclick = () => setLang("en"); $("lang-es").onclick = () => setLang("es");
+}
+
+function start(data) {
+  let saved = null; try { saved = localStorage.getItem("cbdesk.lang"); } catch {}
+  lang = data?.lang || saved || ((navigator.language || "").startsWith("es") ? "es" : "en");
+  if (!T[lang]) lang = "en";
+  drawSeal(); bind();
+  startGame(data?.cfg || { scenario: "random", seed: randomCode() }, data?.inputs || [], data?.phase);
+  window.claude?.hot?.snapshot?.(() => ({ cfg: game.cfg, inputs: game.inputs, phase: game.phase, lang }));
+}
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+})();
+</script>
+
+</body>
+</html>

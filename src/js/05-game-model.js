@@ -137,8 +137,8 @@ function extendScenario(sc, seed) {
   const frng = rngFrom("fog:" + sc.key + ":" + seed);          // first-estimate errors, drawn separately so events are unchanged
   sc.errPi = Array.from({ length: n }, (_, k) => (k ? gauss(frng) * FOG.pi : 0));
   sc.errX = Array.from({ length: n }, (_, k) => (k ? gauss(frng) * FOG.x : 0));
-  const used = new Set(Object.keys(sc.news).map(Number));
-  for (let k = 0; k < 3; k++) {
+  const used = new Set(Object.keys(sc.news).map(Number)), fixed = SCEN[sc.key] && SCEN[sc.key].fixed;   // a teacher's scenario can switch surprises off
+  for (let k = 0; k < (fixed ? 0 : 3); k++) {
     let t = 0, tries = 0;
     do { t = 9 + Math.floor(rng() * (M.turns - 9)); tries++; } while (tries < 40 && (used.has(t) || used.has(t - 1) || used.has(t + 1)));
     used.add(t);
@@ -161,8 +161,20 @@ function extendScenario(sc, seed) {
   sc.bustRoll = Array.from({ length: n }, () => wrng());                                        // fixed dice for credit busts and sudden stops
   sc.ssRoll = Array.from({ length: n }, () => wrng());
   const free = Object.keys(DILEMMAS).filter(id => !Object.values(sc.dilemmas).includes(id)).sort(() => rng() - 0.5);
-  [12 + Math.floor(rng() * 2), 15 + Math.floor(rng() * 3)].forEach((t, k) => { if (!sc.dilemmas[t] && free[k]) sc.dilemmas[t] = free[k]; });
+  if (!fixed) [12 + Math.floor(rng() * 2), 15 + Math.floor(rng() * 3)].forEach((t, k) => { if (!sc.dilemmas[t] && free[k]) sc.dilemmas[t] = free[k]; });
   return sc;
+}
+// A teacher's own scenario: each event [quarter, "d"|"s", size, duration, headline, details] becomes a fading shock path.
+function customScenario(spec) {
+  const n = M.turns, d = Array(n).fill(0), s = Array(n).fill(0), news = {}, dilemmas = {};
+  (spec.ev || []).forEach(([t, kind, size, dur, head]) => {
+    t = clamp(Math.round(+t || 1), 1, n); dur = clamp(Math.round(+dur || 1), 1, 6); size = clamp(+size || 0, -4, 4);
+    for (let j = 0; j < dur && t + j <= n; j++) (kind === "s" ? s : d)[t + j - 1] += size * (1 - j / dur);
+    if (head && !news[t]) news[t] = "cu" + t;
+  });
+  (spec.dl || []).forEach(([t, id]) => { if (DILEMMAS[id]) dilemmas[clamp(Math.round(+t || 1), 1, n)] = id; });
+  SCEN.custom = { year: clamp(Math.round(+spec.y || 2027), 1900, 2100), q: clamp(Math.round(+spec.q || 1), 1, 4), cred: clamp(spec.c ?? 0.75, 0.3, 0.9), d, s, news, dilemmas, fixed: !spec.x };
+  return SCEN.custom;
 }
 // Mandates: what the Bank is legally asked to deliver. The score weight on jobs, the credibility band and the government's patience differ.
 const MANDATE = { price: { lam: 0.5, band: 1, gain: 0.02, slope: 0.05, heat: 0 }, dual: { lam: 1.0, band: 1.5, gain: 0.015, slope: 0.04, heat: -4 } };
@@ -383,6 +395,7 @@ function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch {} }
 function loadSave() {
   try {
     const sv = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (sv && sv.cfg && sv.cfg.scenario === "custom" && sv.cfg.cs) installCustom(sv.cfg.cs);
     return sv && sv.cfg && SCEN[sv.cfg.scenario] && Array.isArray(sv.inputs) && sv.inputs.length < M.turns ? sv : null;
   } catch { return null; }
 }

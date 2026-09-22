@@ -20,25 +20,26 @@ export const POLICIES = {
 };
 
 // Boots the built page in a simulated browser (no animations: jsdom has no matchMedia).
-export function boot(pre = "") {
+export function boot(pre = "", url = "https://example.org/") {
   const html = readFileSync(new URL("../game.html", import.meta.url), "utf8");
   const vc = new VirtualConsole(), errors = [];
   vc.on("jsdomError", e => { if (!/Not implemented/.test(e.message)) errors.push(e.message); });
   const dom = new JSDOM("<!doctype html><html><head></head><body>" + pre + html + "</body></html>",
-    { runScripts: "dangerously", pretendToBeVisual: true, virtualConsole: vc, url: "https://example.org/" });
+    { runScripts: "dangerously", pretendToBeVisual: true, virtualConsole: vc, url });
   dom.window.addEventListener("error", e => errors.push(e.message));
   return { w: dom.window, d: dom.window.document, errors };
 }
 
 // Clicks through a whole level like a player; returns what was seen.
-export function playThrough(d, { level, lang = "en", hard = false, em = false, advisor = 2, choice = 0, qa = 0, qe = 1, fx = 0, career = false, dual = false, gov = "Test Governor" }) {
+export function playThrough(d, { level, lang = "en", hard = false, em = false, advisor = 2, choice = 0, qa = 0, qe = 1, fx = 0, career = false, dual = false, gov = "Test Governor", start = null }) {
   const seen = { quarters: 0, fronts: 0, reactions: 0, dilemmas: 0, qa: 0, qe: 0, elections: 0, fans: 0 };
   d.querySelector(`#overlay [data-lang="${lang}"]`).click();
-  d.getElementById("tStart").click();
+  if (!start) d.getElementById("tStart").click();
   if (hard) d.querySelector('#overlay [data-diff="1"]').click();
   if (em) d.querySelector('#overlay [data-econ="1"]').click();
   if (dual) d.querySelector('#overlay [data-mandate="dual"]').click();
-  if (career) {
+  if (start) start(d);
+  else if (career) {
     seen.terms = []; d.getElementById("crNew").click();
     d.getElementById("govName").value = gov; d.getElementById("csGo").click();
   } else d.querySelector(`[data-level="${level}"]`).click();

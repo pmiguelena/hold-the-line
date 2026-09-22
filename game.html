@@ -485,6 +485,50 @@ dl.gloss dd{margin:0;font-size:14.5px;line-height:1.5;color:#D5DAE6}
 .db-hist{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;align-items:center}
 .db-hist .interlude{margin:0;font-size:16.5px}
 @media (max-width:760px){.db-hist{grid-template-columns:minmax(0,1fr)}}
+/* classroom */
+.class-card{width:min(560px,100%);display:grid;gap:8px;justify-items:center;padding:16px 18px;border-radius:18px;background:linear-gradient(135deg,rgba(63,182,139,.16),rgba(255,255,255,.03) 60%);box-shadow:inset 0 0 0 1px rgba(63,182,139,.45)}
+.cc-name{font:800 22px/1.15 var(--f-ui)} .cc-tags{color:var(--muted);font-size:14px}
+.code-box{width:100%;min-width:0;font:500 12.5px/1.45 ui-monospace,Consolas,monospace;color:var(--text);background:var(--bg-2);border:1px solid var(--line-2);border-radius:10px;padding:10px 12px;resize:vertical;word-break:break-all}
+.hand-in{width:100%;display:grid;justify-items:center;gap:10px}
+.hi-body{width:min(640px,100%);display:grid;gap:10px;justify-items:center;padding:14px 16px;border-radius:16px;background:var(--surface);box-shadow:inset 0 0 0 1px rgba(63,182,139,.4)}
+.tdesk{max-width:980px}
+.td-tabs{justify-self:center}
+.td-body{width:100%;display:grid;gap:14px;text-align:left}
+.td-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px 16px;align-items:end}
+.fld{display:grid;gap:5px;min-width:0}
+.fld>span{font:700 11.5px var(--f-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.fld.wide{grid-column:1 / -1}
+.fld input:not([type=range]),.fld select,.ev input:not([type=range]),.ev select{width:100%;min-width:0;font:500 15px var(--f-ui);color:var(--text);background:var(--bg-2);border:1px solid var(--line-2);border-radius:10px;padding:8px 10px}
+.fld input[type=range],.ev input[type=range]{width:100%;accent-color:var(--amber)}
+.fld .row{display:flex;gap:8px;align-items:center}
+.fld .row>input,.fld .row>textarea{flex:1}
+.td-out{display:grid;gap:8px;padding:14px 16px;border-radius:16px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.guide{padding:10px 12px;border-radius:12px;background:rgba(91,155,213,.1);color:#C9D8EE}
+.ev-list{display:grid;gap:8px}
+.ev{display:grid;grid-template-columns:70px 110px minmax(120px,1fr) 80px minmax(140px,2fr) minmax(140px,2fr) auto;gap:8px;align-items:end;padding:10px;border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.ev[data-dl]{grid-template-columns:70px minmax(0,1fr) auto}
+.ev label{display:grid;gap:4px;min-width:0}
+.ev label>span{font:700 11px var(--f-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+@media (max-width:900px){.ev{grid-template-columns:repeat(2,minmax(0,1fr))}.ev .grow{grid-column:1 / -1}.ev>button{grid-column:1 / -1;justify-self:end}}
+.res-tbl td.pos{color:var(--green);font-weight:700} .res-tbl td.neg{color:var(--red);font-weight:700}
+.res-tbl tr.bad td{color:var(--red)}
+.report-who{margin:-4px 0 0;font:700 16px var(--f-ui);color:var(--amber)}
+@media print{
+  @page{margin:14mm}
+  html,body{background:#fff!important;color:#111!important}
+  body *{visibility:hidden}
+  #overlay,#overlay *{visibility:visible}
+  #overlay{position:absolute!important;inset:0 auto auto 0!important;width:100%!important;height:auto!important;overflow:visible!important;background:#fff!important;backdrop-filter:none!important;padding:0!important}
+  #overlay .scr{max-width:none!important;box-shadow:none!important;background:#fff!important;color:#111!important;padding:0!important}
+  #overlay .btns,#overlay .td-tabs,#overlay .fld,#overlay .toggles,#overlay button:not(.term){display:none!important}
+  #overlay .term{visibility:visible;color:#111!important;text-decoration:none!important}
+  #overlay .chart-card,#overlay .moment,#overlay .db-stats span,#overlay .tbl-wrap,#overlay dl.gloss>div{background:#fff!important;box-shadow:none!important;border:1px solid #bbb;break-inside:avoid}
+  #overlay .scr-title,#overlay h4,#overlay b,#overlay p,#overlay small,#overlay td,#overlay th,#overlay .interlude,#overlay .credits,#overlay .note{color:#111!important}
+  #overlay .q-date,#overlay .sec-lab,#overlay .report-who{color:#8A5A00!important}
+}
+.fld .row>select{width:auto;flex:0 0 88px}
+.fld>.seg,.fld>.toggles{justify-self:start}
+.td-grid .toggles{justify-content:flex-start;margin:0}
 </style>
 <div class="shell">
   <div id="frame">
@@ -1152,7 +1196,7 @@ G.en = {
   peakHeat: "Peak removal risk",
   dilemmasExtra: { crash: ["Markets are crashing", "Stocks are down more than a fifth from their peak and banks are refusing to lend to each other. The board wants a decision tonight.", "Open an emergency liquidity line for solvent banks", "Let markets find their own level"], truce: ["The President offers a truce", "Publicly endorse the government's budget plan, and the talk of removing you stops.", "Decline: the Bank does not endorse budgets", "Accept the truce"] },
   tagline: "A central banker's game", play: "Play",
-  credits: "Twelve quarters. One election. A whole country with an opinion about your interest rate.",
+  credits: "Eighteen quarters. One election. A whole country with an opinion about your interest rate.",
   sound: "Sound", on: "on", off: "off",
   levelsTitle: "Choose your crisis", level: n => `Level ${n}`, best: "Best", back: "Back",
   code: "Shock code", codeHint: "Leave it empty for random shocks. Same code, same shocks — share it with your class.",
@@ -1440,7 +1484,7 @@ G.es = {
   peakHeat: "Riesgo de destitución máximo",
   dilemmasExtra: { crash: ["Los mercados se desploman", "La bolsa cae más de un quinto desde su máximo y los bancos no se prestan entre sí. El directorio quiere una decisión esta noche.", "Abrir una línea de liquidez de emergencia para bancos solventes", "Dejar que el mercado encuentre su nivel"], truce: ["El Presidente ofrece una tregua", "Respalda públicamente el plan presupuestario del gobierno y se acaban los rumores de destitución.", "Rechazar: el Banco no avala presupuestos", "Aceptar la tregua"] },
   tagline: "Un juego de banca central", play: "Jugar",
-  credits: "Doce trimestres. Una elección. Un país entero opinando sobre tu tasa de interés.",
+  credits: "Dieciocho trimestres. Una elección. Un país entero opinando sobre tu tasa de interés.",
   sound: "Sonido", on: "sí", off: "no",
   levelsTitle: "Elige tu crisis", level: n => `Nivel ${n}`, best: "Récord", back: "Volver",
   code: "Código de shocks", codeHint: "Déjalo vacío para shocks aleatorios. Mismo código, mismos shocks — compártelo con tu clase.",
@@ -1792,6 +1836,78 @@ Object.assign(G.es, {
       pandemic: "La Fed bajó a cero en marzo de 2020 y compró bonos a una escala enorme. Consideró 'transitoria' la inflación de 2021 y empezó a subir recién en marzo de 2022; luego subió 5,25 puntos en 16 meses, el ritmo más rápido desde comienzos de los ochenta."
     },
     histCaveat: "La economía del juego es estilizada: compara dirección y momento, no niveles. La línea de la Fed usa promedios trimestrales aproximados de la tasa de fondos federales."
+  }
+});
+/* ═══════════════ CLASSROOM TEXT (EN/ES) ═══════════════ */
+Object.assign(G.en, {
+  cls: {
+    teacherBtn: "For teachers", joinBtn: "Join a class", joinTitle: "Join a class", joinHint: "Paste the class code your teacher gave you.", joinGo: "Join",
+    badCode: "That code doesn't look right. Copy it again, in full.", assignTitle: "Class assignment", yourName: "Your name", start: "Start the assignment",
+    leave: "Leave this class", nameNeeded: "Type your name first.", defaultIntro: "Welcome, Governor. Your term starts now. The country is counting on you.",
+    customBlurb: "A scenario built by your teacher.",
+    handTitle: "Hand in your result", handHint: "Copy this code and send it to your teacher by email, chat or your course page. It contains your decisions, so your teacher can replay your game and check it.",
+    copy: "Copy", copied: "Copied", download: "Download file", shareBtn: "Result code", nameFor: "Name on the result",
+    desk: { title: "Teacher desk", sub: "Set up a class, build your own scenario and collect results. Everything stays in this browser: nothing is uploaded anywhere.", tabs: ["Assignment", "Scenario builder", "Results"], back: "Back" },
+    assign: {
+      className: "Class name", classPh: "Macro 101, group B", level: "Scenario", custom: "My scenario", code: "Shock code", newCode: "New code",
+      link: "Link for students", linkHint: "Everyone who opens this link plays exactly the same economy, with the same shocks and settings. Their name goes on the result.",
+      classCode: "Class code", classCodeHint: "If links are awkward, students can paste this code with 'Join a class' on the title screen.",
+      tryIt: "Try it as a student", noCustom: "Build and save a scenario first, in the Scenario builder tab."
+    },
+    build: {
+      name: "Scenario name", namePh: "Commodity boom", intro: "Opening line from the President", introPh: "Governor, copper prices are at record highs…",
+      year: "Starting year", quarter: "Quarter", cred: v => `Starting credibility: ${v}`, surprises: "Surprise events",
+      surprisesHint: "On: the game adds a few random events and desk decisions late in the term, different for each shock code. Off: only what you write here, plus small everyday noise.",
+      events: "Shock events", addEvent: "Add an event", q: "Quarter", kind: "Type", kinds: { d: "Demand", s: "Supply" }, size: "Size", dur: "Lasts", durN: n => `${n} q`,
+      head: "Headline", headPh: "Housing market cools", dek: "Details (optional)", remove: "Remove", dilemmas: "Desk decisions", addDil: "Add a decision",
+      guide: "Demand shocks move inflation and output the same way: a spending boom raises both. Supply shocks move them in opposite directions: a cost shock raises inflation and cuts output. A positive size pushes inflation up. Shocks fade over the quarters they last.",
+      preview: "Shock path", demand: "Demand", supply: "Supply", save: "Save scenario", saved: "Saved", test: "Test play", use: "Use in an assignment",
+      empty: "No events yet: the economy will only get small random shocks."
+    },
+    res: {
+      paste: "Result codes", pastePh: "Paste the codes your students sent you. Any text around them is ignored.", check: "Check results",
+      cols: ["Student", "Class", "Scenario", "Score", "Stars", "Rule", "Credibility", "Outcome", "On target", "Followed rule", "Check"],
+      report: "Report", csv: "Download CSV", copyTable: "Copy for a spreadsheet", print: "Print",
+      summary: (n, avg, done) => `${n} results · average score ${avg} · ${done} completed the term`, bad: "Unreadable code", tampered: "Code altered", ok: "Verified",
+      none: "No results yet. Paste codes above and press Check results.", done: "Completed"
+    },
+    report: { print: "Print report", who: (nm, cl, date) => [nm, cl, date].filter(Boolean).join(" · ") }
+  }
+});
+
+Object.assign(G.es, {
+  cls: {
+    teacherBtn: "Para docentes", joinBtn: "Unirse a una clase", joinTitle: "Unirse a una clase", joinHint: "Pega el código de clase que te dio tu docente.", joinGo: "Unirse",
+    badCode: "Ese código no parece correcto. Cópialo de nuevo, completo.", assignTitle: "Tarea de la clase", yourName: "Tu nombre", start: "Empezar la tarea",
+    leave: "Salir de esta clase", nameNeeded: "Primero escribe tu nombre.", defaultIntro: "Bienvenido al Banco. Su mandato empieza ahora. El país cuenta con usted.",
+    customBlurb: "Un escenario creado por tu docente.",
+    handTitle: "Entrega tu resultado", handHint: "Copia este código y envíaselo a tu docente por correo, chat o la página del curso. Contiene tus decisiones, así tu docente puede repetir tu partida y verificarla.",
+    copy: "Copiar", copied: "Copiado", download: "Descargar archivo", shareBtn: "Código de resultado", nameFor: "Nombre en el resultado",
+    desk: { title: "Escritorio docente", sub: "Arma una clase, crea tu propio escenario y reúne los resultados. Todo queda en este navegador: no se sube nada a ningún lado.", tabs: ["Tarea", "Creador de escenarios", "Resultados"], back: "Volver" },
+    assign: {
+      className: "Nombre de la clase", classPh: "Macro 101, grupo B", level: "Escenario", custom: "Mi escenario", code: "Código de shocks", newCode: "Nuevo código",
+      link: "Enlace para estudiantes", linkHint: "Quien abra este enlace juega exactamente la misma economía, con los mismos shocks y opciones. Su nombre queda en el resultado.",
+      classCode: "Código de clase", classCodeHint: "Si los enlaces son incómodos, los estudiantes pueden pegar este código en 'Unirse a una clase', en la pantalla de inicio.",
+      tryIt: "Probar como estudiante", noCustom: "Primero crea y guarda un escenario en la pestaña Creador de escenarios."
+    },
+    build: {
+      name: "Nombre del escenario", namePh: "Auge de materias primas", intro: "Frase inicial del Presidente", introPh: "El cobre está en máximos históricos…",
+      year: "Año de inicio", quarter: "Trimestre", cred: v => `Credibilidad inicial: ${v}`, surprises: "Eventos sorpresa",
+      surprisesHint: "Activado: el juego agrega algunos eventos y decisiones al azar al final del mandato, distintos para cada código. Desactivado: solo lo que escribas aquí, más un pequeño ruido cotidiano.",
+      events: "Shocks", addEvent: "Agregar un shock", q: "Trimestre", kind: "Tipo", kinds: { d: "Demanda", s: "Oferta" }, size: "Tamaño", dur: "Dura", durN: n => `${n} t`,
+      head: "Titular", headPh: "Se enfría el mercado inmobiliario", dek: "Detalle (opcional)", remove: "Quitar", dilemmas: "Decisiones de escritorio", addDil: "Agregar una decisión",
+      guide: "Los shocks de demanda mueven la inflación y la producción en la misma dirección: un auge del gasto sube ambas. Los de oferta las mueven en direcciones opuestas: un shock de costos sube la inflación y baja la producción. Un tamaño positivo empuja la inflación hacia arriba. Los shocks se desvanecen durante los trimestres que duran.",
+      preview: "Camino de los shocks", demand: "Demanda", supply: "Oferta", save: "Guardar escenario", saved: "Guardado", test: "Probar", use: "Usar en una tarea",
+      empty: "Todavía no hay shocks: la economía solo tendrá pequeños shocks al azar."
+    },
+    res: {
+      paste: "Códigos de resultado", pastePh: "Pega los códigos que te enviaron tus estudiantes. Se ignora cualquier texto alrededor.", check: "Revisar resultados",
+      cols: ["Estudiante", "Clase", "Escenario", "Puntaje", "Estrellas", "Regla", "Credibilidad", "Resultado", "En meta", "Siguió la regla", "Control"],
+      report: "Informe", csv: "Descargar CSV", copyTable: "Copiar para planilla", print: "Imprimir",
+      summary: (n, avg, done) => `${n} resultados · puntaje promedio ${avg} · ${done} completaron el mandato`, bad: "Código ilegible", tampered: "Código alterado", ok: "Verificado",
+      none: "Todavía no hay resultados. Pega los códigos arriba y presiona Revisar resultados.", done: "Completado"
+    },
+    report: { print: "Imprimir informe", who: (nm, cl, date) => [nm, cl, date].filter(Boolean).join(" · ") }
   }
 });
 /* ═══════════════ STORAGE & ENV ═══════════════ */
@@ -2338,8 +2454,8 @@ function extendScenario(sc, seed) {
   const frng = rngFrom("fog:" + sc.key + ":" + seed);          // first-estimate errors, drawn separately so events are unchanged
   sc.errPi = Array.from({ length: n }, (_, k) => (k ? gauss(frng) * FOG.pi : 0));
   sc.errX = Array.from({ length: n }, (_, k) => (k ? gauss(frng) * FOG.x : 0));
-  const used = new Set(Object.keys(sc.news).map(Number));
-  for (let k = 0; k < 3; k++) {
+  const used = new Set(Object.keys(sc.news).map(Number)), fixed = SCEN[sc.key] && SCEN[sc.key].fixed;   // a teacher's scenario can switch surprises off
+  for (let k = 0; k < (fixed ? 0 : 3); k++) {
     let t = 0, tries = 0;
     do { t = 9 + Math.floor(rng() * (M.turns - 9)); tries++; } while (tries < 40 && (used.has(t) || used.has(t - 1) || used.has(t + 1)));
     used.add(t);
@@ -2362,8 +2478,20 @@ function extendScenario(sc, seed) {
   sc.bustRoll = Array.from({ length: n }, () => wrng());                                        // fixed dice for credit busts and sudden stops
   sc.ssRoll = Array.from({ length: n }, () => wrng());
   const free = Object.keys(DILEMMAS).filter(id => !Object.values(sc.dilemmas).includes(id)).sort(() => rng() - 0.5);
-  [12 + Math.floor(rng() * 2), 15 + Math.floor(rng() * 3)].forEach((t, k) => { if (!sc.dilemmas[t] && free[k]) sc.dilemmas[t] = free[k]; });
+  if (!fixed) [12 + Math.floor(rng() * 2), 15 + Math.floor(rng() * 3)].forEach((t, k) => { if (!sc.dilemmas[t] && free[k]) sc.dilemmas[t] = free[k]; });
   return sc;
+}
+// A teacher's own scenario: each event [quarter, "d"|"s", size, duration, headline, details] becomes a fading shock path.
+function customScenario(spec) {
+  const n = M.turns, d = Array(n).fill(0), s = Array(n).fill(0), news = {}, dilemmas = {};
+  (spec.ev || []).forEach(([t, kind, size, dur, head]) => {
+    t = clamp(Math.round(+t || 1), 1, n); dur = clamp(Math.round(+dur || 1), 1, 6); size = clamp(+size || 0, -4, 4);
+    for (let j = 0; j < dur && t + j <= n; j++) (kind === "s" ? s : d)[t + j - 1] += size * (1 - j / dur);
+    if (head && !news[t]) news[t] = "cu" + t;
+  });
+  (spec.dl || []).forEach(([t, id]) => { if (DILEMMAS[id]) dilemmas[clamp(Math.round(+t || 1), 1, n)] = id; });
+  SCEN.custom = { year: clamp(Math.round(+spec.y || 2027), 1900, 2100), q: clamp(Math.round(+spec.q || 1), 1, 4), cred: clamp(spec.c ?? 0.75, 0.3, 0.9), d, s, news, dilemmas, fixed: !spec.x };
+  return SCEN.custom;
 }
 // Mandates: what the Bank is legally asked to deliver. The score weight on jobs, the credibility band and the government's patience differ.
 const MANDATE = { price: { lam: 0.5, band: 1, gain: 0.02, slope: 0.05, heat: 0 }, dual: { lam: 1.0, band: 1.5, gain: 0.015, slope: 0.04, heat: -4 } };
@@ -2584,6 +2712,7 @@ function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch {} }
 function loadSave() {
   try {
     const sv = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (sv && sv.cfg && sv.cfg.scenario === "custom" && sv.cfg.cs) installCustom(sv.cfg.cs);
     return sv && sv.cfg && SCEN[sv.cfg.scenario] && Array.isArray(sv.inputs) && sv.inputs.length < M.turns ? sv : null;
   } catch { return null; }
 }
@@ -2865,12 +2994,17 @@ function titleScreen() {
     <h1 class="wordmark"><span>Hold</span><span>the line</span></h1>
     <div class="lineup">${[["salas", "happy"], ["harrow", "neutral"], ["weiss", "neutral"], ["okafor", "happy"], ["quiroga", "angry"]].map(([id, m]) => portraitSVG(id, m)).join("")}</div>
     <p class="credits">${esc(gg.credits)}</p>
-    ${sv ? `<button class="btn big" id="tCont" data-hot>${esc(gg.continueGame(gg.levels[sv.cfg.scenario][0], sv.inputs.length + 1))} →</button>` : ""}
-    <button class="btn big ${sv ? "ghost" : ""}" id="tStart" ${sv ? "" : "data-hot"}>${esc(gg.play)} →</button>
+    ${classCardHTML()}
+    ${sv ? `<button class="btn big ${store.klass ? "ghost" : ""}" id="tCont" ${store.klass ? "" : "data-hot"}>${esc(gg.continueGame(gg.levels[sv.cfg.scenario][0], sv.inputs.length + 1))} →</button>` : ""}
+    <button class="btn big ${sv || store.klass ? "ghost" : ""}" id="tStart" ${sv || store.klass ? "" : "data-hot"}>${esc(gg.play)} →</button>
+    <div class="toggles"><button class="btn ghost small" id="tJoin">${esc(gg.cls.joinBtn)}</button><button class="btn ghost small" id="tTeach">${esc(gg.cls.teacherBtn)}</button></div>
     <div class="toggles">${langToggle()}${soundToggle()}</div>
   </div>`);
   $("tStart").onclick = () => { Sound.unlock(); Sound.confirm(); levelSelect(); };
-  if (sv) $("tCont").onclick = () => { Sound.unlock(); Sound.confirm(); startLevel(sv.cfg.scenario, sv.cfg.seed, sv.inputs, !!sv.cfg.hard, !!sv.cfg.em, { mandate: sv.cfg.mandate, carry: sv.cfg.carry, career: sv.cfg.career }); };
+  if (sv) $("tCont").onclick = () => { Sound.unlock(); Sound.confirm(); startLevel(sv.cfg.scenario, sv.cfg.seed, sv.inputs, !!sv.cfg.hard, !!sv.cfg.em, optsOf(sv.cfg)); };
+  bindClassCard();
+  $("tJoin").onclick = () => { Sound.unlock(); Sound.select(); joinClass(); };
+  $("tTeach").onclick = () => { Sound.unlock(); Sound.select(); teacherDesk(); };
   bindToggles(titleScreen);
 }
 
@@ -2911,8 +3045,9 @@ function startLevel(scenario, seed, inputs = [], hard = false, em = false, opts 
   closeOverlay(); resetStage();
   screen = "game";
   const mandate = opts.mandate === "dual" ? "dual" : "price";
+  if (scenario === "custom" && opts.cs) installCustom(opts.cs);
   const sc = applyMode(extendScenario(buildScenario(scenario, seed), seed), hard, em, mandate, opts.carry);
-  game = { cfg: { scenario, seed, hard: !!hard, em: !!em, mandate, carry: opts.carry || null, career: !!opts.career }, sc, hist: [initGame(sc)], reports: [], inputs: [], hud: null, headlines: [] };
+  game = { cfg: { scenario, seed, hard: !!hard, em: !!em, mandate, carry: opts.carry || null, career: !!opts.career, klass: opts.klass || null, student: opts.student || "", cs: opts.cs || null }, sc, hist: [initGame(sc)], reports: [], inputs: [], hud: null, headlines: [] };
   g().tickerStart.forEach((x, k) => game.headlines.push({ key: "start" + k, src: "wire", textFn: () => g().tickerStart[k] }));
   inputs.forEach(advance);
   saveGame();
@@ -3269,7 +3404,8 @@ function openGlossary(back) {
 }
 
 // Debrief: your term against the rule, the decisions that mattered, and what history did.
-function openDebrief() {
+function openDebrief(o = {}) {
+  const back = o.back || (() => endLevel(true));
   const gg = g(), D = gg.debrief, t = tr(), H = game.hist, key = game.cfg.scenario;
   const R = rulePath(game.sc), data = debriefData(game.sc, game.inputs, game.reports), fed = FED_PATH[key];
   const qL = k => quarterLabel(k).replace(" ", "");
@@ -3287,16 +3423,18 @@ function openDebrief() {
   openOverlay(`<div class="scr debrief">
     <span class="q-date">${esc(gg.levels[key][0])} · ${esc(game.cfg.seed)}</span>
     <h2 class="scr-title">${esc(D.title)}</h2>
+    ${o.who || game.cfg.student ? `<p class="report-who">${esc(o.who || gg.cls.report.who(game.cfg.student, game.cfg.klass && game.cfg.klass.cl, new Date().toISOString().slice(0, 10)))}</p>` : ""}
     <p class="credits">${esc(D.sub)}</p>
     <div class="db-stats"><span>${esc(D.stats.onTarget(data.onTarget, data.N))}</span><span>${esc(D.stats.followed(data.N - data.deviations, data.N))}</span><span>${esc(D.stats.cred(Math.round(data.cred0 * 100), Math.round(data.cred1 * 100)))}</span></div>
     <div class="chart-grid db-charts">${rate}${infl}</div>
     <section class="db-sec"><span class="sec-lab">${esc(D.momentsTitle)}</span>
       ${data.moments.length ? `<div class="moments">${data.moments.map(moment).join("")}</div><p class="note">${esc(D.momentsNote)}</p>` : `<p class="note">${esc(D.noMoments)}</p>`}</section>
     ${fed ? `<section class="db-sec"><span class="sec-lab">${esc(D.histTitle)}</span><div class="db-hist">${hist}<p class="interlude">${esc(D.hist[key])}</p></div><p class="note">${esc(D.histCaveat)}</p></section>` : ""}
-    <div class="btns"><button class="btn big" id="dbBack" data-hot>← ${esc(D.back)}</button><button class="btn ghost" id="dbGloss">${esc(gg.gloss.title)}</button></div>
+    <div class="btns"><button class="btn big" id="dbBack" data-hot>← ${esc(D.back)}</button><button class="btn ghost" id="dbPrint">${esc(gg.cls.report.print)}</button><button class="btn ghost" id="dbGloss">${esc(gg.gloss.title)}</button></div>
   </div>`);
-  $("dbBack").onclick = () => endLevel(true);
-  $("dbGloss").onclick = () => openGlossary(openDebrief);
+  $("dbBack").onclick = back;
+  $("dbPrint").onclick = () => window.print();
+  $("dbGloss").onclick = () => openGlossary(() => openDebrief(o));
 }
 /* ═══════════════ END OF LEVEL ═══════════════ */
 function evalAchievements(score, rule) {
@@ -3333,7 +3471,7 @@ function endLevel(restored) {
     persist();
   }
   const T_ = Math.max(1, s.t), avg = (a, b) => ((b / a) ** (1 / T_) - 1) * 400;
-  const elec = game.reports.find(r => r.election), nextKey = LEVEL_ORDER[LEVEL_ORDER.indexOf(key) + 1];
+  const elec = game.reports.find(r => r.election), nextKey = LEVEL_ORDER.includes(key) && !game.cfg.klass ? LEVEL_ORDER[LEVEL_ORDER.indexOf(key) + 1] : null;
   const front = s.lost ? gg.finalFront[s.lost] : s.cred > 0.8 ? gg.finalFront.good : gg.finalFront.mixed;
   const qL = k => quarterLabel(k).replace(" ", "");
   openOverlay(`<div class="scr end">
@@ -3353,18 +3491,20 @@ function endLevel(restored) {
     </dl>
     <p class="note">${esc(gg.starsNote)}</p>
     ${fresh.length ? `<div class="achs"><span class="sec-lab">${esc(gg.newAch)}</span>${fresh.map(a => `<div class="ach"><b>${esc(gg.ach[a][0])}</b><small>${esc(gg.ach[a][1])}</small></div>`).join("")}</div>` : ""}
+    ${handInHTML()}
     <div class="end-charts">${["infl", "mkt", "pol"].map(k => chartCard(k, qL, true)).join("")}</div>
     ${game.cfg.career ? `<div class="btns"><button class="btn big" id="eCareer" data-hot>${esc(gg.career.continueStory)} →</button><button class="btn ghost" id="eDebrief">${esc(gg.debrief.btn)}</button></div>` : `<div class="btns">
       <button class="btn big" id="eRetry" data-hot>${esc(gg.retry)}</button>
       <button class="btn" id="eDebrief">${esc(gg.debrief.btn)}</button>
-      <button class="btn ghost" id="eFresh">${esc(gg.newShocks)}</button>
+      ${game.cfg.klass ? "" : `<button class="btn ghost" id="eFresh">${esc(gg.newShocks)}</button>`}
       ${nextKey && !s.lost ? `<button class="btn ghost" id="eNext">${esc(gg.nextLevel)} →</button>` : ""}
       <button class="btn ghost" id="eLevels">${esc(gg.toLevels)}</button>
     </div>`}
   </div>`);
   $("eDebrief").onclick = () => { Sound.select(); openDebrief(); };
   if ($("eCareer")) $("eCareer").onclick = () => { Sound.confirm(); careerAfterTerm(); };
-  const opts = { mandate: game.cfg.mandate };
+  bindHandIn();
+  const opts = optsOf(game.cfg);
   if ($("eRetry")) $("eRetry").onclick = () => { Sound.confirm(); startLevel(key, game.cfg.seed, [], game.cfg.hard, game.cfg.em, opts); };
   if ($("eFresh")) $("eFresh").onclick = () => { Sound.confirm(); startLevel(key, randomCode(), [], game.cfg.hard, game.cfg.em, opts); };
   if ($("eNext")) $("eNext").onclick = () => { Sound.confirm(); startLevel(nextKey, randomCode(), [], game.cfg.hard, game.cfg.em, opts); };
@@ -3430,7 +3570,7 @@ function openMenu() {
     <div class="toggles">${langToggle()}${soundToggle()}${tipsToggle()}</div>
     <p class="hint">${esc(gg.codeLine(game.cfg.seed))}</p></div>`);
   $("mResume").onclick = resume;
-  if ($("mRestart")) $("mRestart").onclick = () => startLevel(game.cfg.scenario, game.cfg.seed, [], game.cfg.hard, game.cfg.em, { mandate: game.cfg.mandate });
+  if ($("mRestart")) $("mRestart").onclick = () => startLevel(game.cfg.scenario, game.cfg.seed, [], game.cfg.hard, game.cfg.em, optsOf(game.cfg));
   $("mLevels").onclick = levelSelect;
   $("mTitle").onclick = titleScreen;
   $("mGloss").onclick = () => openGlossary(openMenu);
@@ -3591,6 +3731,318 @@ function hallOfFame() {
   </div>`);
   $("hfBack").onclick = levelSelect;
 }
+/* ═══════════════ CLASSROOM: CLASS LINKS, RESULT CODES, TEACHER DESK ═══════════════ */
+const PUBLIC_URL = "https://pmiguelena.github.io/hold-the-line/game.html";
+const b64e = s => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const b64d = s => decodeURIComponent(escape(atob(s.replace(/-/g, "+").replace(/_/g, "/"))));
+const CODE_RE = /HTL([CR])1\.([A-Za-z0-9_-]+)/g;
+const sealed = body => ({ ...body, c: hashStr(JSON.stringify(body)).toString(36) });
+function encodeCode(kind, body) { return `HTL${kind}1.${b64e(JSON.stringify(sealed(body)))}`; }
+function decodeCode(str) {
+  CODE_RE.lastIndex = 0;
+  const m = CODE_RE.exec(String(str || ""));
+  if (!m) return null;
+  try { const o = JSON.parse(b64d(m[2])), { c, ...body } = o; return { kind: m[1], body, ok: c === hashStr(JSON.stringify(body)).toString(36) }; } catch { return null; }
+}
+const classLink = code => (/^https?:$/.test(location.protocol) && !/claude/.test(location.host) ? location.origin + location.pathname : PUBLIC_URL) + "?class=" + code;
+
+// Decisions, packed small so a whole term fits in a code a student can paste.
+const TONES = ["dovish", "neutral", "hawkish"], DEPT_L = { stats: "s", research: "r", comms: "c", supervision: "v", markets: "m" };
+const packInp = i => [Math.round(i.move * 4), TONES.indexOf(i.tone), i.choice ?? -1, i.qa ?? -1, i.qe || 0, i.fx || 0, i.macro ? 1 : 0, (i.buy || []).map(k => DEPT_L[k]).join("")];
+const unpackInp = a => ({ move: a[0] / 4, tone: TONES[a[1]] || "neutral", choice: a[2] < 0 ? null : a[2], qa: a[3] < 0 ? null : a[3], qe: a[4] || 0, fx: a[5] || 0, macro: !!a[6],
+  buy: [...(a[7] || "")].map(c => Object.keys(DEPT_L).find(k => DEPT_L[k] === c)).filter(Boolean) });
+
+// A teacher's scenario: the model part builds the shocks, this adds its words to both languages.
+function installCustom(spec) {
+  const sc = customScenario(spec), name = (spec.n || "").trim() || g().cls.assign.custom;
+  ["en", "es"].forEach(L => {
+    G[L].levels.custom = [name, `${sc.year}`, G[L].cls.customBlurb];
+    G[L].intro.custom = [["salas", "neutral", (spec.intro || "").trim() || G[L].cls.defaultIntro]];
+    (spec.ev || []).forEach(([t, , , , head, dek]) => { if (head) T[L].news["cu" + clamp(Math.round(+t || 1), 1, M.turns)] = [head, dek || ""]; });
+  });
+}
+const cfgOf = c => ({ l: c.scenario, sd: c.seed, h: !!c.hard, e: !!c.em, m: c.mandate || "price", cs: c.cs || null, cr: c.carry || null });
+const optsOf = c => ({ mandate: c.mandate, carry: c.carry, career: c.career, klass: c.klass, student: c.student, cs: c.cs });
+
+function resultCode(name) {
+  const c = game.cfg;
+  return encodeCode("R", { cfg: cfgOf(c), cl: c.klass ? c.klass.cl || "" : "", nm: (name || "").trim(), d: new Date().toISOString().slice(0, 10), in: game.inputs.map(packInp) });
+}
+// Replays a term from its settings and decisions, exactly as the game played it.
+function replayCfg(cfg, inputs) {
+  if (cfg.l === "custom" && cfg.cs) installCustom(cfg.cs);
+  const sc = applyMode(extendScenario(buildScenario(cfg.l, cfg.sd), cfg.sd), cfg.h, cfg.e, cfg.m, cfg.cr);
+  const hist = [initGame(sc)], reports = [];
+  for (const inp of inputs) {
+    const s = hist[hist.length - 1];
+    if (s.t >= M.turns || s.lost) break;
+    const prep = prepGame(s, sc), res = stepGame(s, sc, prep, inp);
+    hist.push(res.state); reports.push({ prep, inp, prev: s, ...res });
+  }
+  return { cfg: { scenario: cfg.l, seed: cfg.sd, hard: cfg.h, em: cfg.e, mandate: cfg.m, cs: cfg.cs, carry: cfg.cr }, sc, hist, reports, inputs: inputs.slice(0, reports.length), hud: null, headlines: [] };
+}
+
+function copyText(text, btn) {
+  const done = () => { if (btn) { const o = btn.textContent; btn.textContent = g().cls.copied; setTimeout(() => (btn.textContent = o), 1400); } };
+  const fallback = () => { const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch {} ta.remove(); done(); };
+  try { navigator.clipboard.writeText(text).then(done, fallback); } catch { fallback(); }
+}
+function downloadText(name, text, type = "text/plain") {
+  try {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: type + ";charset=utf-8" })); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+  } catch {}
+}
+const fileSafe = s => (s || "result").replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "").toLowerCase() || "result";
+
+/* ── students ── */
+function readClassFromURL() {
+  try {
+    const p = new URLSearchParams(location.search), raw = p.get("class");
+    if (raw) { const d = decodeCode(raw); if (d && d.kind === "C" && d.ok) { store.klass = d.body; persist(); } }
+    return /teacher/.test(location.hash) || p.has("teacher");
+  } catch { return false; }
+}
+function classTags(k) {
+  const gg = g();
+  if (k.l === "custom" && k.cs) installCustom(k.cs);
+  return [gg.levels[k.l] ? gg.levels[k.l][0] : k.l, k.sd, k.h ? gg.diff.hard : "", k.e ? gg.econ.em : "", k.m === "dual" ? gg.mandate.dualShort : ""].filter(Boolean).join(" · ");
+}
+function classCardHTML() {
+  const k = store.klass, C = g().cls;
+  if (!k) return "";
+  return `<div class="class-card"><span class="sec-lab">${esc(C.assignTitle)}</span><b class="cc-name">${esc(k.cl || "—")}</b><span class="cc-tags">${esc(classTags(k))}</span>
+    <label class="code"><span>${esc(C.yourName)}</span><input id="stName" class="name-in" maxlength="40" value="${esc(store.studentName || "")}" autocomplete="name" spellcheck="false"></label>
+    <p class="diff-hint" id="stHint"></p>
+    <div class="btns"><button class="btn big" id="caGo" data-hot>${esc(C.start)} →</button><button class="btn ghost small" id="caLeave">${esc(C.leave)}</button></div></div>`;
+}
+function bindClassCard() {
+  if (!$("caGo")) return;
+  $("caGo").onclick = () => {
+    const nm = $("stName").value.trim();
+    if (!nm) { $("stHint").textContent = g().cls.nameNeeded; $("stName").focus(); return; }
+    store.studentName = nm; persist(); Sound.unlock(); Sound.confirm();
+    const k = store.klass;
+    if (k.l === "custom" && k.cs) installCustom(k.cs);
+    startLevel(k.l, k.sd, [], k.h, k.e, { mandate: k.m, klass: k, student: nm, cs: k.cs });
+  };
+  $("caLeave").onclick = () => { delete store.klass; persist(); Sound.select(); titleScreen(); };
+}
+function joinClass() {
+  const C = g().cls;
+  openOverlay(`<div class="scr"><h2 class="scr-title">${esc(C.joinTitle)}</h2><p class="credits">${esc(C.joinHint)}</p>
+    <textarea id="joinIn" class="code-box" rows="4" spellcheck="false" placeholder="HTLC1.…"></textarea><p class="diff-hint" id="joinHint"></p>
+    <div class="btns"><button class="btn ghost" id="joinBack">← ${esc(g().back)}</button><button class="btn big" id="joinGo" data-hot>${esc(C.joinGo)} →</button></div></div>`);
+  $("joinBack").onclick = titleScreen;
+  $("joinGo").onclick = () => {
+    const d = decodeCode($("joinIn").value);
+    if (!d || d.kind !== "C" || !d.ok) { $("joinHint").textContent = C.badCode; return; }
+    store.klass = d.body; persist(); Sound.confirm(); titleScreen();
+  };
+}
+// End of a term: the code a student hands in.
+function handInHTML() {
+  const C = g().cls, k = game.cfg.klass;
+  return `<div class="hand-in ${k ? "" : "folded"}" id="handIn">
+    ${k ? "" : `<button class="btn ghost" id="hiOpen">${esc(C.shareBtn)}</button>`}
+    <div class="hi-body" ${k ? "" : "hidden"}><span class="sec-lab">${esc(C.handTitle)}${k && k.cl ? ` · ${esc(k.cl)}` : ""}</span>
+      ${k ? "" : `<label class="code"><span>${esc(C.nameFor)}</span><input id="hiName" class="name-in" maxlength="40" value="${esc(store.studentName || "")}" spellcheck="false"></label>`}
+      <textarea id="hiCode" class="code-box" rows="3" readonly spellcheck="false"></textarea>
+      <p class="note">${esc(C.handHint)}</p>
+      <div class="btns"><button class="btn" id="hiCopy">${esc(C.copy)}</button><button class="btn ghost" id="hiDl">${esc(C.download)}</button></div></div></div>`;
+}
+function bindHandIn() {
+  const nm = () => (game.cfg.klass ? game.cfg.student : $("hiName") ? $("hiName").value : "") || "";
+  const refresh = () => { $("hiCode").value = resultCode(nm()); };
+  refresh();
+  if ($("hiOpen")) $("hiOpen").onclick = () => { $("hiOpen").hidden = true; $("handIn").querySelector(".hi-body").hidden = false; $("handIn").classList.remove("folded"); };
+  if ($("hiName")) $("hiName").oninput = () => { store.studentName = $("hiName").value.trim(); persist(); refresh(); };
+  $("hiCode").onfocus = () => $("hiCode").select();
+  $("hiCopy").onclick = () => copyText($("hiCode").value, $("hiCopy"));
+  $("hiDl").onclick = () => downloadText(`hold-the-line-${fileSafe(nm())}.txt`, $("hiCode").value + "\n");
+}
+
+/* ── teacher desk ── */
+const newAssign = () => ({ cl: "", l: "crisis", sd: randomCode(), h: false, e: false, m: "price" });
+const newSpec = () => ({ n: "", intro: "", y: 2027, q: 1, c: 0.75, x: false, ev: [[3, "d", -1.5, 3, "", ""]], dl: [] });
+function tdState() {
+  store.teacher = store.teacher || {};
+  const T_ = store.teacher;
+  if (!T_.a) T_.a = newAssign();
+  if (!T_.b) T_.b = newSpec();
+  return T_;
+}
+function teacherDesk(tab) {
+  screen = "teacher"; game = null; resetStage(); $("hud").hidden = true; drawRoom(); renderTicker();
+  const T_ = tdState(), C = g().cls;
+  if (tab != null) T_.tab = tab;
+  const cur_ = T_.tab || 0;
+  openOverlay(`<div class="scr tdesk">
+    <h2 class="scr-title">${esc(C.desk.title)}</h2><p class="credits">${esc(C.desk.sub)}</p>
+    <div class="seg td-tabs" role="tablist">${C.desk.tabs.map((n, k) => `<button role="tab" data-tab="${k}" aria-pressed="${k === cur_}">${esc(n)}</button>`).join("")}</div>
+    <div id="tdBody" class="td-body"></div>
+    <div class="btns"><button class="btn ghost" id="tdBack">← ${esc(C.desk.back)}</button>${langToggle()}</div></div>`);
+  $("overlay").querySelectorAll("[data-tab]").forEach(b => (b.onclick = () => { Sound.select(); persist(); teacherDesk(+b.dataset.tab); }));
+  $("tdBack").onclick = () => { persist(); titleScreen(); };
+  bindToggles(() => teacherDesk());
+  [assignTab, builderTab, resultsTab][cur_]();
+}
+const seg = (attr, opts, val) => `<div class="seg" role="group">${opts.map(([v, label]) => `<button data-${attr}="${v}" aria-pressed="${String(v) === String(val)}">${esc(label)}</button>`).join("")}</div>`;
+
+function assignTab() {
+  const T_ = tdState(), a = T_.a, C = g().cls, A = C.assign, gg = g(), hasCustom = !!(T_.bSaved);
+  if (a.l === "custom" && !hasCustom) a.l = "crisis";
+  if (hasCustom) installCustom(T_.bSaved);
+  const levels = LEVEL_ORDER.map(k => [k, gg.levels[k][0]]).concat(hasCustom ? [["custom", `${A.custom}: ${gg.levels.custom[0]}`]] : []);
+  $("tdBody").innerHTML = `<div class="td-grid">
+    <label class="fld"><span>${esc(A.className)}</span><input id="aCl" maxlength="60" value="${esc(a.cl)}" placeholder="${esc(A.classPh)}"></label>
+    <label class="fld"><span>${esc(A.level)}</span><select id="aLv">${levels.map(([k, n]) => `<option value="${k}" ${k === a.l ? "selected" : ""}>${esc(n)}</option>`).join("")}</select></label>
+    <div class="fld"><span>${esc(A.code)}</span><div class="row"><input id="aSd" maxlength="8" value="${esc(a.sd)}" spellcheck="false"><button class="btn ghost small" id="aNew">${esc(A.newCode)}</button></div></div>
+    <div class="fld wide"><div class="toggles">${seg("ah", [[0, gg.diff.normal], [1, gg.diff.hard]], +a.h)}${seg("ae", [[0, gg.econ.adv], [1, gg.econ.em]], +a.e)}${seg("am", [["price", gg.mandate.price[0]], ["dual", gg.mandate.dual[0]]], a.m)}</div></div>
+  </div>
+  ${hasCustom ? "" : `<p class="note">${esc(A.noCustom)}</p>`}
+  <div class="td-out">
+    <label class="fld"><span>${esc(A.link)}</span><div class="row"><input id="aLink" readonly><button class="btn small" id="aCopyL">${esc(C.copy)}</button></div></label>
+    <p class="note">${esc(A.linkHint)}</p>
+    <label class="fld"><span>${esc(A.classCode)}</span><div class="row"><textarea id="aCode" class="code-box" rows="2" readonly spellcheck="false"></textarea><button class="btn ghost small" id="aCopyC">${esc(C.copy)}</button></div></label>
+    <p class="note">${esc(A.classCodeHint)}</p>
+    <div class="btns"><button class="btn" id="aTry">${esc(A.tryIt)} →</button></div>
+  </div>`;
+  const payload = () => ({ v: 1, cl: a.cl.trim(), l: a.l, sd: (a.sd || "").toUpperCase().replace(/[^A-Z0-9]/g, "") || randomCode(), h: !!a.h, e: !!a.e, m: a.m, cs: a.l === "custom" ? T_.bSaved : null });
+  const out = () => { const code = encodeCode("C", payload()); $("aLink").value = classLink(code); $("aCode").value = code; persist(); };
+  $("aCl").oninput = () => { a.cl = $("aCl").value; out(); };
+  $("aLv").onchange = () => { a.l = $("aLv").value; out(); };
+  $("aSd").oninput = () => { a.sd = $("aSd").value.toUpperCase().replace(/[^A-Z0-9]/g, ""); out(); };
+  $("aNew").onclick = () => { a.sd = randomCode(); $("aSd").value = a.sd; Sound.select(); out(); };
+  const segBind = (attr, set) => $("tdBody").querySelectorAll(`[data-${attr}]`).forEach(b => (b.onclick = () => { set(b.dataset[attr]); Sound.select(); assignTab(); }));
+  segBind("ah", v => (a.h = v === "1")); segBind("ae", v => (a.e = v === "1")); segBind("am", v => (a.m = v));
+  ["aLink", "aCode"].forEach(id => ($(id).onfocus = () => $(id).select()));
+  $("aCopyL").onclick = () => copyText($("aLink").value, $("aCopyL"));
+  $("aCopyC").onclick = () => copyText($("aCode").value, $("aCopyC"));
+  $("aTry").onclick = () => { store.klass = payload(); persist(); Sound.confirm(); titleScreen(); };
+  out();
+}
+
+function builderTab() {
+  const T_ = tdState(), b = T_.b, C = g().cls, B = C.build, t = tr();
+  const qOpts = v => Array.from({ length: M.turns }, (_, k) => `<option value="${k + 1}" ${k + 1 === +v ? "selected" : ""}>${k + 1}</option>`).join("");
+  const dils = Object.keys(DILEMMAS);
+  $("tdBody").innerHTML = `<div class="td-grid">
+    <label class="fld"><span>${esc(B.name)}</span><input id="bN" maxlength="50" value="${esc(b.n)}" placeholder="${esc(B.namePh)}"></label>
+    <label class="fld"><span>${esc(B.year)} · ${esc(B.quarter)}</span><div class="row"><input id="bY" type="number" min="1900" max="2100" value="${b.y}"><select id="bQ">${[1, 2, 3, 4].map(q => `<option ${q === +b.q ? "selected" : ""}>${q}</option>`).join("")}</select></div></label>
+    <label class="fld wide"><span>${esc(B.intro)}</span><input id="bI" maxlength="220" value="${esc(b.intro)}" placeholder="${esc(B.introPh)}"></label>
+    <label class="fld"><span id="bCl">${esc(B.cred(Math.round(b.c * 100)))}</span><input id="bC" type="range" min="30" max="90" step="5" value="${Math.round(b.c * 100)}"></label>
+    <div class="fld"><span>${esc(B.surprises)}</span>${seg("bx", [[0, g().off], [1, g().on]], b.x ? 1 : 0)}</div>
+  </div>
+  <p class="note">${esc(B.surprisesHint)}</p>
+  <p class="note guide">${esc(B.guide)}</p>
+  <div class="db-sec"><span class="sec-lab">${esc(B.events)}</span>
+    <div class="ev-list">${b.ev.length ? b.ev.map((e, k) => `<div class="ev" data-ev="${k}">
+      <label><span>${esc(B.q)}</span><select data-f="0">${qOpts(e[0])}</select></label>
+      <label><span>${esc(B.kind)}</span><select data-f="1"><option value="d" ${e[1] === "d" ? "selected" : ""}>${esc(B.kinds.d)}</option><option value="s" ${e[1] === "s" ? "selected" : ""}>${esc(B.kinds.s)}</option></select></label>
+      <label><span>${esc(B.size)} <b data-sz>${sgn(+e[2], 2)}</b></span><input data-f="2" type="range" min="-3" max="3" step="0.25" value="${e[2]}"></label>
+      <label><span>${esc(B.dur)}</span><select data-f="3">${[1, 2, 3, 4, 5, 6].map(n => `<option value="${n}" ${n === +e[3] ? "selected" : ""}>${esc(B.durN(n))}</option>`).join("")}</select></label>
+      <label class="grow"><span>${esc(B.head)}</span><input data-f="4" maxlength="90" value="${esc(e[4] || "")}" placeholder="${esc(B.headPh)}"></label>
+      <label class="grow"><span>${esc(B.dek)}</span><input data-f="5" maxlength="160" value="${esc(e[5] || "")}"></label>
+      <button class="btn ghost small" data-rm="${k}">${esc(B.remove)}</button></div>`).join("") : `<p class="note">${esc(B.empty)}</p>`}</div>
+    <div class="btns"><button class="btn ghost small" id="bAdd">+ ${esc(B.addEvent)}</button></div></div>
+  <div class="db-sec"><span class="sec-lab">${esc(B.dilemmas)}</span>
+    <div class="ev-list">${b.dl.map((e, k) => `<div class="ev" data-dl="${k}">
+      <label><span>${esc(B.q)}</span><select data-g="0">${qOpts(e[0])}</select></label>
+      <label class="grow"><span>${esc(B.dilemmas)}</span><select data-g="1">${dils.map(id => `<option value="${id}" ${id === e[1] ? "selected" : ""}>${esc(t.dilemmas[id][0])}</option>`).join("")}</select></label>
+      <button class="btn ghost small" data-rmd="${k}">${esc(B.remove)}</button></div>`).join("")}</div>
+    ${b.dl.length < 4 ? `<div class="btns"><button class="btn ghost small" id="bAddD">+ ${esc(B.addDil)}</button></div>` : ""}</div>
+  <div class="chart-card" id="bPrev"></div>
+  <div class="btns"><button class="btn" id="bSave">${esc(B.save)}</button><button class="btn ghost" id="bTest">${esc(B.test)} →</button><button class="btn ghost" id="bUse">${esc(B.use)} →</button></div>`;
+  const preview = () => {
+    const sc = customScenario(b), d = [0, ...sc.d], s = [0, ...sc.s];
+    const yq = k => { const z = sc.q - 1 + k; return `${sc.year + Math.floor(z / 4)}Q${(z % 4) + 1}`; };
+    $("bPrev").innerHTML = `<header><h4>${esc(B.preview)}</h4><span class="keys"><span style="--c:#5B9BD5">${esc(B.demand)}</span><span style="--c:#F2B650">${esc(B.supply)}</span></span></header>`
+      + chartSVG({ title: B.preview, series: [{ values: d, color: "#5B9BD5", bars: true }, { values: s, color: "#F2B650" }], include: [-2, 2], refs: [0] }, yq);
+    persist();
+  };
+  const body = $("tdBody");
+  $("bN").oninput = () => { b.n = $("bN").value; persist(); };
+  $("bI").oninput = () => { b.intro = $("bI").value; persist(); };
+  $("bY").oninput = () => { b.y = +$("bY").value || 2027; preview(); };
+  $("bQ").onchange = () => { b.q = +$("bQ").value; preview(); };
+  $("bC").oninput = () => { b.c = +$("bC").value / 100; $("bCl").textContent = B.cred($("bC").value); persist(); };
+  body.querySelectorAll("[data-bx]").forEach(x => (x.onclick = () => { b.x = x.dataset.bx === "1"; Sound.select(); builderTab(); }));
+  body.querySelectorAll(".ev[data-ev]").forEach(row => {
+    const e = b.ev[+row.dataset.ev];
+    row.querySelectorAll("[data-f]").forEach(inp => (inp.oninput = inp.onchange = () => {
+      const f = +inp.dataset.f; e[f] = f === 1 || f >= 4 ? inp.value : +inp.value;
+      if (f === 2) row.querySelector("[data-sz]").textContent = sgn(+inp.value, 2);
+      preview();
+    }));
+  });
+  body.querySelectorAll(".ev[data-dl]").forEach(row => {
+    const e = b.dl[+row.dataset.dl];
+    row.querySelectorAll("[data-g]").forEach(inp => (inp.onchange = () => { e[+inp.dataset.g] = inp.dataset.g === "0" ? +inp.value : inp.value; persist(); }));
+  });
+  body.querySelectorAll("[data-rm]").forEach(x => (x.onclick = () => { b.ev.splice(+x.dataset.rm, 1); Sound.select(); builderTab(); }));
+  body.querySelectorAll("[data-rmd]").forEach(x => (x.onclick = () => { b.dl.splice(+x.dataset.rmd, 1); Sound.select(); builderTab(); }));
+  $("bAdd").onclick = () => { const last = b.ev[b.ev.length - 1]; b.ev.push([Math.min(M.turns, last ? +last[0] + 3 : 3), "s", 1, 2, "", ""]); Sound.select(); builderTab(); };
+  if ($("bAddD")) $("bAddD").onclick = () => { b.dl.push([Math.min(M.turns, 4 + 4 * b.dl.length), dils.find(id => !b.dl.some(e => e[1] === id)) || dils[0]]); Sound.select(); builderTab(); };
+  const save = () => { T_.bSaved = JSON.parse(JSON.stringify(b)); persist(); };
+  $("bSave").onclick = () => { save(); Sound.confirm(); $("bSave").textContent = B.saved; setTimeout(() => $("bSave") && ($("bSave").textContent = B.save), 1400); };
+  $("bTest").onclick = () => { save(); installCustom(T_.bSaved); Sound.confirm(); startLevel("custom", randomCode(), [], false, false, { cs: T_.bSaved }); };
+  $("bUse").onclick = () => { save(); T_.a.l = "custom"; Sound.confirm(); teacherDesk(0); };
+  preview();
+}
+
+// Results: every code is replayed, so the numbers are the game's own, not what anyone typed.
+function checkResults(text) {
+  const out = [], seen = new Set();
+  const all = String(text || "").match(CODE_RE) || [];
+  for (const raw of all) {
+    if (seen.has(raw)) continue; seen.add(raw);
+    const d = decodeCode(raw);
+    if (!d || d.kind !== "R" || !d.body.cfg || !Array.isArray(d.body.in)) { out.push({ bad: true, raw }); continue; }
+    try {
+      const B = d.body, gm = replayCfg(B.cfg, B.in.map(unpackInp)), s = gm.hist[gm.hist.length - 1];
+      const sp = scoreGame(s), rule = scoreGame(ruleBoundGame(gm.sc)).total, db = debriefData(gm.sc, gm.inputs, gm.reports);
+      const stars = s.lost ? 0 : sp.total >= rule ? 3 : sp.total >= 0.9 * rule ? 2 : 1;
+      out.push({ raw, ok: d.ok, nm: B.nm || "—", cl: B.cl || "", date: B.d || "", cfg: B.cfg, gm, s, score: sp.total, rule, stars, db, done: !s.lost && s.t >= M.turns });
+    } catch { out.push({ bad: true, raw }); }
+  }
+  return out;
+}
+function resultsCSV(rows) {
+  const t = tr(), gg = g(), q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const head = ["student", "class", "scenario", "shock_code", "difficulty", "economy", "mandate", "score", "stars", "rule_score", "credibility", "popularity", "peak_removal_risk", "outcome", "quarters_on_target", "quarters_following_rule", "quarters_played", "date", "check"];
+  const lines = rows.filter(r => !r.bad).map(r => [r.nm, r.cl, gg.levels[r.cfg.l] ? gg.levels[r.cfg.l][0] : r.cfg.l, r.cfg.sd, r.cfg.h ? "hard" : "normal", r.cfg.e ? "emerging" : "advanced", r.cfg.m,
+    r.score, r.stars, r.rule, Math.round(r.s.cred * 100), Math.round(r.s.pop), Math.round(r.s.heatPeak || 0), r.s.lost ? t.outcome[r.s.lost] : g().cls.res.done,
+    r.db.onTarget, r.db.N - r.db.deviations, r.db.N, r.date, r.ok ? "verified" : "altered"].map(q).join(","));
+  return [head.join(","), ...lines].join("\n");
+}
+function resultsTab() {
+  const T_ = tdState(), C = g().cls, R = C.res, t = tr(), gg = g();
+  const rows = checkResults(T_.pasted || ""), good = rows.filter(r => !r.bad);
+  const avg = good.length ? Math.round(good.reduce((a, r) => a + r.score, 0) / good.length) : 0;
+  $("tdBody").innerHTML = `<label class="fld"><span>${esc(R.paste)}</span><textarea id="rIn" class="code-box" rows="5" spellcheck="false" placeholder="${esc(R.pastePh)}">${esc(T_.pasted || "")}</textarea></label>
+    <div class="btns"><button class="btn" id="rGo" data-hot>${esc(R.check)}</button>${good.length ? `<button class="btn ghost" id="rCsv">${esc(R.csv)}</button><button class="btn ghost" id="rCopy">${esc(R.copyTable)}</button><button class="btn ghost" id="rPrint">${esc(R.print)}</button>` : ""}</div>
+    ${rows.length ? `<p class="db-stats"><span>${esc(R.summary(good.length, avg, good.filter(r => r.done).length))}</span></p>
+    <div class="tbl-wrap"><table class="hof res-tbl"><thead><tr>${R.cols.map(c => `<th>${esc(c)}</th>`).join("")}<th></th></tr></thead><tbody>
+      ${rows.map((r, k) => r.bad ? `<tr class="bad"><td colspan="${R.cols.length + 1}">${esc(R.bad)}: ${esc(r.raw.slice(0, 24))}…</td></tr>`
+        : `<tr><td><b>${esc(r.nm)}</b></td><td>${esc(r.cl)}</td><td>${esc(gg.levels[r.cfg.l] ? gg.levels[r.cfg.l][0] : r.cfg.l)}</td><td><b>${r.score}</b></td><td class="stars-s">${starRow(r.stars)}</td><td>${r.rule}</td>
+          <td>${Math.round(r.s.cred * 100)}</td><td>${esc(r.s.lost ? t.outcome[r.s.lost] : R.done)}</td><td>${r.db.onTarget}/${r.db.N}</td><td>${r.db.N - r.db.deviations}/${r.db.N}</td>
+          <td class="${r.ok ? "pos" : "neg"}">${esc(r.ok ? R.ok : R.tampered)}</td><td><button class="btn ghost small" data-rep="${k}">${esc(R.report)}</button></td></tr>`).join("")}
+    </tbody></table></div>` : `<p class="note">${esc(R.none)}</p>`}`;
+  $("rIn").oninput = () => { T_.pasted = $("rIn").value; persist(); };
+  $("rGo").onclick = () => { T_.pasted = $("rIn").value; persist(); Sound.confirm(); resultsTab(); };
+  if ($("rCsv")) {
+    $("rCsv").onclick = () => downloadText(`hold-the-line-results-${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + resultsCSV(rows), "text/csv");
+    $("rCopy").onclick = () => copyText(resultsCSV(rows).split("\n").map(l => l.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.replace(/^"|"$/g, "").replace(/""/g, '"')).join("\t")).join("\n"), $("rCopy"));
+    $("rPrint").onclick = () => window.print();
+  }
+  $("tdBody").querySelectorAll("[data-rep]").forEach(b => (b.onclick = () => {
+    const r = rows[+b.dataset.rep];
+    game = r.gm; Sound.select();
+    openDebrief({ back: () => { game = null; teacherDesk(2); }, who: C.report.who(r.nm, r.cl, r.date) });
+  }));
+}
 /* ═══════════════ INPUT & BOOT ═══════════════ */
 document.addEventListener("keydown", e => {
   if (e.target.closest && e.target.closest("input,select,textarea")) return;
@@ -3606,9 +4058,11 @@ document.addEventListener("keydown", e => {
 
 function start(data) {
   document.documentElement.lang = lang;
+  const teacherLink = readClassFromURL();
   if (!FAST) $("room").addEventListener("mousemove", e => { const r = $("room").getBoundingClientRect(); $("room").style.setProperty("--px", ((e.clientX - r.left) / r.width - 0.5).toFixed(3)); $("room").style.setProperty("--py", ((e.clientY - r.top) / r.height - 0.5).toFixed(3)); });
-  if (data && data.screen === "game" && data.cfg) startLevel(data.cfg.scenario, data.cfg.seed, data.inputs || [], !!data.cfg.hard, !!data.cfg.em, { mandate: data.cfg.mandate, carry: data.cfg.carry, career: data.cfg.career });
+  if (data && data.screen === "game" && data.cfg) startLevel(data.cfg.scenario, data.cfg.seed, data.inputs || [], !!data.cfg.hard, !!data.cfg.em, optsOf(data.cfg));
   else if (data && data.screen === "levels") levelSelect();
+  else if (teacherLink || (data && data.screen === "teacher")) teacherDesk();
   else titleScreen();
   window.claude?.hot?.snapshot?.(() => ({ screen, cfg: game?.cfg, inputs: game?.inputs, lang }));
 }
