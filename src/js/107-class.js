@@ -54,12 +54,22 @@ function copyText(text, btn) {
   const fallback = () => { const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch {} ta.remove(); done(); };
   try { navigator.clipboard.writeText(text).then(done, fallback); } catch { fallback(); }
 }
+// A plain download link works on the web; inside the claude.ai viewer the page must ask the host to save the file.
 function downloadText(name, text, type = "text/plain") {
+  const link = () => {
+    try {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: type + ";charset=utf-8" })); a.download = name;
+      document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+    } catch {}
+  };
   try {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([text], { type: type + ";charset=utf-8" })); a.download = name;
-    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+    if (window.claude && typeof window.claude.use === "function") {
+      window.claude.use("downloads").then(dl => (dl ? dl.save({ filename: name, data: text }).catch(() => {}) : link()), link);
+      return;
+    }
   } catch {}
+  link();
 }
 const fileSafe = s => (s || "result").replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "").toLowerCase() || "result";
 
