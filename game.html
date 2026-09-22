@@ -432,6 +432,23 @@ svg.chart{width:100%;height:auto;display:block}
 .tones.fx4{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media (max-width:640px){.tones.fx4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .tone:disabled{opacity:.35;cursor:not-allowed}
+.hard-tag.dual{background:var(--green)} .hard-tag.career{background:var(--amber);color:#1B1405}
+.career-card{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 20px;align-items:center;text-align:left;padding:16px 18px;border-radius:18px;
+  background:linear-gradient(135deg,rgba(242,182,80,.16),rgba(255,255,255,.03) 60%);box-shadow:inset 0 0 0 1px rgba(242,182,80,.4)}
+.career-card p{margin:4px 0 0;color:#D5DAE6;font-size:15px;max-width:62ch}
+.career-card .btns{justify-content:flex-end}
+@media (max-width:760px){.career-card{grid-template-columns:minmax(0,1fr)}.career-card .btns{justify-content:flex-start}}
+.name-in{width:20ch!important;text-transform:none!important;letter-spacing:.01em!important}
+.era-list{margin:0;padding-left:1.2em;text-align:left;color:#C9CFDD;display:grid;gap:2px}
+.interlude{font:400 clamp(17px,2vw,20px)/1.55 var(--f-news);color:#D5DAE6;max-width:60ch}
+.carry{display:grid;gap:10px;justify-items:center;padding:14px 16px;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.carry-row{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;font-weight:700}
+.carry-depts{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:center;font-size:14px}
+.carry-depts span{display:inline-flex;gap:8px;align-items:center}
+.tbl-wrap{width:100%;overflow-x:auto}
+table.hof{width:100%;border-collapse:collapse;font-size:14px;text-align:left}
+table.hof th{font:700 11.5px var(--f-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:6px 10px;border-bottom:1px solid var(--line-2)}
+table.hof td{padding:7px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}
 </style>
 <div class="shell">
   <div id="frame">
@@ -1027,6 +1044,36 @@ G.en = {
   },
   macro: { label: "Mortgage rules", off: ["Normal", "standard lending limits"], on: ["Tight", "cap loans against home values"],
     tip: "Tight rules cool house prices and construction and make banks sturdier, at a small cost in popularity." },
+  mandate: { price: ["Inflation target", "price stability comes first"], dual: ["Dual mandate", "stable prices and maximum employment"], dualShort: "Dual mandate",
+    hint: { price: "Inflation target: credibility rewards hitting 2%, and the score weighs inflation more than jobs.",
+      dual: "Dual mandate: jobs count as much as inflation, the target band is wider, and the government is a little more patient with the Bank." } },
+  mandateLine: { price: "Your mandate is price stability: 2% inflation comes first. The country expects you to deliver it.",
+    dual: "Your mandate is twofold: stable prices and maximum employment. You will be judged on both." },
+  career: {
+    title: "Career mode", tagline: "From 1973 to today: four eras, one Bank. The departments you build and the credibility you earn carry forward.",
+    start: "Start a career", cont: (era, name) => `Continue: era ${era} of 4, ${name}`, hall: "Hall of fame", tag: "Career",
+    setupTitle: "A new career", nameLabel: "Your governor", begin: "Take office",
+    eras: ["The Oil Shock · 1973", "The Great Recession · 2007", "The Pandemic · 2020", "Today · 2027"], eraCol: "Era",
+    continueStory: "Continue the Bank's story",
+    reappointed: (nm, leader) => [`${nm} is reappointed`, `President ${leader} asks you to serve another term. The Bank's work continues.`],
+    notReappointed: (nm, leader) => [`${nm} is not reappointed`, `President ${leader} wants a new face at the Bank. Your tenure ends here.`],
+    ousted: nm => [`${nm}'s tenure ends in failure`, "The Bank survives. Its next governor inherits the damage."],
+    retire: nm => [`${nm} closes the story`, "Four eras, one Bank. History will judge the record."],
+    serveAgain: "Serve the next term", successor: "Next governor", appoint: "Appoint the successor",
+    govLine: nm => `Governor for this era: ${nm}.`,
+    interTitle: (a, b) => `${a} → ${b}`,
+    inter: [
+      "Inflation raged until a new generation of central bankers crushed it in the early 1980s, at the price of a deep recession. Central banks won independence and adopted inflation targets. Then came the Great Moderation: low inflation, steady growth — and, quietly, a credit boom.",
+      "Rates stayed near zero for a decade. Central banks bought government bonds by the trillion, and inflation stayed stubbornly low. Then, in early 2020, a virus reached every country at once.",
+      "The post-pandemic inflation surge forced the fastest rate hikes in forty years. Inflation came down; not every scar healed. Now the economy is calm. Your next test could come from anywhere."
+    ],
+    carryTitle: "What the Bank carries forward", carryCred: v => `Credibility starts at ${v}`, carryPts: v => `${v} budget points to invest`,
+    nextEra: "Begin the next era", summaryTitle: "The Bank's story", total: "Career score", hallTitle: "Hall of fame",
+    hallGov: "Governors", hallCareers: "Careers", noHall: "No governors yet. Start a career to write the first page.",
+    cols: ["Governor", "Years", "Terms", "Score", "Credibility", "How it ended"], colsC: ["Date", "Mandate", "Economy", "Governors", "Score"],
+    ended: { retired: "Closed the story", notReappointed: "Not reappointed", served: "Served", fired: "Fired", cred: "Lost credibility", defl: "Deflation trap", infl: "Inflation spiral", fxcrisis: "Currency crisis" },
+    names: ["Elena Castillo", "Marcus Webb", "Ingrid Solberg", "Rafael Duarte", "Amara Okoye", "Hugo Lemaire", "Sofía Brandão", "Kenji Tanaka"]
+  },
   econ: { adv: "Advanced", em: "Emerging" },
   emHint: "Emerging market: the currency moves prices much more, depreciation hurts through dollar debts, capital can flee suddenly, and you hold reserves to defend the currency.",
   fx: { label: "Currency", opts: { "-1": ["Buy reserves", "weaken the currency"], 0: ["Float", "let the market decide"], 1: ["Sell reserves", "support the currency"], 2: ["Sell heavily", "defend it hard"] },
@@ -1138,6 +1185,8 @@ G.en = {
     hardWay: ["The Hard Way", "Lose a level. Everyone does."],
     survivor: ["Survivor", "Finish a level after removal risk passed 70"],
     emStar: ["Emerging Star", "Finish a level in emerging-market mode"],
+    dynasty: ["Dynasty", "One governor serves all four eras of a career"],
+    builder: ["Institution Builder", "Finish a career with every department at level 2 or more"],
     noBubble: ["No Bubble", "Finish a level where credit ran 6 points above trend, without a bust"]
   },
   tickerStart: ["Markets open calm ahead of the Bank's first meeting", "Analysts expect the new Governor to hold rates"],
@@ -1283,6 +1332,36 @@ G.es = {
   },
   macro: { label: "Reglas hipotecarias", off: ["Normales", "límites de crédito estándar"], on: ["Estrictas", "tope al crédito según el valor de la vivienda"],
     tip: "Las reglas estrictas enfrían los precios de las viviendas y la construcción y fortalecen a los bancos, con un pequeño costo en popularidad." },
+  mandate: { price: ["Meta de inflación", "la estabilidad de precios primero"], dual: ["Mandato dual", "precios estables y máximo empleo"], dualShort: "Mandato dual",
+    hint: { price: "Meta de inflación: la credibilidad premia cumplir el 2% y el puntaje pesa más la inflación que el empleo.",
+      dual: "Mandato dual: el empleo cuenta tanto como la inflación, la banda es más amplia y el gobierno tiene algo más de paciencia con el Banco." } },
+  mandateLine: { price: "Su mandato es la estabilidad de precios: el 2% de inflación va primero. El país espera que lo cumpla.",
+    dual: "Su mandato es doble: precios estables y máximo empleo. Se le juzgará por ambos." },
+  career: {
+    title: "Modo carrera", tagline: "De 1973 a hoy: cuatro épocas, un Banco. Los departamentos que construyes y la credibilidad que ganas pasan a la siguiente.",
+    start: "Empezar una carrera", cont: (era, name) => `Continuar: época ${era} de 4, ${name}`, hall: "Salón de la fama", tag: "Carrera",
+    setupTitle: "Una nueva carrera", nameLabel: "Tu autoridad", begin: "Asumir el cargo",
+    eras: ["El Shock Petrolero · 1973", "La Gran Recesión · 2007", "La Pandemia · 2020", "Hoy · 2027"], eraCol: "Época",
+    continueStory: "Continuar la historia del Banco",
+    reappointed: (nm, leader) => [`${nm} es confirmado en el cargo`, `El Presidente ${leader} le pide otro mandato. El trabajo del Banco continúa.`],
+    notReappointed: (nm, leader) => [`${nm} no es renovado`, `El Presidente ${leader} quiere una cara nueva en el Banco. Tu mandato termina aquí.`],
+    ousted: nm => [`El mandato de ${nm} termina en fracaso`, "El Banco sobrevive. Quien lo suceda hereda el daño."],
+    retire: nm => [`${nm} cierra la historia`, "Cuatro épocas, un Banco. La historia juzgará el legado."],
+    serveAgain: "Servir el próximo mandato", successor: "Próxima autoridad", appoint: "Nombrar sucesor",
+    govLine: nm => `Autoridad del Banco en esta época: ${nm}.`,
+    interTitle: (a, b) => `${a} → ${b}`,
+    inter: [
+      "La inflación siguió alta hasta que una nueva generación de banqueros centrales la aplastó a comienzos de los ochenta, al precio de una recesión profunda. Los bancos centrales ganaron independencia y adoptaron metas de inflación. Llegó la Gran Moderación: inflación baja, crecimiento estable — y, en silencio, un boom de crédito.",
+      "Las tasas quedaron cerca de cero durante una década. Los bancos centrales compraron bonos por billones y la inflación siguió obstinadamente baja. Entonces, a comienzos de 2020, un virus llegó a todos los países a la vez.",
+      "El salto inflacionario pospandemia forzó las subas de tasas más rápidas en cuarenta años. La inflación bajó; no todas las cicatrices sanaron. Ahora la economía está en calma. Tu próxima prueba puede venir de cualquier lado."
+    ],
+    carryTitle: "Lo que el Banco lleva consigo", carryCred: v => `La credibilidad arranca en ${v}`, carryPts: v => `${v} puntos de presupuesto para invertir`,
+    nextEra: "Comenzar la próxima época", summaryTitle: "La historia del Banco", total: "Puntaje de la carrera", hallTitle: "Salón de la fama",
+    hallGov: "Autoridades", hallCareers: "Carreras", noHall: "Aún no hay autoridades. Empieza una carrera para escribir la primera página.",
+    cols: ["Autoridad", "Años", "Mandatos", "Puntaje", "Credibilidad", "Cómo terminó"], colsC: ["Fecha", "Mandato", "Economía", "Autoridades", "Puntaje"],
+    ended: { retired: "Cerró la historia", notReappointed: "No renovado", served: "Cumplió", fired: "Despedido", cred: "Perdió la credibilidad", defl: "Trampa deflacionaria", infl: "Espiral inflacionaria", fxcrisis: "Crisis cambiaria" },
+    names: ["Elena Castillo", "Marcos Webb", "Ingrid Solberg", "Rafael Duarte", "Amara Okoye", "Hugo Lemaire", "Sofía Brandão", "Kenji Tanaka"]
+  },
   econ: { adv: "Avanzada", em: "Emergente" },
   emHint: "Mercado emergente: la moneda mueve mucho más los precios, la depreciación duele por las deudas en dólares, el capital puede huir de golpe y tienes reservas para defender la moneda.",
   fx: { label: "Moneda", opts: { "-1": ["Comprar reservas", "debilitar la moneda"], 0: ["Flotar", "que decida el mercado"], 1: ["Vender reservas", "sostener la moneda"], 2: ["Vender fuerte", "defenderla a fondo"] },
@@ -1394,6 +1473,8 @@ G.es = {
     hardWay: ["Por las Malas", "Pierde un nivel. A todos les pasa."],
     survivor: ["Sobreviviente", "Termina un nivel después de que el riesgo de destitución superó 70"],
     emStar: ["Estrella Emergente", "Termina un nivel en modo mercado emergente"],
+    dynasty: ["Dinastía", "Una misma autoridad sirve las cuatro épocas de una carrera"],
+    builder: ["Constructor de Instituciones", "Termina una carrera con todos los departamentos en nivel 2 o más"],
     noBubble: ["Sin Burbuja", "Termina un nivel en que el crédito corrió 6 puntos sobre su tendencia, sin estallido"]
   },
   tickerStart: ["Mercados tranquilos antes de la primera reunión del Banco", "Los analistas esperan que la nueva autoridad mantenga la tasa"],
@@ -2064,15 +2145,20 @@ function extendScenario(sc, seed) {
   [12 + Math.floor(rng() * 2), 15 + Math.floor(rng() * 3)].forEach((t, k) => { if (!sc.dilemmas[t] && free[k]) sc.dilemmas[t] = free[k]; });
   return sc;
 }
+// Mandates: what the Bank is legally asked to deliver. The score weight on jobs, the credibility band and the government's patience differ.
+const MANDATE = { price: { lam: 0.5, band: 1, gain: 0.02, slope: 0.05, heat: 0 }, dual: { lam: 1.0, band: 1.5, gain: 0.015, slope: 0.04, heat: -4 } };
 const scoreGame = s => {
   if (s.lost) return { macro: 0, cred: 0, pop: 0, total: 0 };
-  const macro = Math.round(550 * Math.exp(-s.L / (25 * (M.turns / 12))));
+  const lam = s.lam ?? 0.5, L = s.Lm ?? s.L;
+  const macro = Math.round(550 * Math.exp(-L / (25 * (M.turns / 12) * (0.5 + lam))));
   return { macro, cred: Math.round(300 * s.cred), pop: Math.round(150 * Math.min(1, s.pop / 60)), total: macro + Math.round(300 * s.cred) + Math.round(150 * Math.min(1, s.pop / 60)) };
 };
 // Difficulty and economy type, applied after the scenario is built.
-function applyMode(sc, hard, em) {
+function applyMode(sc, hard, em, mandate, carry) {
   if (hard) { const f = sc.key === "oil" ? 1.15 : 1.3; ["d", "s"].forEach(k => (sc[k] = sc[k].map(v => v * f))); ["noiseD", "noiseS"].forEach(k => (sc[k] = sc[k].map(v => v * 1.4))); sc.cred = Math.max(0.3, sc.cred - 0.05); }
   if (em) { sc.em = true; sc.cred = Math.max(0.3, sc.cred - 0.08); }                           // emerging-market central banks start less trusted
+  sc.mandate = mandate === "dual" ? "dual" : "price";
+  if (carry) { sc.cred = clamp(carry.cred ?? sc.cred, 0.3, 0.9); sc.dept0 = carry.dept; sc.points0 = carry.points; }   // a career: the institution carries forward
   return sc;
 }
 /*FIN-END*/
@@ -2124,7 +2210,8 @@ const DIL_HEAT = { financing: [18, -10], hearing: [10, -8], bank: [0, 0], leak: 
 const QA_HEAT = { q_markets: [0, -2, 0], q_pressure: [3, 0, -1], q_election: [4, -2, 0], q_jobs: [0, -2, 3], q_infl: [0, -2, 0], q_rift: [4, -4, 2], q_generic: [0, -1, 0] };
 const TRUCE = [{ cred: 0.02, heat: 5 }, { cred: -0.05, pop: 2, heat: -25 }];
 const GD = { truce: TRUCE, crash: CRASH };
-const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false, catP: {}, hp: 100, hpg: 0.8, dept: initDept(), points: BUDGET_START, board: BOARD0.slice(), macro: false, fogM: 1,
+const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false, catP: {}, hp: 100, hpg: 0.8, dept: sc.dept0 ? Object.assign(initDept(), sc.dept0) : initDept(), points: sc.points0 ?? BUDGET_START, board: BOARD0.slice(),
+  Lm: 0, lam: (MANDATE[sc.mandate] || MANDATE.price).lam, mandate: sc.mandate || "price", macro: false, fogM: 1,
   lev: 0, cg: 6, bust: 0, bustSize: 0, bankCap: 100, reserves: sc.em ? 6 : 12, ssHit: false });
 function prepGame(s, sc) {
   const p = prepare(seenOf(s, sc, s.t), sc), dept = s.dept || initDept();   // advisors, the government and the press all read the published data
@@ -2156,13 +2243,19 @@ function stepGame(s, sc, prep, inp) {
     if (cred) { res.credParts.push([key, cred]); n.cred = clamp(n.cred + cred, 0.05, 0.95); }
     if (pop) { res.popParts.push([key, pop]); n.pop = clamp(n.pop + pop, 0, 100); }
   };
+  const md = MANDATE[sc.mandate] || MANDATE.price, ci = res.credParts.findIndex(q => q[0] === "onTarget" || q[0] === "offTarget");
+  if (ci >= 0 && md !== MANDATE.price) {                                                     // the mandate decides what counts as "on target"
+    const old = res.credParts[ci][1], miss = Math.abs(n.pi - 2), nv = miss < md.band ? md.gain : -Math.min(0.15, md.slope * (miss - md.band));
+    res.credParts[ci] = [nv >= 0 ? "onTarget" : "offTarget", nv]; n.cred = clamp(n.cred - old + nv, 0.05, 0.95);
+  }
+  n.lam = md.lam; n.Lm = (s.Lm || 0) + (n.pi - 2) ** 2 + md.lam * n.x ** 2; n.mandate = sc.mandate || "price";
   if (inp.qa != null) { const e = qaEffect(s, prep, inp); bump(e.cred, e.pop, "presser"); const h = (QA_HEAT[qaId(s, prep, inp)] || [])[inp.qa]; if (h) hp.push(["presser", h]); }
   if (prep.gd && inp.choice != null) { bump(gdT.cred, gdT.pop, "dilemma"); if (gdT.heat) hp.push([prep.gd, gdT.heat]); }
   if (qe.cred) bump(n.pi > 3 ? qe.cred : qe.cred * 0.3, 0, "qe");
   if (qe.heat) hp.push(["qe", qe.heat]);
   if (vote) { if (!vote.passed) bump(-0.04, 0, "outvoted"); else if (vote.no >= 2) bump(-0.01, 0, "divided"); else if (vote.no === 0) bump(0.005, 0, "united"); }
   if (macro) bump(0, -0.5, "macro");
-  hp.push(["drift", ((s.pop >= 50 ? 10 : 20) - s.heat) * 0.2]);
+  hp.push(["drift", ((s.pop >= 50 ? 10 : 20) + md.heat - s.heat) * 0.2]);
   if (prep.pressure === "cut" && inp.move > 0) hp.push(["defied", 5 * prep.level + (n.pop < 38 && prep.level >= 2 ? 10 : 0)]);
   else if (has("resisted")) hp.push(["resisted", 3 * prep.level]);
   if (has("caved")) hp.push(["caved", -10]);
@@ -2437,7 +2530,7 @@ function renderHUD(s, prev, turn) {
   const dd = drawdown(s), eqCls = dd > 20 ? "bad" : dd > 10 ? "warn" : "good", iwT = game.sc.iw ? game.sc.iw[Math.min(turn, M.turns)] : 2.5;
   const d = (a, b, dec) => prev ? `<small class="${Math.abs(a - b) < 0.005 ? "" : a > b ? "up" : "down"}">${sgn(a - b, dec)}</small>` : "";
   $("hud").innerHTML = `
-    <div class="hud-row a"><div class="hud-when"><span class="hw-date">${esc(quarterLabel(turn))}${game.cfg.hard ? `<span class="hard-tag">${esc(gg.hardTag)}</span>` : ""}${game.cfg.em ? `<span class="hard-tag em">${esc(gg.econ.em)}</span>` : ""}</span><span class="hw-turn">${esc(gg.hudTurn(turn, M.turns))}</span><span class="pill ${toE === 0 ? "hot" : ""}">${esc(gg.hudElection(toE))}</span></div>
+    <div class="hud-row a"><div class="hud-when"><span class="hw-date">${esc(quarterLabel(turn))}${game.cfg.hard ? `<span class="hard-tag">${esc(gg.hardTag)}</span>` : ""}${game.cfg.em ? `<span class="hard-tag em">${esc(gg.econ.em)}</span>` : ""}${game.cfg.mandate === "dual" ? `<span class="hard-tag dual">${esc(gg.mandate.dualShort)}</span>` : ""}${game.cfg.career ? `<span class="hard-tag career">${esc(gg.career.tag)}</span>` : ""}</span><span class="hw-turn">${esc(gg.hudTurn(turn, M.turns))}</span><span class="pill ${toE === 0 ? "hot" : ""}">${esc(gg.hudElection(toE))}</span></div>
     <div id="hInfl"><span class="t-lab">${esc(gg.hud.infl)}</span><span class="t-val ${piCls}" title="${esc(gg.estTip)}">≈${pc(s.pi, 1)}${d(s.pi, from.pi, 1)}</span>${spark(H.map(h => h.pi), "var(--red)", 2)}</div>
     <div id="hGap"><span class="t-lab">${esc(gg.hud.gap)}</span><span class="t-val ${xCls}" title="${esc(gg.estTip)}">≈${pc(s.x, 1)}${d(s.x, from.x, 1)}</span>${spark(H.map(h => h.x), "var(--blue)", 0)}</div>
     <div id="hJobs"><span class="t-lab">${esc(gg.hud.jobs)}</span><span class="t-val ${uCls}" title="${esc(gg.estTip)}">≈${pc(u, 1)}${d(u, uFrom, 1)}</span>${spark(H.map(h => 5 - 0.5 * h.x), "var(--amber)", 5)}</div>
@@ -2495,6 +2588,7 @@ const soundToggle = () => `<button class="btn ghost small" id="sndBtn" aria-pres
 function bindToggles(rerender) {
   $("overlay").querySelectorAll("[data-lang]").forEach(b => (b.onclick = () => { lang = b.dataset.lang; store.lang = lang; persist(); document.documentElement.lang = lang; Sound.select(); rerender(); }));
   $("overlay").querySelectorAll("[data-diff]").forEach(b => (b.onclick = () => { store.hard = b.dataset.diff === "1"; persist(); Sound.select(); rerender(); }));
+  $("overlay").querySelectorAll("[data-mandate]").forEach(b => (b.onclick = () => { store.mandate = b.dataset.mandate; persist(); Sound.select(); rerender(); }));
   $("overlay").querySelectorAll("[data-econ]").forEach(b => (b.onclick = () => { store.em = b.dataset.econ === "1"; persist(); Sound.select(); rerender(); }));
   const sb = $("sndBtn"); if (sb) sb.onclick = () => { store.sound = store.sound === false; persist(); Sound.select(); rerender(); };
 }
@@ -2513,7 +2607,7 @@ function titleScreen() {
     <div class="toggles">${langToggle()}${soundToggle()}</div>
   </div>`);
   $("tStart").onclick = () => { Sound.unlock(); Sound.confirm(); levelSelect(); };
-  if (sv) $("tCont").onclick = () => { Sound.unlock(); Sound.confirm(); startLevel(sv.cfg.scenario, sv.cfg.seed, sv.inputs, !!sv.cfg.hard, !!sv.cfg.em); };
+  if (sv) $("tCont").onclick = () => { Sound.unlock(); Sound.confirm(); startLevel(sv.cfg.scenario, sv.cfg.seed, sv.inputs, !!sv.cfg.hard, !!sv.cfg.em, { mandate: sv.cfg.mandate, carry: sv.cfg.carry, career: sv.cfg.career }); };
   bindToggles(titleScreen);
 }
 
@@ -2522,8 +2616,9 @@ function levelSelect() {
   const gg = g(), achIds = Object.keys(gg.ach), got = achIds.filter(a => store.ach[a]).length;
   openOverlay(`<div class="scr">
     <h2 class="scr-title">${esc(gg.levelsTitle)}</h2>
+    ${careerCard()}
     <div class="lvl-grid">${LEVEL_ORDER.map((k, idx) => {
-      const [name, year, blurb] = gg.levels[k], sk = k + (store.hard ? ":hard" : "") + (store.em ? ":em" : ""), st = store.stars[sk] || 0, [bg, icon] = LEVEL_ICON[k];
+      const [name, year, blurb] = gg.levels[k], sk = k + (store.hard ? ":hard" : "") + (store.em ? ":em" : "") + (store.mandate === "dual" ? ":dual" : ""), st = store.stars[sk] || 0, [bg, icon] = LEVEL_ICON[k];
       return `<button class="lvl" data-level="${k}" data-key="${idx + 1}">
         <span class="lvl-icon" style="--ic:${bg}">${icon}</span>
         <span class="lvl-main">
@@ -2533,7 +2628,7 @@ function levelSelect() {
           <span class="lvl-foot"><span class="stars-s" aria-label="${st}/3">${starRow(st)}</span><span>${esc(gg.best)}: ${store.best[sk] ?? "—"}</span></span>
         </span></button>`;
     }).join("")}</div>
-    <div class="toggles">${diffToggle()}${econToggle()}</div><p class="diff-hint">${[store.hard ? gg.hardHint : "", store.em ? gg.emHint : ""].filter(Boolean).map(esc).join(" ")}</p>
+    <div class="toggles">${diffToggle()}${econToggle()}${mandateToggle()}</div><p class="diff-hint">${[store.hard ? gg.hardHint : "", store.em ? gg.emHint : "", store.mandate === "dual" ? gg.mandate.hint.dual : ""].filter(Boolean).map(esc).join(" ")}</p>
     <label class="code"><span>${esc(gg.code)}</span><input id="codeIn" maxlength="8" autocomplete="off" spellcheck="false"></label>
     <p class="hint">${esc(gg.codeHint)}</p>
     <div class="achbar"><span class="sec-lab">${esc(gg.achTitle)} · ${got}/${achIds.length}</span><div class="ach-row">${achIds.map(id => `<span class="ach-pill ${store.ach[id] ? "got" : ""}" title="${esc(gg.ach[id][1])}">${esc(gg.ach[id][0])}</span>`).join("")}</div></div>
@@ -2541,25 +2636,27 @@ function levelSelect() {
   </div>`);
   $("overlay").querySelectorAll("[data-level]").forEach(b => (b.onclick = () => {
     const code = ($("codeIn").value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
-    Sound.confirm(); startLevel(b.dataset.level, code || randomCode(), [], !!store.hard, !!store.em);
+    Sound.confirm(); startLevel(b.dataset.level, code || randomCode(), [], !!store.hard, !!store.em, { mandate: store.mandate === "dual" ? "dual" : "price" });
   }));
   $("lBack").onclick = titleScreen;
+  bindCareerCard();
   bindToggles(levelSelect);
 }
 
-function startLevel(scenario, seed, inputs = [], hard = false, em = false) {
+function startLevel(scenario, seed, inputs = [], hard = false, em = false, opts = {}) {
   closeOverlay(); resetStage();
   screen = "game";
-  const sc = applyMode(extendScenario(buildScenario(scenario, seed), seed), hard, em);
-  game = { cfg: { scenario, seed, hard: !!hard, em: !!em }, sc, hist: [initGame(sc)], reports: [], inputs: [], hud: null, headlines: [] };
+  const mandate = opts.mandate === "dual" ? "dual" : "price";
+  const sc = applyMode(extendScenario(buildScenario(scenario, seed), seed), hard, em, mandate, opts.carry);
+  game = { cfg: { scenario, seed, hard: !!hard, em: !!em, mandate, carry: opts.carry || null, career: !!opts.career }, sc, hist: [initGame(sc)], reports: [], inputs: [], hud: null, headlines: [] };
   g().tickerStart.forEach((x, k) => game.headlines.push({ key: "start" + k, src: "wire", textFn: () => g().tickerStart[k] }));
   inputs.forEach(advance);
   saveGame();
   drawRoom(); renderTicker();
   if (inputs.length) { if (over()) { renderHUD(cur(), null, cur().t); endLevel(true); } else beginQuarter(); return; }
   renderHUD(cur(), null, 1);
-  const lines = g().intro[scenario];
-  play([...lines.map(([id, mood], k) => () => say({ speaker: id, mood, text: g().intro[scenario][k][2], skip: true })), () => beginQuarter()]);
+  const intro = () => [["salas", "neutral", g().mandateLine[mandate]], ...g().intro[scenario]];     // re-read on language change
+  play([...intro().map(([id, mood], k) => () => say({ speaker: id, mood, text: intro()[k][2], skip: true })), () => beginQuarter()]);
 }
 
 /* ═══════════════ A QUARTER ═══════════════ */
@@ -2866,10 +2963,11 @@ function evalAchievements(score, rule) {
 
 function endLevel(restored) {
   resetStage();
-  const s = cur(), t = tr(), gg = g(), key = game.cfg.scenario, sk = key + (game.cfg.hard ? ":hard" : "") + (game.cfg.em ? ":em" : ""), H = game.hist;
+  const s = cur(), t = tr(), gg = g(), key = game.cfg.scenario, sk = key + (game.cfg.hard ? ":hard" : "") + (game.cfg.em ? ":em" : "") + (game.cfg.mandate === "dual" ? ":dual" : ""), H = game.hist;
   const sp = scoreGame(s), rule = scoreGame(ruleBoundGame(game.sc)).total;
   const stars = s.lost ? 0 : sp.total >= rule ? 3 : sp.total >= 0.9 * rule ? 2 : 1;
   const got = evalAchievements(sp.total, rule), fresh = got.filter(a => !store.ach[a]);
+  if (game.cfg.career) careerRecord(s, sp.total, stars);                    // idempotent: a reload of the end screen records nothing new
   if (!restored) {
     clearSave();
     got.forEach(a => (store.ach[a] = true));
@@ -2899,17 +2997,19 @@ function endLevel(restored) {
     <p class="note">${esc(gg.starsNote)}</p>
     ${fresh.length ? `<div class="achs"><span class="sec-lab">${esc(gg.newAch)}</span>${fresh.map(a => `<div class="ach"><b>${esc(gg.ach[a][0])}</b><small>${esc(gg.ach[a][1])}</small></div>`).join("")}</div>` : ""}
     <div class="end-charts">${["infl", "mkt", "pol"].map(k => chartCard(k, qL, true)).join("")}</div>
-    <div class="btns">
+    ${game.cfg.career ? `<div class="btns"><button class="btn big" id="eCareer" data-hot>${esc(gg.career.continueStory)} →</button></div>` : `<div class="btns">
       <button class="btn big" id="eRetry" data-hot>${esc(gg.retry)}</button>
       <button class="btn ghost" id="eFresh">${esc(gg.newShocks)}</button>
       ${nextKey && !s.lost ? `<button class="btn ghost" id="eNext">${esc(gg.nextLevel)} →</button>` : ""}
       <button class="btn ghost" id="eLevels">${esc(gg.toLevels)}</button>
-    </div>
+    </div>`}
   </div>`);
-  $("eRetry").onclick = () => { Sound.confirm(); startLevel(key, game.cfg.seed, [], game.cfg.hard, game.cfg.em); };
-  $("eFresh").onclick = () => { Sound.confirm(); startLevel(key, randomCode(), [], game.cfg.hard, game.cfg.em); };
-  if ($("eNext")) $("eNext").onclick = () => { Sound.confirm(); startLevel(nextKey, randomCode(), [], game.cfg.hard, game.cfg.em); };
-  $("eLevels").onclick = levelSelect;
+  if ($("eCareer")) $("eCareer").onclick = () => { Sound.confirm(); careerAfterTerm(); };
+  const opts = { mandate: game.cfg.mandate };
+  if ($("eRetry")) $("eRetry").onclick = () => { Sound.confirm(); startLevel(key, game.cfg.seed, [], game.cfg.hard, game.cfg.em, opts); };
+  if ($("eFresh")) $("eFresh").onclick = () => { Sound.confirm(); startLevel(key, randomCode(), [], game.cfg.hard, game.cfg.em, opts); };
+  if ($("eNext")) $("eNext").onclick = () => { Sound.confirm(); startLevel(nextKey, randomCode(), [], game.cfg.hard, game.cfg.em, opts); };
+  if ($("eLevels")) $("eLevels").onclick = levelSelect;
   if (restored || FAST) return;
   if (stars === 3) confetti();
   (s.lost ? Sound.bad : Sound.good)();
@@ -2963,19 +3063,173 @@ function openMenu() {
   openOverlay(`<div class="scr"><h2 class="scr-title">${esc(gg.paused)}</h2>
     <div class="menu-btns">
       <button class="btn big" id="mResume" data-hot>${esc(gg.resume)}</button>
-      <button class="btn ghost" id="mRestart">${esc(gg.restart)}</button>
+      ${game.cfg.career ? "" : `<button class="btn ghost" id="mRestart">${esc(gg.restart)}</button>`}
       <button class="btn ghost" id="mLevels">${esc(gg.quit)}</button>
       <button class="btn ghost" id="mTitle">${esc(gg.toTitle)}</button>
     </div>
     <div class="toggles">${langToggle()}${soundToggle()}</div>
     <p class="hint">${esc(gg.codeLine(game.cfg.seed))}</p></div>`);
   $("mResume").onclick = resume;
-  $("mRestart").onclick = () => startLevel(game.cfg.scenario, game.cfg.seed, [], game.cfg.hard, game.cfg.em);
+  if ($("mRestart")) $("mRestart").onclick = () => startLevel(game.cfg.scenario, game.cfg.seed, [], game.cfg.hard, game.cfg.em, { mandate: game.cfg.mandate });
   $("mLevels").onclick = levelSelect;
   $("mTitle").onclick = titleScreen;
   bindToggles(() => { closeOverlay(); if (game.hud) renderHUD(game.hud.s, null, game.hud.turn); drawRoom(); renderTicker(); rerunBeat(); openMenu(); });
 }
 
+/* ═══════════════ CAREER ═══════════════ */
+// Four eras, one Bank. Departments and credibility carry forward; governors come and go.
+const CAREER_ERAS = ["oil", "crisis", "pandemic", "random"];
+const careerNow = () => (store.career && store.career.gov ? store.career : null);
+const mandateToggle = () => `<div class="seg" role="group"><button data-mandate="price" aria-pressed="${store.mandate !== "dual"}">${esc(g().mandate.price[0])}</button><button data-mandate="dual" aria-pressed="${store.mandate === "dual"}">${esc(g().mandate.dual[0])}</button></div>`;
+const suggestName = () => { const n = g().career.names; return n[Math.floor(Math.random() * n.length)]; };
+const eraYears = k => { const sc = SCEN[CAREER_ERAS[k]]; return [sc.year, sc.year + Math.floor((sc.q - 1 + M.turns) / 4)]; };
+
+function careerCard() {
+  const C = g().career, cr = careerNow();
+  return `<div class="career-card">
+    <div><span class="sec-lab">${esc(C.title)}</span><p>${esc(C.tagline)}</p></div>
+    <div class="btns">${cr ? `<button class="btn" id="crCont">${esc(C.cont(cr.era + 1, cr.gov.name))} →</button>` : ""}
+      <button class="btn ${cr ? "ghost" : ""}" id="crNew">${esc(C.start)}</button><button class="btn ghost" id="crHall">${esc(C.hall)}</button></div>
+  </div>`;
+}
+function bindCareerCard() {
+  $("crNew").onclick = careerSetup;
+  $("crHall").onclick = hallOfFame;
+  if ($("crCont")) $("crCont").onclick = startCareerTerm;
+}
+
+function careerSetup() {
+  const gg = g(), C = gg.career, keep = $("govName") ? $("govName").value : suggestName();
+  openOverlay(`<div class="scr">
+    <h2 class="scr-title">${esc(C.setupTitle)}</h2>
+    <p class="credits">${esc(C.tagline)}</p>
+    <label class="code"><span>${esc(C.nameLabel)}</span><input id="govName" class="name-in" maxlength="28" value="${esc(keep)}" autocomplete="off" spellcheck="false"></label>
+    <div class="toggles">${mandateToggle()}${econToggle()}${diffToggle()}</div>
+    <p class="diff-hint">${esc(gg.mandate.hint[store.mandate === "dual" ? "dual" : "price"])}${store.em ? " " + esc(gg.emHint) : ""}</p>
+    <ol class="era-list">${C.eras.map(e => `<li>${esc(e)}</li>`).join("")}</ol>
+    <div class="btns"><button class="btn ghost" id="csBack">← ${esc(gg.back)}</button><button class="btn big" id="csGo" data-hot>${esc(C.begin)} →</button></div>
+  </div>`);
+  bindToggles(careerSetup);
+  $("csBack").onclick = levelSelect;
+  $("csGo").onclick = () => {
+    const name = ($("govName").value || "").trim().slice(0, 28) || suggestName();
+    store.career = { id: Date.now(), mandate: store.mandate === "dual" ? "dual" : "price", em: !!store.em, hard: !!store.hard,
+      era: 0, gov: { name, terms: [] }, govs: [], results: [], carry: null, seeds: [], recorded: -1 };
+    persist();
+    startCareerTerm();
+  };
+}
+
+function startCareerTerm() {
+  const cr = careerNow(); if (!cr) return levelSelect();
+  const scen = CAREER_ERAS[cr.era], sv = loadSave();
+  Sound.unlock(); Sound.confirm();
+  if (sv && sv.cfg.career && sv.cfg.scenario === scen) return startLevel(sv.cfg.scenario, sv.cfg.seed, sv.inputs, !!sv.cfg.hard, !!sv.cfg.em, { mandate: sv.cfg.mandate, carry: sv.cfg.carry, career: true });
+  if (!cr.seeds[cr.era]) { cr.seeds[cr.era] = randomCode(); persist(); }
+  startLevel(scen, cr.seeds[cr.era], [], cr.hard, cr.em, { mandate: cr.mandate, carry: cr.carry, career: true });
+}
+
+// Called from the end screen of a career term; safe to call twice.
+function careerRecord(s, total, stars) {
+  const cr = careerNow(); if (!cr || cr.recorded === cr.era) return;
+  const [from, to] = eraYears(cr.era);
+  cr.gov.terms.push({ era: cr.era, score: total, stars, cred: s.cred, outcome: s.lost || "served", from, to });
+  cr.results.push({ era: cr.era, governor: cr.gov.name, score: total, stars, outcome: s.lost || "served" });
+  const next = CAREER_ERAS[Math.min(cr.era + 1, CAREER_ERAS.length - 1)];
+  const base = SCEN[next].cred - (cr.em ? 0.08 : 0) - (cr.hard ? 0.05 : 0);
+  cr.carry = { dept: Object.assign({}, s.dept || initDept()), cred: +clamp(0.5 * base + 0.5 * s.cred - (s.lost ? 0.1 : 0), 0.3, 0.9).toFixed(3), points: 3 + stars };
+  cr.last = { lost: s.lost, cred: s.cred, heat: s.heat, pop: s.pop, govt: s.govt };
+  cr.recorded = cr.era;
+  persist();
+}
+
+function finishGovernor(gov, ended) {
+  const t = gov.terms, rec = { name: gov.name, from: t.length ? t[0].from : "", to: t.length ? t[t.length - 1].to : "", terms: t.length,
+    total: t.reduce((a, x) => a + x.score, 0), stars: t.reduce((a, x) => a + x.stars, 0),
+    cred: t.length ? t.reduce((a, x) => a + x.cred, 0) / t.length : 0, ended, date: new Date().toISOString().slice(0, 10) };
+  store.hall = store.hall || { governors: [], careers: [] };
+  store.hall.governors = [rec, ...store.hall.governors].sort((a, b) => b.total - a.total).slice(0, 30);
+  return rec;
+}
+
+function careerAfterTerm() {
+  const cr = careerNow(); if (!cr || !cr.last) return levelSelect();
+  const gg = g(), C = gg.career, last = cr.last, finalEra = cr.era >= CAREER_ERAS.length - 1;
+  const leader = last.govt === "opp" ? PEOPLE.quiroga : PEOPLE.salas, leaderId = last.govt === "opp" ? "quiroga" : "salas";
+  const kind = last.lost ? "ousted" : finalEra ? "retire" : last.heat < 60 && (last.cred >= 0.55 || last.pop >= 50) ? "reappointed" : "notReappointed";
+  const [h, body] = kind === "ousted" ? C.ousted(cr.gov.name) : kind === "retire" ? C.retire(cr.gov.name) : C[kind](cr.gov.name, leader);
+  const endsTenure = kind !== "reappointed", suggestion = suggestName();
+  resetStage();
+  openOverlay(`<div class="scr">
+    <span class="q-date">${esc(C.eras[cr.era])}</span>
+    <div class="elec-bust">${portraitSVG(leaderId, kind === "reappointed" || kind === "retire" ? "happy" : kind === "ousted" ? "angry" : "neutral")}</div>
+    <h2 class="big-title">${esc(h)}</h2><p class="credits">${esc(body)}</p>
+    ${endsTenure && !finalEra ? `<label class="code"><span>${esc(C.successor)}</span><input id="succName" class="name-in" maxlength="28" value="${esc(suggestion)}" autocomplete="off" spellcheck="false"></label>` : ""}
+    <button class="btn big" id="caNext" data-hot>${esc(finalEra ? C.summaryTitle : endsTenure ? C.appoint : C.serveAgain)} →</button>
+  </div>`);
+  (kind === "ousted" || kind === "notReappointed" ? Sound.bad : Sound.good)();
+  $("caNext").onclick = () => {
+    if (endsTenure || finalEra) cr.govs.push(finishGovernor(cr.gov, kind === "ousted" ? last.lost : finalEra ? "retired" : "notReappointed"));
+    if (finalEra) { persist(); return careerFinish(); }
+    if (endsTenure) cr.gov = { name: ($("succName").value || "").trim().slice(0, 28) || suggestion, terms: [] };
+    cr.era++; cr.last = null; persist();
+    careerInterlude();
+  };
+}
+
+function careerInterlude() {
+  const cr = careerNow(), gg = g(), C = gg.career, [, prevEnd] = eraYears(cr.era - 1), [nextStart] = eraYears(cr.era), c = cr.carry || {};
+  openOverlay(`<div class="scr">
+    <span class="q-date">${esc(C.eras[cr.era])}</span>
+    <h2 class="big-title">${esc(C.interTitle(prevEnd, nextStart))}</h2>
+    <p class="credits interlude">${esc(C.inter[cr.era - 1])}</p>
+    <div class="carry"><span class="sec-lab">${esc(C.carryTitle)}</span>
+      <div class="carry-row"><span>${esc(C.carryCred(Math.round((c.cred || 0) * 100)))}</span><span>${esc(C.carryPts(c.points ?? 3))}</span></div>
+      <div class="carry-depts">${DEPTS.map(k => `<span><b>${esc(gg.depts[k][0])}</b><i class="pips">${[0, 1, 2].map(q => `<i class="${q < ((c.dept || {})[k] || 0) ? "on" : ""}"></i>`).join("")}</i></span>`).join("")}</div>
+    </div>
+    <p class="hint">${esc(C.govLine(cr.gov.name))}</p>
+    <button class="btn big" id="ciGo" data-hot>${esc(C.nextEra)} →</button>
+  </div>`);
+  $("ciGo").onclick = startCareerTerm;
+}
+
+function careerFinish() {
+  const cr = careerNow(), gg = g(), C = gg.career, total = cr.results.reduce((a, r) => a + r.score, 0);
+  store.hall = store.hall || { governors: [], careers: [] };
+  store.hall.careers = [{ date: new Date().toISOString().slice(0, 10), mandate: cr.mandate, em: cr.em, hard: cr.hard, total, governors: cr.govs.length, results: cr.results },
+    ...store.hall.careers].sort((a, b) => b.total - a.total).slice(0, 15);
+  const got = [];
+  if (cr.govs.length === 1 && cr.govs[0].terms === CAREER_ERAS.length) got.push("dynasty");
+  if (cr.carry && DEPTS.every(k => (cr.carry.dept[k] || 0) >= 2)) got.push("builder");
+  const fresh = got.filter(a => !store.ach[a]); got.forEach(a => (store.ach[a] = true));
+  const results = cr.results;
+  delete store.career; persist();
+  openOverlay(`<div class="scr end">
+    <span class="q-date">${esc(gg.mandate[cr.mandate][0])} · ${esc(cr.em ? gg.econ.em : gg.econ.adv)}${cr.hard ? " · " + esc(gg.hardTag) : ""}</span>
+    <h2 class="big-title">${esc(C.summaryTitle)}</h2>
+    <div class="tbl-wrap"><table class="hof"><thead><tr><th>${esc(C.eraCol)}</th><th>${esc(C.cols[0])}</th><th>${esc(C.cols[3])}</th><th>★</th><th>${esc(C.cols[5])}</th></tr></thead>
+      <tbody>${results.map(r => `<tr><td>${esc(C.eras[r.era])}</td><td>${esc(r.governor)}</td><td>${r.score}</td><td>${r.stars}</td><td>${esc(C.ended[r.outcome] || r.outcome)}</td></tr>`).join("")}</tbody></table></div>
+    <div class="score"><span>${esc(C.total)}</span><b>${total}</b></div>
+    ${fresh.length ? `<div class="achs"><span class="sec-lab">${esc(gg.newAch)}</span>${fresh.map(a => `<div class="ach"><b>${esc(gg.ach[a][0])}</b><small>${esc(gg.ach[a][1])}</small></div>`).join("")}</div>` : ""}
+    <div class="btns"><button class="btn big" id="cfHall" data-hot>${esc(C.hall)}</button><button class="btn ghost" id="cfLevels">${esc(gg.toLevels)}</button></div>
+  </div>`);
+  if (!FAST) { Sound.good(); confetti(); }
+  $("cfHall").onclick = hallOfFame;
+  $("cfLevels").onclick = levelSelect;
+}
+
+function hallOfFame() {
+  const gg = g(), C = gg.career, H = store.hall || { governors: [], careers: [] };
+  const gov = H.governors.map(r => `<tr><td>${esc(r.name)}</td><td>${esc(r.from)}–${esc(r.to)}</td><td>${r.terms}</td><td>${r.total}</td><td>${Math.round(r.cred * 100)}</td><td>${esc(C.ended[r.ended] || r.ended)}</td></tr>`).join("");
+  const car = H.careers.map(r => `<tr><td>${esc(r.date)}</td><td>${esc(gg.mandate[r.mandate][0])}</td><td>${esc(r.em ? gg.econ.em : gg.econ.adv)}${r.hard ? " · " + esc(gg.hardTag) : ""}</td><td>${r.governors}</td><td>${r.total}</td></tr>`).join("");
+  openOverlay(`<div class="scr">
+    <h2 class="scr-title">${esc(C.hallTitle)}</h2>
+    ${gov ? `<span class="sec-lab">${esc(C.hallGov)}</span><div class="tbl-wrap"><table class="hof"><thead><tr>${C.cols.map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${gov}</tbody></table></div>` : `<p class="hint">${esc(C.noHall)}</p>`}
+    ${car ? `<span class="sec-lab">${esc(C.hallCareers)}</span><div class="tbl-wrap"><table class="hof"><thead><tr>${C.colsC.map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${car}</tbody></table></div>` : ""}
+    <div class="btns"><button class="btn big" id="hfBack" data-hot>← ${esc(gg.toLevels)}</button></div>
+  </div>`);
+  $("hfBack").onclick = levelSelect;
+}
 /* ═══════════════ INPUT & BOOT ═══════════════ */
 document.addEventListener("keydown", e => {
   if (e.target.closest && e.target.closest("input,select,textarea")) return;
@@ -2992,7 +3246,7 @@ document.addEventListener("keydown", e => {
 function start(data) {
   document.documentElement.lang = lang;
   if (!FAST) $("room").addEventListener("mousemove", e => { const r = $("room").getBoundingClientRect(); $("room").style.setProperty("--px", ((e.clientX - r.left) / r.width - 0.5).toFixed(3)); $("room").style.setProperty("--py", ((e.clientY - r.top) / r.height - 0.5).toFixed(3)); });
-  if (data && data.screen === "game" && data.cfg) startLevel(data.cfg.scenario, data.cfg.seed, data.inputs || [], !!data.cfg.hard, !!data.cfg.em);
+  if (data && data.screen === "game" && data.cfg) startLevel(data.cfg.scenario, data.cfg.seed, data.inputs || [], !!data.cfg.hard, !!data.cfg.em, { mandate: data.cfg.mandate, carry: data.cfg.carry, career: data.cfg.career });
   else if (data && data.screen === "levels") levelSelect();
   else titleScreen();
   window.claude?.hot?.snapshot?.(() => ({ screen, cfg: game?.cfg, inputs: game?.inputs, lang }));

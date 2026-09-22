@@ -20,10 +20,11 @@ function evalAchievements(score, rule) {
 
 function endLevel(restored) {
   resetStage();
-  const s = cur(), t = tr(), gg = g(), key = game.cfg.scenario, sk = key + (game.cfg.hard ? ":hard" : "") + (game.cfg.em ? ":em" : ""), H = game.hist;
+  const s = cur(), t = tr(), gg = g(), key = game.cfg.scenario, sk = key + (game.cfg.hard ? ":hard" : "") + (game.cfg.em ? ":em" : "") + (game.cfg.mandate === "dual" ? ":dual" : ""), H = game.hist;
   const sp = scoreGame(s), rule = scoreGame(ruleBoundGame(game.sc)).total;
   const stars = s.lost ? 0 : sp.total >= rule ? 3 : sp.total >= 0.9 * rule ? 2 : 1;
   const got = evalAchievements(sp.total, rule), fresh = got.filter(a => !store.ach[a]);
+  if (game.cfg.career) careerRecord(s, sp.total, stars);                    // idempotent: a reload of the end screen records nothing new
   if (!restored) {
     clearSave();
     got.forEach(a => (store.ach[a] = true));
@@ -53,17 +54,19 @@ function endLevel(restored) {
     <p class="note">${esc(gg.starsNote)}</p>
     ${fresh.length ? `<div class="achs"><span class="sec-lab">${esc(gg.newAch)}</span>${fresh.map(a => `<div class="ach"><b>${esc(gg.ach[a][0])}</b><small>${esc(gg.ach[a][1])}</small></div>`).join("")}</div>` : ""}
     <div class="end-charts">${["infl", "mkt", "pol"].map(k => chartCard(k, qL, true)).join("")}</div>
-    <div class="btns">
+    ${game.cfg.career ? `<div class="btns"><button class="btn big" id="eCareer" data-hot>${esc(gg.career.continueStory)} →</button></div>` : `<div class="btns">
       <button class="btn big" id="eRetry" data-hot>${esc(gg.retry)}</button>
       <button class="btn ghost" id="eFresh">${esc(gg.newShocks)}</button>
       ${nextKey && !s.lost ? `<button class="btn ghost" id="eNext">${esc(gg.nextLevel)} →</button>` : ""}
       <button class="btn ghost" id="eLevels">${esc(gg.toLevels)}</button>
-    </div>
+    </div>`}
   </div>`);
-  $("eRetry").onclick = () => { Sound.confirm(); startLevel(key, game.cfg.seed, [], game.cfg.hard, game.cfg.em); };
-  $("eFresh").onclick = () => { Sound.confirm(); startLevel(key, randomCode(), [], game.cfg.hard, game.cfg.em); };
-  if ($("eNext")) $("eNext").onclick = () => { Sound.confirm(); startLevel(nextKey, randomCode(), [], game.cfg.hard, game.cfg.em); };
-  $("eLevels").onclick = levelSelect;
+  if ($("eCareer")) $("eCareer").onclick = () => { Sound.confirm(); careerAfterTerm(); };
+  const opts = { mandate: game.cfg.mandate };
+  if ($("eRetry")) $("eRetry").onclick = () => { Sound.confirm(); startLevel(key, game.cfg.seed, [], game.cfg.hard, game.cfg.em, opts); };
+  if ($("eFresh")) $("eFresh").onclick = () => { Sound.confirm(); startLevel(key, randomCode(), [], game.cfg.hard, game.cfg.em, opts); };
+  if ($("eNext")) $("eNext").onclick = () => { Sound.confirm(); startLevel(nextKey, randomCode(), [], game.cfg.hard, game.cfg.em, opts); };
+  if ($("eLevels")) $("eLevels").onclick = levelSelect;
   if (restored || FAST) return;
   if (stars === 3) confetti();
   (s.lost ? Sound.bad : Sound.good)();
@@ -117,14 +120,14 @@ function openMenu() {
   openOverlay(`<div class="scr"><h2 class="scr-title">${esc(gg.paused)}</h2>
     <div class="menu-btns">
       <button class="btn big" id="mResume" data-hot>${esc(gg.resume)}</button>
-      <button class="btn ghost" id="mRestart">${esc(gg.restart)}</button>
+      ${game.cfg.career ? "" : `<button class="btn ghost" id="mRestart">${esc(gg.restart)}</button>`}
       <button class="btn ghost" id="mLevels">${esc(gg.quit)}</button>
       <button class="btn ghost" id="mTitle">${esc(gg.toTitle)}</button>
     </div>
     <div class="toggles">${langToggle()}${soundToggle()}</div>
     <p class="hint">${esc(gg.codeLine(game.cfg.seed))}</p></div>`);
   $("mResume").onclick = resume;
-  $("mRestart").onclick = () => startLevel(game.cfg.scenario, game.cfg.seed, [], game.cfg.hard, game.cfg.em);
+  if ($("mRestart")) $("mRestart").onclick = () => startLevel(game.cfg.scenario, game.cfg.seed, [], game.cfg.hard, game.cfg.em, { mandate: game.cfg.mandate });
   $("mLevels").onclick = levelSelect;
   $("mTitle").onclick = titleScreen;
   bindToggles(() => { closeOverlay(); if (game.hud) renderHUD(game.hud.s, null, game.hud.turn); drawRoom(); renderTicker(); rerunBeat(); openMenu(); });

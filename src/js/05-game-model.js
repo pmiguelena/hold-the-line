@@ -164,15 +164,20 @@ function extendScenario(sc, seed) {
   [12 + Math.floor(rng() * 2), 15 + Math.floor(rng() * 3)].forEach((t, k) => { if (!sc.dilemmas[t] && free[k]) sc.dilemmas[t] = free[k]; });
   return sc;
 }
+// Mandates: what the Bank is legally asked to deliver. The score weight on jobs, the credibility band and the government's patience differ.
+const MANDATE = { price: { lam: 0.5, band: 1, gain: 0.02, slope: 0.05, heat: 0 }, dual: { lam: 1.0, band: 1.5, gain: 0.015, slope: 0.04, heat: -4 } };
 const scoreGame = s => {
   if (s.lost) return { macro: 0, cred: 0, pop: 0, total: 0 };
-  const macro = Math.round(550 * Math.exp(-s.L / (25 * (M.turns / 12))));
+  const lam = s.lam ?? 0.5, L = s.Lm ?? s.L;
+  const macro = Math.round(550 * Math.exp(-L / (25 * (M.turns / 12) * (0.5 + lam))));
   return { macro, cred: Math.round(300 * s.cred), pop: Math.round(150 * Math.min(1, s.pop / 60)), total: macro + Math.round(300 * s.cred) + Math.round(150 * Math.min(1, s.pop / 60)) };
 };
 // Difficulty and economy type, applied after the scenario is built.
-function applyMode(sc, hard, em) {
+function applyMode(sc, hard, em, mandate, carry) {
   if (hard) { const f = sc.key === "oil" ? 1.15 : 1.3; ["d", "s"].forEach(k => (sc[k] = sc[k].map(v => v * f))); ["noiseD", "noiseS"].forEach(k => (sc[k] = sc[k].map(v => v * 1.4))); sc.cred = Math.max(0.3, sc.cred - 0.05); }
   if (em) { sc.em = true; sc.cred = Math.max(0.3, sc.cred - 0.08); }                           // emerging-market central banks start less trusted
+  sc.mandate = mandate === "dual" ? "dual" : "price";
+  if (carry) { sc.cred = clamp(carry.cred ?? sc.cred, 0.3, 0.9); sc.dept0 = carry.dept; sc.points0 = carry.points; }   // a career: the institution carries forward
   return sc;
 }
 /*FIN-END*/
@@ -224,7 +229,8 @@ const DIL_HEAT = { financing: [18, -10], hearing: [10, -8], bank: [0, 0], leak: 
 const QA_HEAT = { q_markets: [0, -2, 0], q_pressure: [3, 0, -1], q_election: [4, -2, 0], q_jobs: [0, -2, 3], q_infl: [0, -2, 0], q_rift: [4, -4, 2], q_generic: [0, -1, 0] };
 const TRUCE = [{ cred: 0.02, heat: 5 }, { cred: -0.05, pop: 2, heat: -25 }];
 const GD = { truce: TRUCE, crash: CRASH };
-const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false, catP: {}, hp: 100, hpg: 0.8, dept: initDept(), points: BUDGET_START, board: BOARD0.slice(), macro: false, fogM: 1,
+const initGame = sc => Object.assign(initState(sc), { heat: HEAT0, heatPeak: HEAT0, eq: 100, eqA: 100, eqPeak: 100, fx: 100, fxA: 100, y10: Y10_NEUTRAL, crashUsed: false, catP: {}, hp: 100, hpg: 0.8, dept: sc.dept0 ? Object.assign(initDept(), sc.dept0) : initDept(), points: sc.points0 ?? BUDGET_START, board: BOARD0.slice(),
+  Lm: 0, lam: (MANDATE[sc.mandate] || MANDATE.price).lam, mandate: sc.mandate || "price", macro: false, fogM: 1,
   lev: 0, cg: 6, bust: 0, bustSize: 0, bankCap: 100, reserves: sc.em ? 6 : 12, ssHit: false });
 function prepGame(s, sc) {
   const p = prepare(seenOf(s, sc, s.t), sc), dept = s.dept || initDept();   // advisors, the government and the press all read the published data
@@ -256,13 +262,19 @@ function stepGame(s, sc, prep, inp) {
     if (cred) { res.credParts.push([key, cred]); n.cred = clamp(n.cred + cred, 0.05, 0.95); }
     if (pop) { res.popParts.push([key, pop]); n.pop = clamp(n.pop + pop, 0, 100); }
   };
+  const md = MANDATE[sc.mandate] || MANDATE.price, ci = res.credParts.findIndex(q => q[0] === "onTarget" || q[0] === "offTarget");
+  if (ci >= 0 && md !== MANDATE.price) {                                                     // the mandate decides what counts as "on target"
+    const old = res.credParts[ci][1], miss = Math.abs(n.pi - 2), nv = miss < md.band ? md.gain : -Math.min(0.15, md.slope * (miss - md.band));
+    res.credParts[ci] = [nv >= 0 ? "onTarget" : "offTarget", nv]; n.cred = clamp(n.cred - old + nv, 0.05, 0.95);
+  }
+  n.lam = md.lam; n.Lm = (s.Lm || 0) + (n.pi - 2) ** 2 + md.lam * n.x ** 2; n.mandate = sc.mandate || "price";
   if (inp.qa != null) { const e = qaEffect(s, prep, inp); bump(e.cred, e.pop, "presser"); const h = (QA_HEAT[qaId(s, prep, inp)] || [])[inp.qa]; if (h) hp.push(["presser", h]); }
   if (prep.gd && inp.choice != null) { bump(gdT.cred, gdT.pop, "dilemma"); if (gdT.heat) hp.push([prep.gd, gdT.heat]); }
   if (qe.cred) bump(n.pi > 3 ? qe.cred : qe.cred * 0.3, 0, "qe");
   if (qe.heat) hp.push(["qe", qe.heat]);
   if (vote) { if (!vote.passed) bump(-0.04, 0, "outvoted"); else if (vote.no >= 2) bump(-0.01, 0, "divided"); else if (vote.no === 0) bump(0.005, 0, "united"); }
   if (macro) bump(0, -0.5, "macro");
-  hp.push(["drift", ((s.pop >= 50 ? 10 : 20) - s.heat) * 0.2]);
+  hp.push(["drift", ((s.pop >= 50 ? 10 : 20) + md.heat - s.heat) * 0.2]);
   if (prep.pressure === "cut" && inp.move > 0) hp.push(["defied", 5 * prep.level + (n.pop < 38 && prep.level >= 2 ? 10 : 0)]);
   else if (has("resisted")) hp.push(["resisted", 3 * prep.level]);
   if (has("caved")) hp.push(["caved", -10]);

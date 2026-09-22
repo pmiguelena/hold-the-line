@@ -31,5 +31,5 @@ writeFileSync(join(root, "docs/.nojekyll"), "");
 const modelParts = ["src/js/00-model-core.js", "src/js/05-game-model.js"].map(rd).join("\n");
 const cut = modelParts.indexOf("function advance(inp)");
 writeFileSync(join(root, "tools/model.cjs"), modelParts.slice(0, cut) +
-  "\nmodule.exports = { M, MOVES, SCEN, buildScenario, extendScenario, initGame, prepGame, stepGame, scoreGame, ruleBoundGame, drawdown, taylorRate, seenOf, staffForecast, FOG, econDetail, CPI_W, DEPTS, initDept, buyCost, ruleBuys, budgetQuarter, boardVote, boardPrefs, FOGM, BOARD0, applyMode, finFeed };\n");
+  "\nmodule.exports = { M, MOVES, SCEN, buildScenario, extendScenario, initGame, prepGame, stepGame, scoreGame, ruleBoundGame, drawdown, taylorRate, seenOf, staffForecast, FOG, econDetail, CPI_W, DEPTS, initDept, buyCost, ruleBuys, budgetQuarter, boardVote, boardPrefs, FOGM, BOARD0, applyMode, finFeed, MANDATE };\n");
 console.log(`built game.html (${fragment.length} chars), docs/game.html, tools/model.cjs`);

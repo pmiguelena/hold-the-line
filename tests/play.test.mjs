@@ -80,3 +80,24 @@ test("charts and pause menu open mid-game", () => {
   assert.ok(d.getElementById("mResume"));
   assert.deepEqual(errors, []);
 });
+
+test("career mode: four eras, reappointment, carry-over and the hall of fame", () => {
+  const { d, w, errors } = boot();
+  const r = playThrough(d, { career: true, lang: "en", gov: "Ada Rate" });
+  assert.deepEqual(errors, []);
+  assert.ok(r.terms.length >= 1 && r.terms.length <= 4, `terms: ${r.terms.length}`);
+  assert.match(r.summary, /Ada Rate/);
+  assert.match(r.hall, /Hall of fame/);
+  assert.match(r.hall, /Ada Rate/);
+  const store = JSON.parse(w.localStorage.getItem("holdtheline.v1"));
+  assert.equal(store.career, undefined, "a finished career is cleared");
+  assert.equal(store.hall.careers.length, 1);
+  assert.ok(store.hall.governors.length >= 1);
+});
+
+test("dual mandate: the tag shows and a level still plays to the end", () => {
+  const { d, errors } = boot();
+  const r = playThrough(d, { level: "oil", lang: "es", dual: true });
+  assert.deepEqual(errors, []);
+  assert.ok(ENDINGS.includes(r.end), r.end);
+});

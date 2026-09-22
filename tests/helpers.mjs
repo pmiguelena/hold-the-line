@@ -5,8 +5,8 @@ const require = createRequire(import.meta.url);
 export const model = () => require("../tools/model.cjs");
 
 // Plays one level with a policy function and returns the final state.
-export function simulate(m, level, seed, policy, hard = false, em = false) {
-  const S = m.applyMode(m.extendScenario(m.buildScenario(level, seed), seed), hard, em);
+export function simulate(m, level, seed, policy, hard = false, em = false, mandate = "price", carry = null) {
+  const S = m.applyMode(m.extendScenario(m.buildScenario(level, seed), seed), hard, em, mandate, carry);
   let s = m.initGame(S);
   while (s.t < m.M.turns && !s.lost) { const p = m.prepGame(s, S); s = m.stepGame(s, S, p, policy(s, p)).state; }
   return s;
@@ -31,16 +31,23 @@ export function boot(pre = "") {
 }
 
 // Clicks through a whole level like a player; returns what was seen.
-export function playThrough(d, { level, lang = "en", hard = false, em = false, advisor = 2, choice = 0, qa = 0, qe = 1, fx = 0 }) {
+export function playThrough(d, { level, lang = "en", hard = false, em = false, advisor = 2, choice = 0, qa = 0, qe = 1, fx = 0, career = false, dual = false, gov = "Test Governor" }) {
   const seen = { quarters: 0, fronts: 0, reactions: 0, dilemmas: 0, qa: 0, qe: 0, elections: 0, fans: 0 };
   d.querySelector(`#overlay [data-lang="${lang}"]`).click();
   d.getElementById("tStart").click();
   if (hard) d.querySelector('#overlay [data-diff="1"]').click();
   if (em) d.querySelector('#overlay [data-econ="1"]').click();
-  d.querySelector(`[data-level="${level}"]`).click();
-  for (let k = 0; k < 1500; k++) {
+  if (dual) d.querySelector('#overlay [data-mandate="dual"]').click();
+  if (career) {
+    seen.terms = []; d.getElementById("crNew").click();
+    d.getElementById("govName").value = gov; d.getElementById("csGo").click();
+  } else d.querySelector(`[data-level="${level}"]`).click();
+  for (let k = 0; k < (career ? 6000 : 1500); k++) {
     const ov = d.getElementById("overlay"), P = d.getElementById("panel");
     if (!ov.hidden) {
+      if (d.getElementById("hfBack")) return { ...seen, hall: d.getElementById("overlay").textContent };
+      if (d.getElementById("eCareer")) seen.terms.push(d.querySelector("#overlay .big-title").textContent);
+      if (d.getElementById("cfHall")) { seen.summary = d.getElementById("overlay").textContent; d.getElementById("cfHall").click(); continue; }
       if (d.getElementById("eRetry")) {
         return { ...seen, end: d.querySelector("#overlay .big-title").textContent,
           stars: d.querySelectorAll("#overlay .stars svg.got").length, score: +d.getElementById("scoreNum").textContent };

@@ -6,6 +6,7 @@ const soundToggle = () => `<button class="btn ghost small" id="sndBtn" aria-pres
 function bindToggles(rerender) {
   $("overlay").querySelectorAll("[data-lang]").forEach(b => (b.onclick = () => { lang = b.dataset.lang; store.lang = lang; persist(); document.documentElement.lang = lang; Sound.select(); rerender(); }));
   $("overlay").querySelectorAll("[data-diff]").forEach(b => (b.onclick = () => { store.hard = b.dataset.diff === "1"; persist(); Sound.select(); rerender(); }));
+  $("overlay").querySelectorAll("[data-mandate]").forEach(b => (b.onclick = () => { store.mandate = b.dataset.mandate; persist(); Sound.select(); rerender(); }));
   $("overlay").querySelectorAll("[data-econ]").forEach(b => (b.onclick = () => { store.em = b.dataset.econ === "1"; persist(); Sound.select(); rerender(); }));
   const sb = $("sndBtn"); if (sb) sb.onclick = () => { store.sound = store.sound === false; persist(); Sound.select(); rerender(); };
 }
@@ -24,7 +25,7 @@ function titleScreen() {
     <div class="toggles">${langToggle()}${soundToggle()}</div>
   </div>`);
   $("tStart").onclick = () => { Sound.unlock(); Sound.confirm(); levelSelect(); };
-  if (sv) $("tCont").onclick = () => { Sound.unlock(); Sound.confirm(); startLevel(sv.cfg.scenario, sv.cfg.seed, sv.inputs, !!sv.cfg.hard, !!sv.cfg.em); };
+  if (sv) $("tCont").onclick = () => { Sound.unlock(); Sound.confirm(); startLevel(sv.cfg.scenario, sv.cfg.seed, sv.inputs, !!sv.cfg.hard, !!sv.cfg.em, { mandate: sv.cfg.mandate, carry: sv.cfg.carry, career: sv.cfg.career }); };
   bindToggles(titleScreen);
 }
 
@@ -33,8 +34,9 @@ function levelSelect() {
   const gg = g(), achIds = Object.keys(gg.ach), got = achIds.filter(a => store.ach[a]).length;
   openOverlay(`<div class="scr">
     <h2 class="scr-title">${esc(gg.levelsTitle)}</h2>
+    ${careerCard()}
     <div class="lvl-grid">${LEVEL_ORDER.map((k, idx) => {
-      const [name, year, blurb] = gg.levels[k], sk = k + (store.hard ? ":hard" : "") + (store.em ? ":em" : ""), st = store.stars[sk] || 0, [bg, icon] = LEVEL_ICON[k];
+      const [name, year, blurb] = gg.levels[k], sk = k + (store.hard ? ":hard" : "") + (store.em ? ":em" : "") + (store.mandate === "dual" ? ":dual" : ""), st = store.stars[sk] || 0, [bg, icon] = LEVEL_ICON[k];
       return `<button class="lvl" data-level="${k}" data-key="${idx + 1}">
         <span class="lvl-icon" style="--ic:${bg}">${icon}</span>
         <span class="lvl-main">
@@ -44,7 +46,7 @@ function levelSelect() {
           <span class="lvl-foot"><span class="stars-s" aria-label="${st}/3">${starRow(st)}</span><span>${esc(gg.best)}: ${store.best[sk] ?? "—"}</span></span>
         </span></button>`;
     }).join("")}</div>
-    <div class="toggles">${diffToggle()}${econToggle()}</div><p class="diff-hint">${[store.hard ? gg.hardHint : "", store.em ? gg.emHint : ""].filter(Boolean).map(esc).join(" ")}</p>
+    <div class="toggles">${diffToggle()}${econToggle()}${mandateToggle()}</div><p class="diff-hint">${[store.hard ? gg.hardHint : "", store.em ? gg.emHint : "", store.mandate === "dual" ? gg.mandate.hint.dual : ""].filter(Boolean).map(esc).join(" ")}</p>
     <label class="code"><span>${esc(gg.code)}</span><input id="codeIn" maxlength="8" autocomplete="off" spellcheck="false"></label>
     <p class="hint">${esc(gg.codeHint)}</p>
     <div class="achbar"><span class="sec-lab">${esc(gg.achTitle)} · ${got}/${achIds.length}</span><div class="ach-row">${achIds.map(id => `<span class="ach-pill ${store.ach[id] ? "got" : ""}" title="${esc(gg.ach[id][1])}">${esc(gg.ach[id][0])}</span>`).join("")}</div></div>
@@ -52,24 +54,26 @@ function levelSelect() {
   </div>`);
   $("overlay").querySelectorAll("[data-level]").forEach(b => (b.onclick = () => {
     const code = ($("codeIn").value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
-    Sound.confirm(); startLevel(b.dataset.level, code || randomCode(), [], !!store.hard, !!store.em);
+    Sound.confirm(); startLevel(b.dataset.level, code || randomCode(), [], !!store.hard, !!store.em, { mandate: store.mandate === "dual" ? "dual" : "price" });
   }));
   $("lBack").onclick = titleScreen;
+  bindCareerCard();
   bindToggles(levelSelect);
 }
 
-function startLevel(scenario, seed, inputs = [], hard = false, em = false) {
+function startLevel(scenario, seed, inputs = [], hard = false, em = false, opts = {}) {
   closeOverlay(); resetStage();
   screen = "game";
-  const sc = applyMode(extendScenario(buildScenario(scenario, seed), seed), hard, em);
-  game = { cfg: { scenario, seed, hard: !!hard, em: !!em }, sc, hist: [initGame(sc)], reports: [], inputs: [], hud: null, headlines: [] };
+  const mandate = opts.mandate === "dual" ? "dual" : "price";
+  const sc = applyMode(extendScenario(buildScenario(scenario, seed), seed), hard, em, mandate, opts.carry);
+  game = { cfg: { scenario, seed, hard: !!hard, em: !!em, mandate, carry: opts.carry || null, career: !!opts.career }, sc, hist: [initGame(sc)], reports: [], inputs: [], hud: null, headlines: [] };
   g().tickerStart.forEach((x, k) => game.headlines.push({ key: "start" + k, src: "wire", textFn: () => g().tickerStart[k] }));
   inputs.forEach(advance);
   saveGame();
   drawRoom(); renderTicker();
   if (inputs.length) { if (over()) { renderHUD(cur(), null, cur().t); endLevel(true); } else beginQuarter(); return; }
   renderHUD(cur(), null, 1);
-  const lines = g().intro[scenario];
-  play([...lines.map(([id, mood], k) => () => say({ speaker: id, mood, text: g().intro[scenario][k][2], skip: true })), () => beginQuarter()]);
+  const intro = () => [["salas", "neutral", g().mandateLine[mandate]], ...g().intro[scenario]];     // re-read on language change
+  play([...intro().map(([id, mood], k) => () => say({ speaker: id, mood, text: intro()[k][2], skip: true })), () => beginQuarter()]);
 }
 

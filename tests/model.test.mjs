@@ -215,3 +215,26 @@ test("financial variables stay in plausible ranges", () => {
     assert.ok(s.y10 > 0 && s.y10 < 15, `${level} 10y ${s.y10}`);
   }
 });
+
+test("dual mandate: a wider credibility band, jobs weigh more in the score, similar scores for good policy", () => {
+  const S = m.applyMode(m.extendScenario(m.buildScenario("crisis", "MD1"), "MD1"), false, false, "dual");
+  assert.equal(S.mandate, "dual");
+  const a = simulate(m, "crisis", "MD1", POLICIES.rule, false, false, "dual");
+  assert.equal(a.lam, 1);
+  for (const level of LEVELS) {
+    const p = mean(Array.from({ length: 60 }, (_, k) => m.scoreGame(simulate(m, level, "M" + k, POLICIES.rule)).total));
+    const q = mean(Array.from({ length: 60 }, (_, k) => m.scoreGame(simulate(m, level, "M" + k, POLICIES.rule, false, false, "dual")).total));
+    assert.ok(Math.abs(p - q) < 60, `${level}: price ${p.toFixed(0)} vs dual ${q.toFixed(0)}`);
+  }
+});
+
+test("career carry-over: credibility and departments pass to the next era", () => {
+  const dept = Object.fromEntries(Object.keys(m.initDept()).map(k => [k, 2]));
+  const S = m.applyMode(m.extendScenario(m.buildScenario("pandemic", "CR1"), "CR1"), false, false, "price", { cred: 0.82, dept, points: 6 });
+  const s = m.initGame(S);
+  assert.equal(s.cred, 0.82);
+  assert.equal(s.points, 6);
+  for (const k of Object.keys(dept)) assert.equal(s.dept[k], 2);
+  const low = m.initGame(m.applyMode(m.buildScenario("pandemic", "CR1"), false, false, "price", { cred: 0.1, dept: {}, points: 3 }));
+  assert.equal(low.cred, 0.3, "carried credibility is floored");
+});
