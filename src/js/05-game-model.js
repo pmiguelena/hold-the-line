@@ -328,6 +328,48 @@ function ruleBoundGame(sc) {
   return s;
 }
 /*HEAT-END*/
+/*TEACH-START*/
+// US federal funds rate, quarterly averages (approximate), from each era's first quarter: 1973 Q3, 2007 Q3, 2020 Q1.
+const FED_PATH = {
+  oil: [10.56, 10.0, 9.32, 11.25, 12.09, 9.35, 6.3, 5.42, 6.16, 5.41, 4.83, 5.2, 5.28, 4.87, 4.66, 5.16, 5.82, 6.51, 6.76],
+  crisis: [5.07, 4.5, 3.18, 2.09, 1.94, 0.51, 0.18, 0.18, 0.16, 0.12, 0.13, 0.19, 0.19, 0.19, 0.16, 0.09, 0.08, 0.07, 0.1],
+  pandemic: [1.26, 0.06, 0.09, 0.09, 0.08, 0.07, 0.09, 0.08, 0.12, 0.77, 2.19, 3.65, 4.52, 4.99, 5.26, 5.33, 5.33, 5.33, 5.26]
+};
+const ruleInput = (s, p) => ({ move: p.advisors.taylor, tone: "neutral", choice: 0, qa: null, qe: p.qe && s.x < -0.5 ? 2 : 0, buy: p.budget ? ruleBuys(s) : [] });
+function rulePath(sc) {
+  let s = initGame(sc); const H = [s];
+  while (s.t < M.turns && !s.lost) { const p = prepGame(s, sc); s = stepGame(s, sc, p, ruleInput(s, p)).state; H.push(s); }
+  return H;
+}
+// Replays the player's own inputs with quarter k's rate move replaced: "what if you had followed the rule just then?"
+// With `levels` (your actual rate path), the rate is forced from quarter k on (no board vote), so later quarters return to
+// your rates. Comparing two such replays (your move vs the rule's) isolates that single decision.
+function replayGame(sc, inputs, k, move, levels) {
+  let s = initGame(sc);
+  for (let j = 0; j < inputs.length && s.t < M.turns && !s.lost; j++) {
+    const p = prepGame(s, sc), force = levels && j >= k;
+    const inp = Object.assign({}, inputs[j], j === k ? { move } : {}, force ? { noVote: true } : {}, force && j > k ? { move: levels[j] - s.i } : {});
+    if ((p.dilemma || p.gd) && inp.choice == null) inp.choice = 0;
+    s = stepGame(s, sc, p, inp).state;
+  }
+  return s;
+}
+function debriefData(sc, inputs, reports) {
+  const s0 = initGame(sc), last = reports.length ? reports[reports.length - 1].state : s0;
+  const levels = reports.map(r => r.state.i);
+  const devs = reports.map((r, k) => ({ k, t: r.prep.t, you: +(r.state.i - r.prev.i).toFixed(2), asked: r.inp.move, rule: r.prep.advisors.taylor }))
+    .filter(c => Math.abs(c.you - c.rule) > 0.01);                                         // judged on the move carried out, after the board vote
+  const moments = devs.map(c => {
+    const r = reports[c.k], seen = seenOf(r.prev, sc, r.prev.t);
+    const mine = replayGame(sc, inputs, c.k, c.you, levels), alt = replayGame(sc, inputs, c.k, c.rule, levels);
+    const impact = Math.round(scoreGame(mine).total - scoreGame(alt).total);
+    const kind = c.you < c.rule ? (seen.pi >= 2.5 ? "easeHigh" : "ease") : (seen.x < -0.5 || seen.pi < 1.5 ? "tightLow" : "tight");
+    const lesson = alt.lost && !mine.lost ? "ruleLost" : mine.lost && !alt.lost ? "youLost" : Math.abs(impact) < 3 ? "same" : kind + (impact > 0 ? "Help" : "Hurt");
+    return { ...c, impact, pi: seen.pi, x: seen.x, lesson, overruled: Math.abs(c.asked - c.you) > 0.01, caved: r.credParts.some(q => q[0] === "caved") };
+  }).sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact)).slice(0, 3).sort((a, b) => a.k - b.k);
+  return { moments, deviations: devs.length, N: reports.length, onTarget: reports.filter(r => Math.abs(r.state.pi - 2) < 1).length, cred0: s0.cred, cred1: last.cred, score: scoreGame(last).total };
+}
+/*TEACH-END*/
 function advance(inp) {
   const s = cur(), prep = prepGame(s, game.sc), res = stepGame(s, game.sc, prep, inp);
   game.inputs.push(inp); game.hist.push(res.state);

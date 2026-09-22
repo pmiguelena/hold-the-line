@@ -107,3 +107,39 @@
 table.hof{width:100%;border-collapse:collapse;font-size:14px;text-align:left}
 table.hof th{font:700 11.5px var(--f-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:6px 10px;border-bottom:1px solid var(--line-2)}
 table.hof td{padding:7px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* teaching layer */
+.coach{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px 14px;align-items:center;padding:12px 14px;margin-bottom:12px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(242,182,80,.14),rgba(242,182,80,.04));box-shadow:inset 0 0 0 1px rgba(242,182,80,.38);animation:coachIn .35s ease-out}
+.coach-ic{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:rgba(242,182,80,.14)}
+.coach-body b{font:700 11.5px var(--f-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--amber)}
+.coach-body p{margin:3px 0 0;font-size:15px;line-height:1.45;color:#E4E8F1}
+.coach-btns{display:flex;flex-direction:column;gap:6px}
+@media (max-width:760px){.coach{grid-template-columns:auto minmax(0,1fr)}.coach-btns{grid-column:1 / -1;flex-direction:row;justify-content:flex-end}}
+@keyframes coachIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.term{all:unset;cursor:pointer;color:inherit;font:inherit;text-decoration:underline;text-decoration-style:dotted;text-decoration-color:var(--amber);text-underline-offset:3px;text-decoration-thickness:1.5px}
+.term:hover{color:var(--amber)} .term:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:3px}
+.term-pop{position:fixed;z-index:9999;left:50%;bottom:24px;transform:translateX(-50%);width:min(440px,calc(100vw - 32px));padding:14px 16px 16px;border-radius:16px;
+  background:#1D2844;color:var(--text);box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 0 0 1px rgba(242,182,80,.45);text-align:left;animation:coachIn .2s ease-out}
+.term-pop header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px}
+.term-pop header b{font:700 17px var(--f-ui);color:var(--amber)}
+.term-pop p{margin:0;font-size:15px;line-height:1.5;color:#E4E8F1}
+.term-x{all:unset;cursor:pointer;width:30px;height:30px;display:grid;place-items:center;border-radius:50%;font-size:20px;color:var(--muted)}
+.term-x:hover,.term-x:focus-visible{background:rgba(255,255,255,.08);color:var(--text)}
+dl.gloss{width:100%;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:10px;text-align:left}
+dl.gloss>div{padding:12px 14px;border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+dl.gloss dt{font-weight:700;color:var(--amber);margin-bottom:4px}
+dl.gloss dd{margin:0;font-size:14.5px;line-height:1.5;color:#D5DAE6}
+.db-stats{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.db-stats span{padding:7px 12px;border-radius:99px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:14px;font-weight:600}
+.db-charts{grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))!important;width:100%}
+.db-sec{width:100%;display:grid;gap:10px;text-align:left}
+.moments{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px}
+.moment{display:grid;gap:5px;align-content:start;padding:12px 14px;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-top:3px solid var(--muted)}
+.moment.pos{border-top-color:var(--green)} .moment.neg{border-top-color:var(--red)}
+.moment header{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.moment small{color:var(--muted);font-size:13px}
+.moment p{margin:4px 0 0;font-size:14.5px;line-height:1.5;color:#D5DAE6}
+.pill.pos{background:rgba(63,182,139,.16);color:var(--green)} .pill.neg{background:rgba(229,72,77,.16);color:var(--red)}
+.db-hist{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;align-items:center}
+.db-hist .interlude{margin:0;font-size:16.5px}
+@media (max-width:760px){.db-hist{grid-template-columns:minmax(0,1fr)}}

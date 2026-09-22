@@ -1,0 +1,184 @@
+/* ═══════════════ TEACHING TEXT (EN/ES) ═══════════════ */
+Object.assign(G.en, {
+  coach: {
+    label: "Staff note", ok: "Got it", off: "Turn tips off", toggle: "Tips",
+    tips: {
+      news: "Each quarter opens with the news. Markets, politicians and the public react to the same data you see, and so do [[expectations|inflation expectations]].",
+      front: "The papers and their readers show how the public feels. Popularity matters to the government, and an unpopular government leans on the Bank.",
+      map: "The staff's map of the economy. Switch layers to see which sectors drive [[inflation|inflation]] and where jobs are being lost. Your rate works on all of them at once.",
+      fog: "Careful: first estimates are often wrong and get [[revision|revised]] over the next two quarters. A stronger Statistics department reduces the fog.",
+      budget: "Once a year you split a small budget between departments. Research sharpens the forecast, Statistics cuts data errors, Communications makes your words carry more weight. Upgrades work from next quarter.",
+      calls: "Politicians will call. They cannot give you orders, because the Bank is [[independence|independent]], but ignoring them raises your [[heat|removal risk]].",
+      pressure: "The bars show how hard the government is pushing. Cutting under pressure while inflation is high looks like obedience, and costs [[credibility|credibility]].",
+      dilemma: "A decision on your desk. There is rarely a free option: most choices trade credibility, popularity and removal risk against each other.",
+      advisors: "Three advisors read the same data through different schools of thought. The one who follows the [[taylor|Taylor rule]] is also the benchmark the game uses to award stars.",
+      decide: "Your main tool is the [[policyRate|policy rate]]. Raising it cools spending and, with a lag, inflation; cutting it does the reverse. Aim for 2% inflation without wrecking jobs.",
+      fan: "The staff forecast shows where inflation and the [[outputGap|output gap]] are heading under the move you pick. The wider the [[fanChart|fan]], the less certain it is. Try different moves and watch it change.",
+      board: "You chair a board of four. If your proposal loses the vote, the median member's preferred move is carried out instead. Extreme moves get overruled.",
+      tone: "Words move markets too. [[forwardGuidance|Forward guidance]] shifts expectations today, but if you break your word next quarter, credibility suffers.",
+      qe: "The rate is close to its floor, the [[zlb|lower bound]]. [[qe|Asset purchases]] can still push long-term rates down and support spending, at a credibility cost if inflation is high.",
+      fx: "In an emerging market the currency matters a lot: a weaker currency raises import prices fast ([[passthrough|pass-through]]). You can spend [[reserves|reserves]] to support it, but reserves run out.",
+      macro: "Credit is booming. [[macroprudential|Mortgage rules]] cool lending directly, without raising the rate for everyone.",
+      qa: "Every answer to the press is a signal. Clear, consistent answers build credibility; promises you may not keep are risky.",
+      react: "Markets price the surprise, not the move. If they expected a hike and you hiked, little happens. A surprise moves the currency, [[yield10|bond yields]] and stocks.",
+      ledger: "This ledger shows exactly why [[credibility|credibility]], popularity and removal risk moved. Credibility is your most valuable asset: it keeps expectations anchored near 2%.",
+      heat: "Your [[heat|removal risk]] is climbing. At 100 you are fired. Cooperating lowers it but costs credibility: the classic dilemma of central bank [[independence|independence]].",
+      credit: "Cheap money is fuelling a credit boom (see the [[creditGap|credit gap]]). Booms can end in a bust that hits banks and spending. Watch the Credit layer of the map."
+    }
+  },
+  gloss: {
+    title: "Glossary", close: "Close", sub: "The ideas behind the game, in plain words. Click any underlined term in the game to open its card.",
+    terms: {
+      policyRate: ["Policy rate", "The short-term interest rate the central bank sets. It feeds through to loans, mortgages, savings, the currency and asset prices, and from there to spending and [[inflation|inflation]]."],
+      inflation: ["Inflation", "The rate at which prices rise, measured over a year. Most central banks aim for about 2%: low enough that people can ignore it, high enough to stay clear of [[deflation|deflation]]."],
+      deflation: ["Deflation", "Falling prices. It sounds pleasant, but it raises the real burden of debt and makes people delay spending. With the rate at its [[zlb|lower bound]], it is hard to escape."],
+      outputGap: ["Output gap", "How far production is above (positive) or below (negative) what the economy can sustain. A positive gap pushes inflation up; a negative gap means lost jobs and income."],
+      expectations: ["Inflation expectations", "What people and firms think inflation will be. They set wages and prices on that basis, so expectations become self-fulfilling. Keeping them anchored at 2% is most of the job."],
+      credibility: ["Credibility", "How much the public believes the Bank will hit its target. With high credibility, expectations stay near 2% even after a shock, so you need smaller rate moves."],
+      taylor: ["Taylor rule", "A simple guide proposed by John Taylor in 1993: set the rate according to how far inflation is from target and how big the [[outputGap|output gap]] is. Its core is the Taylor principle: when inflation rises, raise the rate by more, so the [[realRate|real rate]] goes up."],
+      realRate: ["Real interest rate", "The interest rate minus expected inflation. It is what actually matters for spending: a 5% rate with 6% inflation is still cheap money."],
+      phillips: ["Phillips curve", "The link between the [[outputGap|output gap]] and inflation: a hot economy with a positive gap pushes prices up, a slack one holds them down. [[expectations|Expectations]] shift the whole curve."],
+      forwardGuidance: ["Forward guidance", "Telling the public what the Bank is likely to do next. It works through [[expectations|expectations]], but only if people believe it, and breaking it costs [[credibility|credibility]]."],
+      qe: ["Asset purchases (QE)", "Buying government bonds with newly created central bank money. It lowers long-term interest rates when the policy rate cannot go lower. Used on a large scale after 2008 and in 2020."],
+      zlb: ["Lower bound", "The floor below which the policy rate cannot usefully fall, near zero. When a slump is deep enough to need negative rates, the central bank needs other tools such as [[qe|asset purchases]]."],
+      passthrough: ["Exchange-rate pass-through", "How much a change in the currency shows up in prices. Much higher in emerging markets, where many goods are imported or priced in dollars."],
+      reserves: ["Foreign reserves", "The central bank's stock of foreign currency. It can sell reserves to support its own currency in a panic, but only until they run out."],
+      suddenStop: ["Sudden stop", "When foreign investors stop lending to a country all at once. The currency falls, borrowing costs jump and spending collapses. A classic emerging-market crisis."],
+      macroprudential: ["Macroprudential rules", "Limits aimed at the financial system as a whole, such as caps on mortgage size relative to income or home value. They target a credit boom without raising the rate for everyone."],
+      creditGap: ["Credit gap", "How far lending has grown beyond its normal trend. A large gap has preceded most banking crises, including 2008."],
+      independence: ["Central bank independence", "Protection of the Bank from day-to-day political orders, so it can resist the temptation to stimulate before elections or finance the government by printing money."],
+      fiscalDominance: ["Fiscal dominance", "When a government's debts force the central bank to keep rates low or print money to pay for them. Inflation control is lost. Refusing to finance the Treasury protects against it."],
+      dualMandate: ["Dual mandate", "A legal duty to pursue both stable prices and maximum employment, as the US Federal Reserve has. Most other central banks put price stability first."],
+      supplyShock: ["Supply shock", "An event that changes what the economy can produce, such as an oil embargo. It pushes inflation up and output down at the same time: the hardest case for a central bank."],
+      demandShock: ["Demand shock", "A sudden change in spending, such as a financial panic or a boom. Inflation and output move in the same direction, so the right response is clearer."],
+      revision: ["Data revision", "Official statistics are estimated fast and corrected later as more information arrives. The Bank must decide on numbers that may turn out to be wrong."],
+      fanChart: ["Fan chart", "A forecast drawn as a widening band: the central line is the most likely path, the shaded fan shows the range of plausible outcomes. Popularised by the Bank of England."],
+      heat: ["Removal risk", "In the game, how close the government is to firing you. Real governors are rarely fired, but political pressure on central banks is very real."],
+      yield10: ["10-year bond yield", "The interest rate on long-term government debt. It reflects expected future policy rates plus a risk premium, and it sets mortgage and business borrowing costs."]
+    }
+  },
+  debrief: {
+    btn: "Debrief", title: "Debrief", back: "Back to results",
+    sub: "What happened, and what a governor who always followed the rule would have done with exactly the same shocks.",
+    rateTitle: "Policy rate", inflTitle: "Inflation", you: "You", rule: "Rule-following governor",
+    stats: { onTarget: (n, N) => `Inflation within 1 point of target in ${n} of ${N} quarters`, followed: (n, N) => `You followed the Taylor rule in ${n} of ${N} quarters`, cred: (a, b) => `Credibility ${a} → ${b}` },
+    momentsTitle: "The decisions that mattered most",
+    momentsNote: "Each impact replays your term twice from that quarter, once with your move and once with the rule's, keeping your rates in every other quarter. The difference is what that one decision was worth.",
+    noMoments: "You followed the rule every quarter. Your result against the benchmark came from the press, the budget and the decisions on your desk.",
+    moment: (you, rule) => `You: ${you} · Rule: ${rule}`, overruled: asked => `The board overruled your proposal (${asked}).`, saw: (pi, x) => `What you saw: inflation ${pi}, output gap ${x}`,
+    impact: v => (v > 0 ? `+${v} points` : `${v} points`), impactSame: "About the same", keptJob: "Kept you in office", lostJob: "Cost you the job",
+    caved: " You also cut under political pressure, which cost [[credibility|credibility]].",
+    lessons: {
+      easeHighHurt: "Easing with inflation above target let [[expectations|expectations]] drift up. The Taylor principle: when inflation rises, raise the rate by more, so the [[realRate|real rate]] goes up.",
+      easeHighHelp: "Easing despite high inflation paid off here, probably because the shock hit supply or was passing. Looking through a [[supplyShock|supply shock]] can work if [[credibility|credibility]] keeps expectations anchored.",
+      easeHurt: "Cutting more than the rule overheated the economy: the [[phillips|Phillips curve]] turns a positive [[outputGap|gap]] into higher inflation a quarter later.",
+      easeHelp: "Cutting more than the rule gave the economy support it needed without unanchoring expectations. Your judgement beat the formula here.",
+      tightLowHurt: "Tightening into a weak economy widened the [[outputGap|output gap]] and pulled inflation further below target. In a slump the rule leans towards cutting.",
+      tightLowHelp: "Tightening before the data confirmed it paid off. Policy works with a lag, which is why acting on the [[fanChart|forecast]] rather than today's numbers can be right.",
+      tightHurt: "Hiking more than the rule cost output and popularity without much gain on inflation. Overkill has a price too.",
+      tightHelp: "Hiking more than the rule anchored expectations faster. A firm, credible Bank can bring inflation down at a lower cost later.",
+      same: "This one made little difference to your score: the economy would have ended up in a similar place either way.",
+      ruleLost: "Following the rule here would have cost you the job later in the term: the government was already close to removing you. Survival sometimes takes compromise, which is exactly why [[independence|independence]] matters.",
+      youLost: "This is the decision that sank your term. With the rule's move here, you would have made it to the end."
+    },
+    histTitle: "History: what the real central bank did", histChart: "Change in the policy rate since the start (points)", fedKey: "US Federal Reserve",
+    hist: {
+      oil: "As oil prices quadrupled in 1973–74, the Fed raised rates, then cut sharply in 1975 as recession hit, with inflation still high. Inflation came back worse later in the decade. It took Paul Volcker's rate shock of 1979–81 to break it.",
+      crisis: "The Fed cut from 5.25% to nearly zero between September 2007 and December 2008, then began buying bonds on a massive scale. Rates stayed at the floor until the end of 2015.",
+      pandemic: "The Fed cut to zero in March 2020 and bought bonds on an enormous scale. It judged the 2021 inflation 'transitory' and started hiking only in March 2022, then raised rates by 5.25 points in 16 months, the fastest pace since the early 1980s."
+    },
+    histCaveat: "The game's economy is stylised, so compare direction and timing, not levels. The Fed line uses approximate quarterly averages of the federal funds rate."
+  }
+});
+
+Object.assign(G.es, {
+  coach: {
+    label: "Nota del equipo", ok: "Entendido", off: "Desactivar consejos", toggle: "Consejos",
+    tips: {
+      news: "Cada trimestre empieza con las noticias. Los mercados, los políticos y el público reaccionan a los mismos datos que tú, y también las [[expectations|expectativas de inflación]].",
+      front: "Los diarios y sus lectores muestran el ánimo del público. La popularidad le importa al gobierno, y un gobierno impopular presiona al Banco.",
+      map: "El mapa de la economía del equipo técnico. Cambia de capa para ver qué sectores empujan la [[inflation|inflación]] y dónde se pierden empleos. Tu tasa actúa sobre todos a la vez.",
+      fog: "Cuidado: las primeras estimaciones suelen estar erradas y se [[revision|revisan]] en los dos trimestres siguientes. Un departamento de Estadística más fuerte reduce la niebla.",
+      budget: "Una vez al año repartes un pequeño presupuesto entre departamentos. Investigación afina el pronóstico, Estadística reduce los errores de datos y Comunicación da más peso a tus palabras. Las mejoras rigen desde el trimestre siguiente.",
+      calls: "Los políticos van a llamar. No pueden darte órdenes, porque el Banco es [[independence|independiente]], pero ignorarlos sube tu [[heat|riesgo de remoción]].",
+      pressure: "Las barras muestran cuánto presiona el gobierno. Bajar la tasa bajo presión con inflación alta parece obediencia y cuesta [[credibility|credibilidad]].",
+      dilemma: "Una decisión sobre tu escritorio. Rara vez hay una opción gratis: casi todas cambian credibilidad, popularidad y riesgo de remoción entre sí.",
+      advisors: "Tres asesores leen los mismos datos desde escuelas distintas. El que sigue la [[taylor|regla de Taylor]] es también la referencia que usa el juego para dar estrellas.",
+      decide: "Tu herramienta principal es la [[policyRate|tasa de política]]. Subirla enfría el gasto y, con rezago, la inflación; bajarla hace lo contrario. Apunta al 2% de inflación sin destruir empleo.",
+      fan: "El pronóstico del equipo muestra hacia dónde van la inflación y la [[outputGap|brecha del producto]] con la decisión que elijas. Cuanto más ancho el [[fanChart|abanico]], más incierto. Prueba distintas decisiones y mira cómo cambia.",
+      board: "Presides un directorio de cuatro. Si tu propuesta pierde la votación, se aplica la preferida del miembro mediano. Las decisiones extremas terminan rechazadas.",
+      tone: "Las palabras también mueven mercados. La [[forwardGuidance|orientación futura]] cambia las expectativas hoy, pero si rompes tu palabra al trimestre siguiente, la credibilidad sufre.",
+      qe: "La tasa está cerca de su piso, el [[zlb|límite inferior]]. Las [[qe|compras de activos]] todavía pueden bajar las tasas largas y sostener el gasto, con un costo de credibilidad si la inflación es alta.",
+      fx: "En un mercado emergente la moneda pesa mucho: una moneda más débil sube rápido los precios importados ([[passthrough|traspaso]]). Puedes usar [[reserves|reservas]] para sostenerla, pero se agotan.",
+      macro: "El crédito está en auge. Las [[macroprudential|reglas hipotecarias]] enfrían el crédito directamente, sin subir la tasa para todos.",
+      qa: "Cada respuesta a la prensa es una señal. Las respuestas claras y coherentes construyen credibilidad; las promesas que quizá no cumplas son riesgosas.",
+      react: "Los mercados valoran la sorpresa, no la decisión. Si esperaban una suba y subiste, pasa poco. Una sorpresa mueve la moneda, los [[yield10|bonos]] y las acciones.",
+      ledger: "Este balance muestra exactamente por qué se movieron la [[credibility|credibilidad]], la popularidad y el riesgo de remoción. La credibilidad es tu activo más valioso: mantiene las expectativas ancladas cerca del 2%.",
+      heat: "Tu [[heat|riesgo de remoción]] sube. En 100 te despiden. Cooperar lo baja pero cuesta credibilidad: el dilema clásico de la [[independence|independencia]] del banco central.",
+      credit: "El dinero barato alimenta un auge de crédito (mira la [[creditGap|brecha de crédito]]). Los auges pueden terminar en una crisis que golpea a los bancos y al gasto. Vigila la capa Crédito del mapa."
+    }
+  },
+  gloss: {
+    title: "Glosario", close: "Cerrar", sub: "Las ideas detrás del juego, en palabras simples. Haz clic en cualquier término subrayado del juego para abrir su ficha.",
+    terms: {
+      policyRate: ["Tasa de política", "La tasa de interés de corto plazo que fija el banco central. Se transmite a préstamos, hipotecas, ahorros, la moneda y los precios de activos, y de ahí al gasto y a la [[inflation|inflación]]."],
+      inflation: ["Inflación", "El ritmo al que suben los precios, medido en un año. La mayoría de los bancos centrales apunta a cerca de 2%: lo bastante bajo para que la gente la ignore y lo bastante alto para alejarse de la [[deflation|deflación]]."],
+      deflation: ["Deflación", "Precios que caen. Suena bien, pero aumenta el peso real de las deudas y hace que la gente postergue compras. Con la tasa en su [[zlb|límite inferior]], cuesta salir de ella."],
+      outputGap: ["Brecha del producto", "Cuánto está la producción por encima (positiva) o por debajo (negativa) de lo que la economía puede sostener. Una brecha positiva empuja la inflación; una negativa significa empleos e ingresos perdidos."],
+      expectations: ["Expectativas de inflación", "Lo que la gente y las empresas creen que será la inflación. Fijan salarios y precios en base a eso, así que las expectativas se autocumplen. Mantenerlas ancladas en 2% es casi todo el trabajo."],
+      credibility: ["Credibilidad", "Cuánto cree el público que el Banco cumplirá su meta. Con alta credibilidad, las expectativas se quedan cerca del 2% aun después de un shock, y necesitas mover menos la tasa."],
+      taylor: ["Regla de Taylor", "Una guía simple propuesta por John Taylor en 1993: fijar la tasa según cuánto se aleja la inflación de la meta y cuán grande es la [[outputGap|brecha del producto]]. Su núcleo es el principio de Taylor: cuando sube la inflación, sube la tasa en más, para que la [[realRate|tasa real]] aumente."],
+      realRate: ["Tasa de interés real", "La tasa de interés menos la inflación esperada. Es la que realmente importa para el gasto: una tasa de 5% con inflación de 6% sigue siendo dinero barato."],
+      phillips: ["Curva de Phillips", "El vínculo entre la [[outputGap|brecha del producto]] y la inflación: una economía recalentada empuja los precios, una con holgura los contiene. Las [[expectations|expectativas]] desplazan toda la curva."],
+      forwardGuidance: ["Orientación futura", "Decirle al público lo que probablemente hará el Banco. Funciona a través de las [[expectations|expectativas]], pero solo si la gente la cree, y romperla cuesta [[credibility|credibilidad]]."],
+      qe: ["Compras de activos (QE)", "Comprar bonos del gobierno con dinero nuevo del banco central. Baja las tasas de largo plazo cuando la tasa de política no puede bajar más. Se usó a gran escala después de 2008 y en 2020."],
+      zlb: ["Límite inferior", "El piso bajo el cual la tasa de política no puede bajar con utilidad, cerca de cero. Cuando una recesión es tan profunda que pediría tasas negativas, el banco central necesita otras herramientas, como las [[qe|compras de activos]]."],
+      passthrough: ["Traspaso cambiario", "Cuánto de un cambio en la moneda se refleja en los precios. Es mucho mayor en mercados emergentes, donde muchos bienes son importados o se fijan en dólares."],
+      reserves: ["Reservas internacionales", "El stock de moneda extranjera del banco central. Puede venderlas para sostener su moneda en un pánico, pero solo hasta que se agoten."],
+      suddenStop: ["Parada súbita", "Cuando los inversores extranjeros dejan de prestarle a un país de golpe. La moneda cae, el costo de endeudarse salta y el gasto se desploma. Una crisis clásica de mercados emergentes."],
+      macroprudential: ["Reglas macroprudenciales", "Límites dirigidos al sistema financiero en su conjunto, como topes al tamaño de las hipotecas respecto del ingreso o del valor de la vivienda. Apuntan a un auge de crédito sin subir la tasa para todos."],
+      creditGap: ["Brecha de crédito", "Cuánto creció el crédito por encima de su tendencia normal. Una brecha grande precedió a la mayoría de las crisis bancarias, incluida la de 2008."],
+      independence: ["Independencia del banco central", "La protección del Banco frente a órdenes políticas del día a día, para que pueda resistir la tentación de estimular antes de las elecciones o de financiar al gobierno imprimiendo dinero."],
+      fiscalDominance: ["Dominancia fiscal", "Cuando las deudas del gobierno obligan al banco central a mantener tasas bajas o imprimir dinero para pagarlas. Se pierde el control de la inflación. Negarse a financiar al Tesoro protege contra ella."],
+      dualMandate: ["Mandato dual", "La obligación legal de perseguir a la vez precios estables y máximo empleo, como la Reserva Federal de EE. UU. La mayoría de los otros bancos centrales pone primero la estabilidad de precios."],
+      supplyShock: ["Shock de oferta", "Un hecho que cambia lo que la economía puede producir, como un embargo petrolero. Sube la inflación y baja la producción a la vez: el caso más difícil para un banco central."],
+      demandShock: ["Shock de demanda", "Un cambio brusco en el gasto, como un pánico financiero o un auge. La inflación y la producción se mueven en la misma dirección, así que la respuesta correcta es más clara."],
+      revision: ["Revisión de datos", "Las estadísticas oficiales se estiman rápido y se corrigen después, al llegar más información. El Banco debe decidir con números que pueden resultar equivocados."],
+      fanChart: ["Gráfico de abanico", "Un pronóstico dibujado como una banda que se ensancha: la línea central es el camino más probable y el abanico sombreado muestra el rango de resultados posibles. Lo popularizó el Banco de Inglaterra."],
+      heat: ["Riesgo de remoción", "En el juego, cuán cerca está el gobierno de despedirte. En la realidad rara vez se despide a una autoridad monetaria, pero la presión política sobre los bancos centrales es muy real."],
+      yield10: ["Rendimiento del bono a 10 años", "La tasa de interés de la deuda pública de largo plazo. Refleja las tasas de política esperadas más una prima de riesgo, y determina el costo de las hipotecas y del crédito a empresas."]
+    }
+  },
+  debrief: {
+    btn: "Análisis", title: "Análisis del mandato", back: "Volver a los resultados",
+    sub: "Qué pasó, y qué habría hecho una autoridad que siempre siguiera la regla, con exactamente los mismos shocks.",
+    rateTitle: "Tasa de política", inflTitle: "Inflación", you: "Tú", rule: "Autoridad que sigue la regla",
+    stats: { onTarget: (n, N) => `Inflación a menos de 1 punto de la meta en ${n} de ${N} trimestres`, followed: (n, N) => `Seguiste la regla de Taylor en ${n} de ${N} trimestres`, cred: (a, b) => `Credibilidad ${a} → ${b}` },
+    momentsTitle: "Las decisiones que más pesaron",
+    momentsNote: "Cada impacto repite tu mandato dos veces desde ese trimestre, una con tu decisión y otra con la de la regla, manteniendo tus tasas en todos los demás. La diferencia es lo que valió esa decisión.",
+    noMoments: "Seguiste la regla todos los trimestres. Tu resultado frente a la referencia vino de la prensa, el presupuesto y las decisiones de tu escritorio.",
+    moment: (you, rule) => `Tú: ${you} · Regla: ${rule}`, overruled: asked => `El directorio rechazó tu propuesta (${asked}).`, saw: (pi, x) => `Lo que veías: inflación ${pi}, brecha ${x}`,
+    impact: v => (v > 0 ? `+${v} puntos` : `${v} puntos`), impactSame: "Casi igual", keptJob: "Te mantuvo en el cargo", lostJob: "Te costó el cargo",
+    caved: " Además bajaste la tasa bajo presión política, lo que costó [[credibility|credibilidad]].",
+    lessons: {
+      easeHighHurt: "Aflojar con la inflación sobre la meta dejó que las [[expectations|expectativas]] subieran. El principio de Taylor: cuando sube la inflación, sube la tasa en más, para que la [[realRate|tasa real]] aumente.",
+      easeHighHelp: "Aflojar pese a la inflación alta funcionó aquí, probablemente porque el shock era de oferta o pasajero. Mirar a través de un [[supplyShock|shock de oferta]] puede funcionar si la [[credibility|credibilidad]] mantiene ancladas las expectativas.",
+      easeHurt: "Bajar más que la regla recalentó la economía: la [[phillips|curva de Phillips]] convierte una [[outputGap|brecha]] positiva en más inflación un trimestre después.",
+      easeHelp: "Bajar más que la regla le dio a la economía el apoyo que necesitaba sin desanclar las expectativas. Aquí tu criterio le ganó a la fórmula.",
+      tightLowHurt: "Endurecer con la economía débil amplió la [[outputGap|brecha del producto]] y alejó aún más la inflación de la meta. En una recesión la regla tiende a bajar la tasa.",
+      tightLowHelp: "Endurecer antes de que los datos lo confirmaran funcionó. La política actúa con rezago; por eso actuar según el [[fanChart|pronóstico]] y no según los datos de hoy puede ser lo correcto.",
+      tightHurt: "Subir más que la regla costó producción y popularidad sin ganar mucho en inflación. El exceso también tiene precio.",
+      tightHelp: "Subir más que la regla ancló las expectativas más rápido. Un Banco firme y creíble puede bajar la inflación a un costo menor después.",
+      same: "Esta decisión casi no cambió tu puntaje: la economía habría terminado en un lugar parecido de cualquier forma.",
+      ruleLost: "Seguir la regla aquí te habría costado el cargo más adelante: el gobierno ya estaba cerca de removerte. Sobrevivir a veces exige ceder, y por eso importa la [[independence|independencia]].",
+      youLost: "Esta es la decisión que hundió tu mandato. Con la decisión de la regla aquí, habrías llegado al final."
+    },
+    histTitle: "Historia: lo que hizo el banco central real", histChart: "Cambio en la tasa de política desde el inicio (puntos)", fedKey: "Reserva Federal de EE. UU.",
+    hist: {
+      oil: "Cuando el petróleo se cuadruplicó en 1973–74, la Fed subió las tasas y luego las bajó con fuerza en 1975 ante la recesión, con la inflación todavía alta. La inflación volvió peor al final de la década. Hizo falta el shock de tasas de Paul Volcker en 1979–81 para quebrarla.",
+      crisis: "La Fed bajó la tasa de 5,25% a casi cero entre septiembre de 2007 y diciembre de 2008, y luego empezó a comprar bonos a escala masiva. Las tasas quedaron en el piso hasta fines de 2015.",
+      pandemic: "La Fed bajó a cero en marzo de 2020 y compró bonos a una escala enorme. Consideró 'transitoria' la inflación de 2021 y empezó a subir recién en marzo de 2022; luego subió 5,25 puntos en 16 meses, el ritmo más rápido desde comienzos de los ochenta."
+    },
+    histCaveat: "La economía del juego es estilizada: compara dirección y momento, no niveles. La línea de la Fed usa promedios trimestrales aproximados de la tasa de fondos federales."
+  }
+});

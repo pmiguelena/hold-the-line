@@ -5,10 +5,10 @@ function beginQuarter() {
   resetStage(); drawRoom(); renderHUD(s, null, prep.t);
   const list = [quarterCard, newsBeat, frontPageBeat, mapBeat];
   if (prep.budget) list.push(budgetBeat);
-  calls(s, prep).forEach((c, k) => list.push(() => callBeat(c, k)));
+  calls(s, prep).forEach((c, k) => list.push(() => { callBeat(c, k); coach([c.pres && prep.pressure && "pressure", "calls"]); }));
   if (prep.dilemma || prep.gd) list.push(dilemmaBeat);
   list.push(advisorsBeat, decideBeat);
-  play(list.map(fn => { const b = () => fn(); b.ov = fn === quarterCard; return b; }));
+  play(list.map(fn => { const b = () => { fn(); coachFor(fn); }; b.ov = fn === quarterCard; return b; }));
 }
 
 function quarterCard() {
@@ -187,14 +187,14 @@ function announce() {
   if (draft.move == null || ((prep.dilemma || prep.gd) && draft.choice == null)) return;
   Sound.stamp(); game.nudge = null;
   const inp = { move: draft.move, tone: draft.tone, choice: prep.dilemma || prep.gd ? draft.choice : null, qe: prep.qe ? draft.qe || 0 : 0, qa: null, buy: prep.budget ? draft.buy.slice() : [], macro: prep.canMacro ? !!draft.macro : false, fx: prep.fxTool ? draft.fx || 0 : 0 };
-  play([() => presserBeat(inp), () => qaBeat(inp)]);
+  play([() => presserBeat(inp), () => { qaBeat(inp); coach(["qa"]); }]);
 }
 function afterQA(inp) {
   advance(inp);
   const r = lastReport(), list = [reactionBeat, falloutBeat];
   if (r.election) list.push(electionBeat);
   list.push(() => { if (over()) endLevel(false); else beginQuarter(); });
-  play(list.map(fn => { const b = () => fn(r); b.ov = fn === electionBeat; return b; }));
+  play(list.map(fn => { const b = () => { fn(r); coachFor(fn, r); }; b.ov = fn === electionBeat; return b; }));
 }
 
 function presserBeat(inp) {

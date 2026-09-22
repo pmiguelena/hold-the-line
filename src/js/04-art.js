@@ -217,7 +217,7 @@ function chartSVG(o, qLabel) {
   if (lo < 0 && hi > 0) s += `<line x1="${ml}" x2="${W - mr}" y1="${Y(0)}" y2="${Y(0)}" stroke="#fff" stroke-opacity=".3"/>`;
   (o.refs || []).forEach(v => { s += `<line x1="${ml}" x2="${W - mr}" y1="${Y(v)}" y2="${Y(v)}" stroke="#fff" stroke-opacity=".3" stroke-dasharray="3 4"/>`; });
   s += `<line x1="${X(M.election)}" x2="${X(M.election)}" y1="${mt - 4}" y2="${H - mb}" stroke="#F2B650" stroke-opacity=".55" stroke-dasharray="3 4"/><text x="${X(M.election) + 4}" y="${mt - 5}" font-size="10" fill="#F2B650" font-family="Archivo, sans-serif">${esc(g().electionMark)}</text>`;
-  [0, Math.round(N / 3), Math.round((2 * N) / 3), N].forEach(k => { s += `<text x="${X(k)}" y="${H - 6}" text-anchor="${k === 0 ? "start" : k === 12 ? "end" : "middle"}" font-size="10.5" fill="#9AA4BD" font-family="Archivo, sans-serif">${qLabel(k)}</text>`; });
+  [0, Math.round(N / 3), Math.round((2 * N) / 3), N].forEach(k => { s += `<text x="${X(k)}" y="${H - 6}" text-anchor="${k === 0 ? "start" : k === N ? "end" : "middle"}" font-size="10.5" fill="#9AA4BD" font-family="Archivo, sans-serif">${qLabel(k)}</text>`; });
   o.series.forEach((se, k) => {
     const v = se.values;
     if (se.bars) {

@@ -62,6 +62,7 @@ export function playThrough(d, { level, lang = "en", hard = false, em = false, a
       let b;
       while ((b = P.querySelector("[data-buy]:not(:disabled)"))) { b.click(); seen.buys = (seen.buys || 0) + 1; }
     }
+    if (P.querySelector(".coach")) seen.coach = (seen.coach || 0) + 1;
     if (P.querySelector(".board .bm")) seen.boards = (seen.boards || 0) + 1;
     if (P.querySelector(".paper")) seen.fronts++;
     if (P.querySelector(".emap")) {

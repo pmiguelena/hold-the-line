@@ -449,6 +449,42 @@ svg.chart{width:100%;height:auto;display:block}
 table.hof{width:100%;border-collapse:collapse;font-size:14px;text-align:left}
 table.hof th{font:700 11.5px var(--f-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:6px 10px;border-bottom:1px solid var(--line-2)}
 table.hof td{padding:7px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* teaching layer */
+.coach{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px 14px;align-items:center;padding:12px 14px;margin-bottom:12px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(242,182,80,.14),rgba(242,182,80,.04));box-shadow:inset 0 0 0 1px rgba(242,182,80,.38);animation:coachIn .35s ease-out}
+.coach-ic{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:rgba(242,182,80,.14)}
+.coach-body b{font:700 11.5px var(--f-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--amber)}
+.coach-body p{margin:3px 0 0;font-size:15px;line-height:1.45;color:#E4E8F1}
+.coach-btns{display:flex;flex-direction:column;gap:6px}
+@media (max-width:760px){.coach{grid-template-columns:auto minmax(0,1fr)}.coach-btns{grid-column:1 / -1;flex-direction:row;justify-content:flex-end}}
+@keyframes coachIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.term{all:unset;cursor:pointer;color:inherit;font:inherit;text-decoration:underline;text-decoration-style:dotted;text-decoration-color:var(--amber);text-underline-offset:3px;text-decoration-thickness:1.5px}
+.term:hover{color:var(--amber)} .term:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:3px}
+.term-pop{position:fixed;z-index:9999;left:50%;bottom:24px;transform:translateX(-50%);width:min(440px,calc(100vw - 32px));padding:14px 16px 16px;border-radius:16px;
+  background:#1D2844;color:var(--text);box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 0 0 1px rgba(242,182,80,.45);text-align:left;animation:coachIn .2s ease-out}
+.term-pop header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px}
+.term-pop header b{font:700 17px var(--f-ui);color:var(--amber)}
+.term-pop p{margin:0;font-size:15px;line-height:1.5;color:#E4E8F1}
+.term-x{all:unset;cursor:pointer;width:30px;height:30px;display:grid;place-items:center;border-radius:50%;font-size:20px;color:var(--muted)}
+.term-x:hover,.term-x:focus-visible{background:rgba(255,255,255,.08);color:var(--text)}
+dl.gloss{width:100%;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:10px;text-align:left}
+dl.gloss>div{padding:12px 14px;border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+dl.gloss dt{font-weight:700;color:var(--amber);margin-bottom:4px}
+dl.gloss dd{margin:0;font-size:14.5px;line-height:1.5;color:#D5DAE6}
+.db-stats{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.db-stats span{padding:7px 12px;border-radius:99px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:14px;font-weight:600}
+.db-charts{grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))!important;width:100%}
+.db-sec{width:100%;display:grid;gap:10px;text-align:left}
+.moments{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px}
+.moment{display:grid;gap:5px;align-content:start;padding:12px 14px;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-top:3px solid var(--muted)}
+.moment.pos{border-top-color:var(--green)} .moment.neg{border-top-color:var(--red)}
+.moment header{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.moment small{color:var(--muted);font-size:13px}
+.moment p{margin:4px 0 0;font-size:14.5px;line-height:1.5;color:#D5DAE6}
+.pill.pos{background:rgba(63,182,139,.16);color:var(--green)} .pill.neg{background:rgba(229,72,77,.16);color:var(--red)}
+.db-hist{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;align-items:center}
+.db-hist .interlude{margin:0;font-size:16.5px}
+@media (max-width:760px){.db-hist{grid-template-columns:minmax(0,1fr)}}
 </style>
 <div class="shell">
   <div id="frame">
@@ -1574,6 +1610,190 @@ G.es = {
 const LEVEL_ORDER = ["random", "pandemic", "crisis", "oil"];
 const ADV_ID = { keynes: "harrow", friedman: "weiss", taylor: "okafor" };
 
+/* ═══════════════ TEACHING TEXT (EN/ES) ═══════════════ */
+Object.assign(G.en, {
+  coach: {
+    label: "Staff note", ok: "Got it", off: "Turn tips off", toggle: "Tips",
+    tips: {
+      news: "Each quarter opens with the news. Markets, politicians and the public react to the same data you see, and so do [[expectations|inflation expectations]].",
+      front: "The papers and their readers show how the public feels. Popularity matters to the government, and an unpopular government leans on the Bank.",
+      map: "The staff's map of the economy. Switch layers to see which sectors drive [[inflation|inflation]] and where jobs are being lost. Your rate works on all of them at once.",
+      fog: "Careful: first estimates are often wrong and get [[revision|revised]] over the next two quarters. A stronger Statistics department reduces the fog.",
+      budget: "Once a year you split a small budget between departments. Research sharpens the forecast, Statistics cuts data errors, Communications makes your words carry more weight. Upgrades work from next quarter.",
+      calls: "Politicians will call. They cannot give you orders, because the Bank is [[independence|independent]], but ignoring them raises your [[heat|removal risk]].",
+      pressure: "The bars show how hard the government is pushing. Cutting under pressure while inflation is high looks like obedience, and costs [[credibility|credibility]].",
+      dilemma: "A decision on your desk. There is rarely a free option: most choices trade credibility, popularity and removal risk against each other.",
+      advisors: "Three advisors read the same data through different schools of thought. The one who follows the [[taylor|Taylor rule]] is also the benchmark the game uses to award stars.",
+      decide: "Your main tool is the [[policyRate|policy rate]]. Raising it cools spending and, with a lag, inflation; cutting it does the reverse. Aim for 2% inflation without wrecking jobs.",
+      fan: "The staff forecast shows where inflation and the [[outputGap|output gap]] are heading under the move you pick. The wider the [[fanChart|fan]], the less certain it is. Try different moves and watch it change.",
+      board: "You chair a board of four. If your proposal loses the vote, the median member's preferred move is carried out instead. Extreme moves get overruled.",
+      tone: "Words move markets too. [[forwardGuidance|Forward guidance]] shifts expectations today, but if you break your word next quarter, credibility suffers.",
+      qe: "The rate is close to its floor, the [[zlb|lower bound]]. [[qe|Asset purchases]] can still push long-term rates down and support spending, at a credibility cost if inflation is high.",
+      fx: "In an emerging market the currency matters a lot: a weaker currency raises import prices fast ([[passthrough|pass-through]]). You can spend [[reserves|reserves]] to support it, but reserves run out.",
+      macro: "Credit is booming. [[macroprudential|Mortgage rules]] cool lending directly, without raising the rate for everyone.",
+      qa: "Every answer to the press is a signal. Clear, consistent answers build credibility; promises you may not keep are risky.",
+      react: "Markets price the surprise, not the move. If they expected a hike and you hiked, little happens. A surprise moves the currency, [[yield10|bond yields]] and stocks.",
+      ledger: "This ledger shows exactly why [[credibility|credibility]], popularity and removal risk moved. Credibility is your most valuable asset: it keeps expectations anchored near 2%.",
+      heat: "Your [[heat|removal risk]] is climbing. At 100 you are fired. Cooperating lowers it but costs credibility: the classic dilemma of central bank [[independence|independence]].",
+      credit: "Cheap money is fuelling a credit boom (see the [[creditGap|credit gap]]). Booms can end in a bust that hits banks and spending. Watch the Credit layer of the map."
+    }
+  },
+  gloss: {
+    title: "Glossary", close: "Close", sub: "The ideas behind the game, in plain words. Click any underlined term in the game to open its card.",
+    terms: {
+      policyRate: ["Policy rate", "The short-term interest rate the central bank sets. It feeds through to loans, mortgages, savings, the currency and asset prices, and from there to spending and [[inflation|inflation]]."],
+      inflation: ["Inflation", "The rate at which prices rise, measured over a year. Most central banks aim for about 2%: low enough that people can ignore it, high enough to stay clear of [[deflation|deflation]]."],
+      deflation: ["Deflation", "Falling prices. It sounds pleasant, but it raises the real burden of debt and makes people delay spending. With the rate at its [[zlb|lower bound]], it is hard to escape."],
+      outputGap: ["Output gap", "How far production is above (positive) or below (negative) what the economy can sustain. A positive gap pushes inflation up; a negative gap means lost jobs and income."],
+      expectations: ["Inflation expectations", "What people and firms think inflation will be. They set wages and prices on that basis, so expectations become self-fulfilling. Keeping them anchored at 2% is most of the job."],
+      credibility: ["Credibility", "How much the public believes the Bank will hit its target. With high credibility, expectations stay near 2% even after a shock, so you need smaller rate moves."],
+      taylor: ["Taylor rule", "A simple guide proposed by John Taylor in 1993: set the rate according to how far inflation is from target and how big the [[outputGap|output gap]] is. Its core is the Taylor principle: when inflation rises, raise the rate by more, so the [[realRate|real rate]] goes up."],
+      realRate: ["Real interest rate", "The interest rate minus expected inflation. It is what actually matters for spending: a 5% rate with 6% inflation is still cheap money."],
+      phillips: ["Phillips curve", "The link between the [[outputGap|output gap]] and inflation: a hot economy with a positive gap pushes prices up, a slack one holds them down. [[expectations|Expectations]] shift the whole curve."],
+      forwardGuidance: ["Forward guidance", "Telling the public what the Bank is likely to do next. It works through [[expectations|expectations]], but only if people believe it, and breaking it costs [[credibility|credibility]]."],
+      qe: ["Asset purchases (QE)", "Buying government bonds with newly created central bank money. It lowers long-term interest rates when the policy rate cannot go lower. Used on a large scale after 2008 and in 2020."],
+      zlb: ["Lower bound", "The floor below which the policy rate cannot usefully fall, near zero. When a slump is deep enough to need negative rates, the central bank needs other tools such as [[qe|asset purchases]]."],
+      passthrough: ["Exchange-rate pass-through", "How much a change in the currency shows up in prices. Much higher in emerging markets, where many goods are imported or priced in dollars."],
+      reserves: ["Foreign reserves", "The central bank's stock of foreign currency. It can sell reserves to support its own currency in a panic, but only until they run out."],
+      suddenStop: ["Sudden stop", "When foreign investors stop lending to a country all at once. The currency falls, borrowing costs jump and spending collapses. A classic emerging-market crisis."],
+      macroprudential: ["Macroprudential rules", "Limits aimed at the financial system as a whole, such as caps on mortgage size relative to income or home value. They target a credit boom without raising the rate for everyone."],
+      creditGap: ["Credit gap", "How far lending has grown beyond its normal trend. A large gap has preceded most banking crises, including 2008."],
+      independence: ["Central bank independence", "Protection of the Bank from day-to-day political orders, so it can resist the temptation to stimulate before elections or finance the government by printing money."],
+      fiscalDominance: ["Fiscal dominance", "When a government's debts force the central bank to keep rates low or print money to pay for them. Inflation control is lost. Refusing to finance the Treasury protects against it."],
+      dualMandate: ["Dual mandate", "A legal duty to pursue both stable prices and maximum employment, as the US Federal Reserve has. Most other central banks put price stability first."],
+      supplyShock: ["Supply shock", "An event that changes what the economy can produce, such as an oil embargo. It pushes inflation up and output down at the same time: the hardest case for a central bank."],
+      demandShock: ["Demand shock", "A sudden change in spending, such as a financial panic or a boom. Inflation and output move in the same direction, so the right response is clearer."],
+      revision: ["Data revision", "Official statistics are estimated fast and corrected later as more information arrives. The Bank must decide on numbers that may turn out to be wrong."],
+      fanChart: ["Fan chart", "A forecast drawn as a widening band: the central line is the most likely path, the shaded fan shows the range of plausible outcomes. Popularised by the Bank of England."],
+      heat: ["Removal risk", "In the game, how close the government is to firing you. Real governors are rarely fired, but political pressure on central banks is very real."],
+      yield10: ["10-year bond yield", "The interest rate on long-term government debt. It reflects expected future policy rates plus a risk premium, and it sets mortgage and business borrowing costs."]
+    }
+  },
+  debrief: {
+    btn: "Debrief", title: "Debrief", back: "Back to results",
+    sub: "What happened, and what a governor who always followed the rule would have done with exactly the same shocks.",
+    rateTitle: "Policy rate", inflTitle: "Inflation", you: "You", rule: "Rule-following governor",
+    stats: { onTarget: (n, N) => `Inflation within 1 point of target in ${n} of ${N} quarters`, followed: (n, N) => `You followed the Taylor rule in ${n} of ${N} quarters`, cred: (a, b) => `Credibility ${a} → ${b}` },
+    momentsTitle: "The decisions that mattered most",
+    momentsNote: "Each impact replays your term twice from that quarter, once with your move and once with the rule's, keeping your rates in every other quarter. The difference is what that one decision was worth.",
+    noMoments: "You followed the rule every quarter. Your result against the benchmark came from the press, the budget and the decisions on your desk.",
+    moment: (you, rule) => `You: ${you} · Rule: ${rule}`, overruled: asked => `The board overruled your proposal (${asked}).`, saw: (pi, x) => `What you saw: inflation ${pi}, output gap ${x}`,
+    impact: v => (v > 0 ? `+${v} points` : `${v} points`), impactSame: "About the same", keptJob: "Kept you in office", lostJob: "Cost you the job",
+    caved: " You also cut under political pressure, which cost [[credibility|credibility]].",
+    lessons: {
+      easeHighHurt: "Easing with inflation above target let [[expectations|expectations]] drift up. The Taylor principle: when inflation rises, raise the rate by more, so the [[realRate|real rate]] goes up.",
+      easeHighHelp: "Easing despite high inflation paid off here, probably because the shock hit supply or was passing. Looking through a [[supplyShock|supply shock]] can work if [[credibility|credibility]] keeps expectations anchored.",
+      easeHurt: "Cutting more than the rule overheated the economy: the [[phillips|Phillips curve]] turns a positive [[outputGap|gap]] into higher inflation a quarter later.",
+      easeHelp: "Cutting more than the rule gave the economy support it needed without unanchoring expectations. Your judgement beat the formula here.",
+      tightLowHurt: "Tightening into a weak economy widened the [[outputGap|output gap]] and pulled inflation further below target. In a slump the rule leans towards cutting.",
+      tightLowHelp: "Tightening before the data confirmed it paid off. Policy works with a lag, which is why acting on the [[fanChart|forecast]] rather than today's numbers can be right.",
+      tightHurt: "Hiking more than the rule cost output and popularity without much gain on inflation. Overkill has a price too.",
+      tightHelp: "Hiking more than the rule anchored expectations faster. A firm, credible Bank can bring inflation down at a lower cost later.",
+      same: "This one made little difference to your score: the economy would have ended up in a similar place either way.",
+      ruleLost: "Following the rule here would have cost you the job later in the term: the government was already close to removing you. Survival sometimes takes compromise, which is exactly why [[independence|independence]] matters.",
+      youLost: "This is the decision that sank your term. With the rule's move here, you would have made it to the end."
+    },
+    histTitle: "History: what the real central bank did", histChart: "Change in the policy rate since the start (points)", fedKey: "US Federal Reserve",
+    hist: {
+      oil: "As oil prices quadrupled in 1973–74, the Fed raised rates, then cut sharply in 1975 as recession hit, with inflation still high. Inflation came back worse later in the decade. It took Paul Volcker's rate shock of 1979–81 to break it.",
+      crisis: "The Fed cut from 5.25% to nearly zero between September 2007 and December 2008, then began buying bonds on a massive scale. Rates stayed at the floor until the end of 2015.",
+      pandemic: "The Fed cut to zero in March 2020 and bought bonds on an enormous scale. It judged the 2021 inflation 'transitory' and started hiking only in March 2022, then raised rates by 5.25 points in 16 months, the fastest pace since the early 1980s."
+    },
+    histCaveat: "The game's economy is stylised, so compare direction and timing, not levels. The Fed line uses approximate quarterly averages of the federal funds rate."
+  }
+});
+
+Object.assign(G.es, {
+  coach: {
+    label: "Nota del equipo", ok: "Entendido", off: "Desactivar consejos", toggle: "Consejos",
+    tips: {
+      news: "Cada trimestre empieza con las noticias. Los mercados, los políticos y el público reaccionan a los mismos datos que tú, y también las [[expectations|expectativas de inflación]].",
+      front: "Los diarios y sus lectores muestran el ánimo del público. La popularidad le importa al gobierno, y un gobierno impopular presiona al Banco.",
+      map: "El mapa de la economía del equipo técnico. Cambia de capa para ver qué sectores empujan la [[inflation|inflación]] y dónde se pierden empleos. Tu tasa actúa sobre todos a la vez.",
+      fog: "Cuidado: las primeras estimaciones suelen estar erradas y se [[revision|revisan]] en los dos trimestres siguientes. Un departamento de Estadística más fuerte reduce la niebla.",
+      budget: "Una vez al año repartes un pequeño presupuesto entre departamentos. Investigación afina el pronóstico, Estadística reduce los errores de datos y Comunicación da más peso a tus palabras. Las mejoras rigen desde el trimestre siguiente.",
+      calls: "Los políticos van a llamar. No pueden darte órdenes, porque el Banco es [[independence|independiente]], pero ignorarlos sube tu [[heat|riesgo de remoción]].",
+      pressure: "Las barras muestran cuánto presiona el gobierno. Bajar la tasa bajo presión con inflación alta parece obediencia y cuesta [[credibility|credibilidad]].",
+      dilemma: "Una decisión sobre tu escritorio. Rara vez hay una opción gratis: casi todas cambian credibilidad, popularidad y riesgo de remoción entre sí.",
+      advisors: "Tres asesores leen los mismos datos desde escuelas distintas. El que sigue la [[taylor|regla de Taylor]] es también la referencia que usa el juego para dar estrellas.",
+      decide: "Tu herramienta principal es la [[policyRate|tasa de política]]. Subirla enfría el gasto y, con rezago, la inflación; bajarla hace lo contrario. Apunta al 2% de inflación sin destruir empleo.",
+      fan: "El pronóstico del equipo muestra hacia dónde van la inflación y la [[outputGap|brecha del producto]] con la decisión que elijas. Cuanto más ancho el [[fanChart|abanico]], más incierto. Prueba distintas decisiones y mira cómo cambia.",
+      board: "Presides un directorio de cuatro. Si tu propuesta pierde la votación, se aplica la preferida del miembro mediano. Las decisiones extremas terminan rechazadas.",
+      tone: "Las palabras también mueven mercados. La [[forwardGuidance|orientación futura]] cambia las expectativas hoy, pero si rompes tu palabra al trimestre siguiente, la credibilidad sufre.",
+      qe: "La tasa está cerca de su piso, el [[zlb|límite inferior]]. Las [[qe|compras de activos]] todavía pueden bajar las tasas largas y sostener el gasto, con un costo de credibilidad si la inflación es alta.",
+      fx: "En un mercado emergente la moneda pesa mucho: una moneda más débil sube rápido los precios importados ([[passthrough|traspaso]]). Puedes usar [[reserves|reservas]] para sostenerla, pero se agotan.",
+      macro: "El crédito está en auge. Las [[macroprudential|reglas hipotecarias]] enfrían el crédito directamente, sin subir la tasa para todos.",
+      qa: "Cada respuesta a la prensa es una señal. Las respuestas claras y coherentes construyen credibilidad; las promesas que quizá no cumplas son riesgosas.",
+      react: "Los mercados valoran la sorpresa, no la decisión. Si esperaban una suba y subiste, pasa poco. Una sorpresa mueve la moneda, los [[yield10|bonos]] y las acciones.",
+      ledger: "Este balance muestra exactamente por qué se movieron la [[credibility|credibilidad]], la popularidad y el riesgo de remoción. La credibilidad es tu activo más valioso: mantiene las expectativas ancladas cerca del 2%.",
+      heat: "Tu [[heat|riesgo de remoción]] sube. En 100 te despiden. Cooperar lo baja pero cuesta credibilidad: el dilema clásico de la [[independence|independencia]] del banco central.",
+      credit: "El dinero barato alimenta un auge de crédito (mira la [[creditGap|brecha de crédito]]). Los auges pueden terminar en una crisis que golpea a los bancos y al gasto. Vigila la capa Crédito del mapa."
+    }
+  },
+  gloss: {
+    title: "Glosario", close: "Cerrar", sub: "Las ideas detrás del juego, en palabras simples. Haz clic en cualquier término subrayado del juego para abrir su ficha.",
+    terms: {
+      policyRate: ["Tasa de política", "La tasa de interés de corto plazo que fija el banco central. Se transmite a préstamos, hipotecas, ahorros, la moneda y los precios de activos, y de ahí al gasto y a la [[inflation|inflación]]."],
+      inflation: ["Inflación", "El ritmo al que suben los precios, medido en un año. La mayoría de los bancos centrales apunta a cerca de 2%: lo bastante bajo para que la gente la ignore y lo bastante alto para alejarse de la [[deflation|deflación]]."],
+      deflation: ["Deflación", "Precios que caen. Suena bien, pero aumenta el peso real de las deudas y hace que la gente postergue compras. Con la tasa en su [[zlb|límite inferior]], cuesta salir de ella."],
+      outputGap: ["Brecha del producto", "Cuánto está la producción por encima (positiva) o por debajo (negativa) de lo que la economía puede sostener. Una brecha positiva empuja la inflación; una negativa significa empleos e ingresos perdidos."],
+      expectations: ["Expectativas de inflación", "Lo que la gente y las empresas creen que será la inflación. Fijan salarios y precios en base a eso, así que las expectativas se autocumplen. Mantenerlas ancladas en 2% es casi todo el trabajo."],
+      credibility: ["Credibilidad", "Cuánto cree el público que el Banco cumplirá su meta. Con alta credibilidad, las expectativas se quedan cerca del 2% aun después de un shock, y necesitas mover menos la tasa."],
+      taylor: ["Regla de Taylor", "Una guía simple propuesta por John Taylor en 1993: fijar la tasa según cuánto se aleja la inflación de la meta y cuán grande es la [[outputGap|brecha del producto]]. Su núcleo es el principio de Taylor: cuando sube la inflación, sube la tasa en más, para que la [[realRate|tasa real]] aumente."],
+      realRate: ["Tasa de interés real", "La tasa de interés menos la inflación esperada. Es la que realmente importa para el gasto: una tasa de 5% con inflación de 6% sigue siendo dinero barato."],
+      phillips: ["Curva de Phillips", "El vínculo entre la [[outputGap|brecha del producto]] y la inflación: una economía recalentada empuja los precios, una con holgura los contiene. Las [[expectations|expectativas]] desplazan toda la curva."],
+      forwardGuidance: ["Orientación futura", "Decirle al público lo que probablemente hará el Banco. Funciona a través de las [[expectations|expectativas]], pero solo si la gente la cree, y romperla cuesta [[credibility|credibilidad]]."],
+      qe: ["Compras de activos (QE)", "Comprar bonos del gobierno con dinero nuevo del banco central. Baja las tasas de largo plazo cuando la tasa de política no puede bajar más. Se usó a gran escala después de 2008 y en 2020."],
+      zlb: ["Límite inferior", "El piso bajo el cual la tasa de política no puede bajar con utilidad, cerca de cero. Cuando una recesión es tan profunda que pediría tasas negativas, el banco central necesita otras herramientas, como las [[qe|compras de activos]]."],
+      passthrough: ["Traspaso cambiario", "Cuánto de un cambio en la moneda se refleja en los precios. Es mucho mayor en mercados emergentes, donde muchos bienes son importados o se fijan en dólares."],
+      reserves: ["Reservas internacionales", "El stock de moneda extranjera del banco central. Puede venderlas para sostener su moneda en un pánico, pero solo hasta que se agoten."],
+      suddenStop: ["Parada súbita", "Cuando los inversores extranjeros dejan de prestarle a un país de golpe. La moneda cae, el costo de endeudarse salta y el gasto se desploma. Una crisis clásica de mercados emergentes."],
+      macroprudential: ["Reglas macroprudenciales", "Límites dirigidos al sistema financiero en su conjunto, como topes al tamaño de las hipotecas respecto del ingreso o del valor de la vivienda. Apuntan a un auge de crédito sin subir la tasa para todos."],
+      creditGap: ["Brecha de crédito", "Cuánto creció el crédito por encima de su tendencia normal. Una brecha grande precedió a la mayoría de las crisis bancarias, incluida la de 2008."],
+      independence: ["Independencia del banco central", "La protección del Banco frente a órdenes políticas del día a día, para que pueda resistir la tentación de estimular antes de las elecciones o de financiar al gobierno imprimiendo dinero."],
+      fiscalDominance: ["Dominancia fiscal", "Cuando las deudas del gobierno obligan al banco central a mantener tasas bajas o imprimir dinero para pagarlas. Se pierde el control de la inflación. Negarse a financiar al Tesoro protege contra ella."],
+      dualMandate: ["Mandato dual", "La obligación legal de perseguir a la vez precios estables y máximo empleo, como la Reserva Federal de EE. UU. La mayoría de los otros bancos centrales pone primero la estabilidad de precios."],
+      supplyShock: ["Shock de oferta", "Un hecho que cambia lo que la economía puede producir, como un embargo petrolero. Sube la inflación y baja la producción a la vez: el caso más difícil para un banco central."],
+      demandShock: ["Shock de demanda", "Un cambio brusco en el gasto, como un pánico financiero o un auge. La inflación y la producción se mueven en la misma dirección, así que la respuesta correcta es más clara."],
+      revision: ["Revisión de datos", "Las estadísticas oficiales se estiman rápido y se corrigen después, al llegar más información. El Banco debe decidir con números que pueden resultar equivocados."],
+      fanChart: ["Gráfico de abanico", "Un pronóstico dibujado como una banda que se ensancha: la línea central es el camino más probable y el abanico sombreado muestra el rango de resultados posibles. Lo popularizó el Banco de Inglaterra."],
+      heat: ["Riesgo de remoción", "En el juego, cuán cerca está el gobierno de despedirte. En la realidad rara vez se despide a una autoridad monetaria, pero la presión política sobre los bancos centrales es muy real."],
+      yield10: ["Rendimiento del bono a 10 años", "La tasa de interés de la deuda pública de largo plazo. Refleja las tasas de política esperadas más una prima de riesgo, y determina el costo de las hipotecas y del crédito a empresas."]
+    }
+  },
+  debrief: {
+    btn: "Análisis", title: "Análisis del mandato", back: "Volver a los resultados",
+    sub: "Qué pasó, y qué habría hecho una autoridad que siempre siguiera la regla, con exactamente los mismos shocks.",
+    rateTitle: "Tasa de política", inflTitle: "Inflación", you: "Tú", rule: "Autoridad que sigue la regla",
+    stats: { onTarget: (n, N) => `Inflación a menos de 1 punto de la meta en ${n} de ${N} trimestres`, followed: (n, N) => `Seguiste la regla de Taylor en ${n} de ${N} trimestres`, cred: (a, b) => `Credibilidad ${a} → ${b}` },
+    momentsTitle: "Las decisiones que más pesaron",
+    momentsNote: "Cada impacto repite tu mandato dos veces desde ese trimestre, una con tu decisión y otra con la de la regla, manteniendo tus tasas en todos los demás. La diferencia es lo que valió esa decisión.",
+    noMoments: "Seguiste la regla todos los trimestres. Tu resultado frente a la referencia vino de la prensa, el presupuesto y las decisiones de tu escritorio.",
+    moment: (you, rule) => `Tú: ${you} · Regla: ${rule}`, overruled: asked => `El directorio rechazó tu propuesta (${asked}).`, saw: (pi, x) => `Lo que veías: inflación ${pi}, brecha ${x}`,
+    impact: v => (v > 0 ? `+${v} puntos` : `${v} puntos`), impactSame: "Casi igual", keptJob: "Te mantuvo en el cargo", lostJob: "Te costó el cargo",
+    caved: " Además bajaste la tasa bajo presión política, lo que costó [[credibility|credibilidad]].",
+    lessons: {
+      easeHighHurt: "Aflojar con la inflación sobre la meta dejó que las [[expectations|expectativas]] subieran. El principio de Taylor: cuando sube la inflación, sube la tasa en más, para que la [[realRate|tasa real]] aumente.",
+      easeHighHelp: "Aflojar pese a la inflación alta funcionó aquí, probablemente porque el shock era de oferta o pasajero. Mirar a través de un [[supplyShock|shock de oferta]] puede funcionar si la [[credibility|credibilidad]] mantiene ancladas las expectativas.",
+      easeHurt: "Bajar más que la regla recalentó la economía: la [[phillips|curva de Phillips]] convierte una [[outputGap|brecha]] positiva en más inflación un trimestre después.",
+      easeHelp: "Bajar más que la regla le dio a la economía el apoyo que necesitaba sin desanclar las expectativas. Aquí tu criterio le ganó a la fórmula.",
+      tightLowHurt: "Endurecer con la economía débil amplió la [[outputGap|brecha del producto]] y alejó aún más la inflación de la meta. En una recesión la regla tiende a bajar la tasa.",
+      tightLowHelp: "Endurecer antes de que los datos lo confirmaran funcionó. La política actúa con rezago; por eso actuar según el [[fanChart|pronóstico]] y no según los datos de hoy puede ser lo correcto.",
+      tightHurt: "Subir más que la regla costó producción y popularidad sin ganar mucho en inflación. El exceso también tiene precio.",
+      tightHelp: "Subir más que la regla ancló las expectativas más rápido. Un Banco firme y creíble puede bajar la inflación a un costo menor después.",
+      same: "Esta decisión casi no cambió tu puntaje: la economía habría terminado en un lugar parecido de cualquier forma.",
+      ruleLost: "Seguir la regla aquí te habría costado el cargo más adelante: el gobierno ya estaba cerca de removerte. Sobrevivir a veces exige ceder, y por eso importa la [[independence|independencia]].",
+      youLost: "Esta es la decisión que hundió tu mandato. Con la decisión de la regla aquí, habrías llegado al final."
+    },
+    histTitle: "Historia: lo que hizo el banco central real", histChart: "Cambio en la tasa de política desde el inicio (puntos)", fedKey: "Reserva Federal de EE. UU.",
+    hist: {
+      oil: "Cuando el petróleo se cuadruplicó en 1973–74, la Fed subió las tasas y luego las bajó con fuerza en 1975 ante la recesión, con la inflación todavía alta. La inflación volvió peor al final de la década. Hizo falta el shock de tasas de Paul Volcker en 1979–81 para quebrarla.",
+      crisis: "La Fed bajó la tasa de 5,25% a casi cero entre septiembre de 2007 y diciembre de 2008, y luego empezó a comprar bonos a escala masiva. Las tasas quedaron en el piso hasta fines de 2015.",
+      pandemic: "La Fed bajó a cero en marzo de 2020 y compró bonos a una escala enorme. Consideró 'transitoria' la inflación de 2021 y empezó a subir recién en marzo de 2022; luego subió 5,25 puntos en 16 meses, el ritmo más rápido desde comienzos de los ochenta."
+    },
+    histCaveat: "La economía del juego es estilizada: compara dirección y momento, no niveles. La línea de la Fed usa promedios trimestrales aproximados de la tasa de fondos federales."
+  }
+});
 /* ═══════════════ STORAGE & ENV ═══════════════ */
 const STORE_KEY = "holdtheline.v1";
 const store = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; } })();
@@ -1837,7 +2057,7 @@ function chartSVG(o, qLabel) {
   if (lo < 0 && hi > 0) s += `<line x1="${ml}" x2="${W - mr}" y1="${Y(0)}" y2="${Y(0)}" stroke="#fff" stroke-opacity=".3"/>`;
   (o.refs || []).forEach(v => { s += `<line x1="${ml}" x2="${W - mr}" y1="${Y(v)}" y2="${Y(v)}" stroke="#fff" stroke-opacity=".3" stroke-dasharray="3 4"/>`; });
   s += `<line x1="${X(M.election)}" x2="${X(M.election)}" y1="${mt - 4}" y2="${H - mb}" stroke="#F2B650" stroke-opacity=".55" stroke-dasharray="3 4"/><text x="${X(M.election) + 4}" y="${mt - 5}" font-size="10" fill="#F2B650" font-family="Archivo, sans-serif">${esc(g().electionMark)}</text>`;
-  [0, Math.round(N / 3), Math.round((2 * N) / 3), N].forEach(k => { s += `<text x="${X(k)}" y="${H - 6}" text-anchor="${k === 0 ? "start" : k === 12 ? "end" : "middle"}" font-size="10.5" fill="#9AA4BD" font-family="Archivo, sans-serif">${qLabel(k)}</text>`; });
+  [0, Math.round(N / 3), Math.round((2 * N) / 3), N].forEach(k => { s += `<text x="${X(k)}" y="${H - 6}" text-anchor="${k === 0 ? "start" : k === N ? "end" : "middle"}" font-size="10.5" fill="#9AA4BD" font-family="Archivo, sans-serif">${qLabel(k)}</text>`; });
   o.series.forEach((se, k) => {
     const v = se.values;
     if (se.bars) {
@@ -2309,6 +2529,48 @@ function ruleBoundGame(sc) {
   return s;
 }
 /*HEAT-END*/
+/*TEACH-START*/
+// US federal funds rate, quarterly averages (approximate), from each era's first quarter: 1973 Q3, 2007 Q3, 2020 Q1.
+const FED_PATH = {
+  oil: [10.56, 10.0, 9.32, 11.25, 12.09, 9.35, 6.3, 5.42, 6.16, 5.41, 4.83, 5.2, 5.28, 4.87, 4.66, 5.16, 5.82, 6.51, 6.76],
+  crisis: [5.07, 4.5, 3.18, 2.09, 1.94, 0.51, 0.18, 0.18, 0.16, 0.12, 0.13, 0.19, 0.19, 0.19, 0.16, 0.09, 0.08, 0.07, 0.1],
+  pandemic: [1.26, 0.06, 0.09, 0.09, 0.08, 0.07, 0.09, 0.08, 0.12, 0.77, 2.19, 3.65, 4.52, 4.99, 5.26, 5.33, 5.33, 5.33, 5.26]
+};
+const ruleInput = (s, p) => ({ move: p.advisors.taylor, tone: "neutral", choice: 0, qa: null, qe: p.qe && s.x < -0.5 ? 2 : 0, buy: p.budget ? ruleBuys(s) : [] });
+function rulePath(sc) {
+  let s = initGame(sc); const H = [s];
+  while (s.t < M.turns && !s.lost) { const p = prepGame(s, sc); s = stepGame(s, sc, p, ruleInput(s, p)).state; H.push(s); }
+  return H;
+}
+// Replays the player's own inputs with quarter k's rate move replaced: "what if you had followed the rule just then?"
+// With `levels` (your actual rate path), the rate is forced from quarter k on (no board vote), so later quarters return to
+// your rates. Comparing two such replays (your move vs the rule's) isolates that single decision.
+function replayGame(sc, inputs, k, move, levels) {
+  let s = initGame(sc);
+  for (let j = 0; j < inputs.length && s.t < M.turns && !s.lost; j++) {
+    const p = prepGame(s, sc), force = levels && j >= k;
+    const inp = Object.assign({}, inputs[j], j === k ? { move } : {}, force ? { noVote: true } : {}, force && j > k ? { move: levels[j] - s.i } : {});
+    if ((p.dilemma || p.gd) && inp.choice == null) inp.choice = 0;
+    s = stepGame(s, sc, p, inp).state;
+  }
+  return s;
+}
+function debriefData(sc, inputs, reports) {
+  const s0 = initGame(sc), last = reports.length ? reports[reports.length - 1].state : s0;
+  const levels = reports.map(r => r.state.i);
+  const devs = reports.map((r, k) => ({ k, t: r.prep.t, you: +(r.state.i - r.prev.i).toFixed(2), asked: r.inp.move, rule: r.prep.advisors.taylor }))
+    .filter(c => Math.abs(c.you - c.rule) > 0.01);                                         // judged on the move carried out, after the board vote
+  const moments = devs.map(c => {
+    const r = reports[c.k], seen = seenOf(r.prev, sc, r.prev.t);
+    const mine = replayGame(sc, inputs, c.k, c.you, levels), alt = replayGame(sc, inputs, c.k, c.rule, levels);
+    const impact = Math.round(scoreGame(mine).total - scoreGame(alt).total);
+    const kind = c.you < c.rule ? (seen.pi >= 2.5 ? "easeHigh" : "ease") : (seen.x < -0.5 || seen.pi < 1.5 ? "tightLow" : "tight");
+    const lesson = alt.lost && !mine.lost ? "ruleLost" : mine.lost && !alt.lost ? "youLost" : Math.abs(impact) < 3 ? "same" : kind + (impact > 0 ? "Help" : "Hurt");
+    return { ...c, impact, pi: seen.pi, x: seen.x, lesson, overruled: Math.abs(c.asked - c.you) > 0.01, caved: r.credParts.some(q => q[0] === "caved") };
+  }).sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact)).slice(0, 3).sort((a, b) => a.k - b.k);
+  return { moments, deviations: devs.length, N: reports.length, onTarget: reports.filter(r => Math.abs(r.state.pi - 2) < 1).length, cred0: s0.cred, cred1: last.cred, score: scoreGame(last).total };
+}
+/*TEACH-END*/
 function advance(inp) {
   const s = cur(), prep = prepGame(s, game.sc), res = stepGame(s, game.sc, prep, inp);
   game.inputs.push(inp); game.hist.push(res.state);
@@ -2590,6 +2852,7 @@ function bindToggles(rerender) {
   $("overlay").querySelectorAll("[data-diff]").forEach(b => (b.onclick = () => { store.hard = b.dataset.diff === "1"; persist(); Sound.select(); rerender(); }));
   $("overlay").querySelectorAll("[data-mandate]").forEach(b => (b.onclick = () => { store.mandate = b.dataset.mandate; persist(); Sound.select(); rerender(); }));
   $("overlay").querySelectorAll("[data-econ]").forEach(b => (b.onclick = () => { store.em = b.dataset.econ === "1"; persist(); Sound.select(); rerender(); }));
+  const tb = $("tipsBtn"); if (tb) tb.onclick = () => { store.tips = store.tips === false; if (store.tips) store.tipsSeen = {}; persist(); Sound.select(); rerender(); };
   const sb = $("sndBtn"); if (sb) sb.onclick = () => { store.sound = store.sound === false; persist(); Sound.select(); rerender(); };
 }
 function resetStage() { if (typing) typing.cancel(); beats = []; beatIdx = -1; setCast([]); tvOff(); $("panel").innerHTML = ""; }
@@ -2632,13 +2895,14 @@ function levelSelect() {
     <label class="code"><span>${esc(gg.code)}</span><input id="codeIn" maxlength="8" autocomplete="off" spellcheck="false"></label>
     <p class="hint">${esc(gg.codeHint)}</p>
     <div class="achbar"><span class="sec-lab">${esc(gg.achTitle)} · ${got}/${achIds.length}</span><div class="ach-row">${achIds.map(id => `<span class="ach-pill ${store.ach[id] ? "got" : ""}" title="${esc(gg.ach[id][1])}">${esc(gg.ach[id][0])}</span>`).join("")}</div></div>
-    <div class="btns"><button class="btn ghost" id="lBack">← ${esc(gg.back)}</button>${langToggle()}${soundToggle()}</div>
+    <div class="btns"><button class="btn ghost" id="lBack">← ${esc(gg.back)}</button><button class="btn ghost" id="lGloss">${esc(gg.gloss.title)}</button>${langToggle()}${soundToggle()}${tipsToggle()}</div>
   </div>`);
   $("overlay").querySelectorAll("[data-level]").forEach(b => (b.onclick = () => {
     const code = ($("codeIn").value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
     Sound.confirm(); startLevel(b.dataset.level, code || randomCode(), [], !!store.hard, !!store.em, { mandate: store.mandate === "dual" ? "dual" : "price" });
   }));
   $("lBack").onclick = titleScreen;
+  $("lGloss").onclick = () => openGlossary(levelSelect);
   bindCareerCard();
   bindToggles(levelSelect);
 }
@@ -2666,10 +2930,10 @@ function beginQuarter() {
   resetStage(); drawRoom(); renderHUD(s, null, prep.t);
   const list = [quarterCard, newsBeat, frontPageBeat, mapBeat];
   if (prep.budget) list.push(budgetBeat);
-  calls(s, prep).forEach((c, k) => list.push(() => callBeat(c, k)));
+  calls(s, prep).forEach((c, k) => list.push(() => { callBeat(c, k); coach([c.pres && prep.pressure && "pressure", "calls"]); }));
   if (prep.dilemma || prep.gd) list.push(dilemmaBeat);
   list.push(advisorsBeat, decideBeat);
-  play(list.map(fn => { const b = () => fn(); b.ov = fn === quarterCard; return b; }));
+  play(list.map(fn => { const b = () => { fn(); coachFor(fn); }; b.ov = fn === quarterCard; return b; }));
 }
 
 function quarterCard() {
@@ -2848,14 +3112,14 @@ function announce() {
   if (draft.move == null || ((prep.dilemma || prep.gd) && draft.choice == null)) return;
   Sound.stamp(); game.nudge = null;
   const inp = { move: draft.move, tone: draft.tone, choice: prep.dilemma || prep.gd ? draft.choice : null, qe: prep.qe ? draft.qe || 0 : 0, qa: null, buy: prep.budget ? draft.buy.slice() : [], macro: prep.canMacro ? !!draft.macro : false, fx: prep.fxTool ? draft.fx || 0 : 0 };
-  play([() => presserBeat(inp), () => qaBeat(inp)]);
+  play([() => presserBeat(inp), () => { qaBeat(inp); coach(["qa"]); }]);
 }
 function afterQA(inp) {
   advance(inp);
   const r = lastReport(), list = [reactionBeat, falloutBeat];
   if (r.election) list.push(electionBeat);
   list.push(() => { if (over()) endLevel(false); else beginQuarter(); });
-  play(list.map(fn => { const b = () => fn(r); b.ov = fn === electionBeat; return b; }));
+  play(list.map(fn => { const b = () => { fn(r); coachFor(fn, r); }; b.ov = fn === electionBeat; return b; }));
 }
 
 function presserBeat(inp) {
@@ -2941,6 +3205,99 @@ function electionBeat(r) {
   $("elecGo").onclick = () => { closeOverlay(); next(); };
 }
 
+/* ═══════════════ TEACHING: STAFF NOTES, GLOSSARY, DEBRIEF ═══════════════ */
+// Text may carry glossary links written as [[term|label]]; they become buttons that open the term's card.
+const richText = str => esc(str).replace(/\[\[(\w+)\|([^\]]+)\]\]/g, (m, k, label) => `<button type="button" class="term" data-term="${k}">${label}</button>`);
+const tipsToggle = () => `<button class="btn ghost small" id="tipsBtn" aria-pressed="${store.tips !== false}">${esc(g().coach.toggle)}: ${esc(store.tips !== false ? g().on : g().off)}</button>`;
+const BULB = `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2.5a6.5 6.5 0 0 0-3.8 11.8c.7.5 1.1 1.3 1.1 2.1V17h5.4v-.6c0-.8.4-1.6 1.1-2.1A6.5 6.5 0 0 0 12 2.5Z" fill="#F2B650"/><path d="M9.5 19h5M10.3 21.5h3.4" stroke="#F2B650" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+
+// Shows the first staff note in `keys` the player has not seen yet (one per screen, so systems arrive one at a time).
+function coach(keys) {
+  if (store.tips === false || !game) return;
+  const host = $("panel").querySelector(".dlg, .decide");
+  if (!host) return;
+  store.tipsSeen = store.tipsSeen || {};
+  const again = game.tipNow && game.tipNow.b === beatIdx && keys.includes(game.tipNow.key);   // same screen redrawn (e.g. language switch)
+  const key = again ? game.tipNow.key : keys.find(k => k && !store.tipsSeen[k]);
+  if (!key || !g().coach.tips[key]) return;
+  store.tipsSeen[key] = 1; persist();
+  game.tipNow = { key, b: beatIdx };
+  const gg = g(), el = document.createElement("aside");
+  el.className = "coach"; el.setAttribute("role", "note");
+  el.innerHTML = `<span class="coach-ic">${BULB}</span><div class="coach-body"><b>${esc(gg.coach.label)}</b><p>${richText(gg.coach.tips[key])}</p></div>
+    <div class="coach-btns"><button class="btn small" data-coach="ok">${esc(gg.coach.ok)}</button><button class="btn ghost small" data-coach="off">${esc(gg.coach.off)}</button></div>`;
+  host.prepend(el);
+  el.querySelector('[data-coach="ok"]').onclick = () => { game.tipNow = null; el.remove(); };
+  el.querySelector('[data-coach="off"]').onclick = () => { store.tips = false; persist(); game.tipNow = null; el.remove(); };
+}
+function coachFor(fn, r) {
+  const prep = game.prep, s = cur();
+  const at = fn === newsBeat ? ["news"] : fn === frontPageBeat ? ["front"] : fn === mapBeat ? ["map", s.t >= 2 && "fog"] : fn === budgetBeat ? ["budget"]
+    : fn === dilemmaBeat ? ["dilemma"] : fn === advisorsBeat ? ["advisors"]
+    : fn === decideBeat ? ["decide", prep.qe && "qe", prep.fxTool && "fx", prep.canMacro && "macro", "fan", "board", "tone"]
+    : fn === reactionBeat ? ["react"] : fn === falloutBeat ? [(r.state.heat || 0) >= 40 && "heat", (r.state.lev || 0) >= 3 && "credit", "ledger"] : [];
+  coach(at);
+}
+
+// Glossary: a small card over everything, opened from any [[term]] link.
+function hideTerm() { const p = document.getElementById("termPop"); if (p) p.remove(); }
+function showTerm(k) {
+  hideTerm();
+  const e = g().gloss.terms[k];
+  if (!e) return;
+  const p = document.createElement("div");
+  p.id = "termPop"; p.className = "term-pop"; p.setAttribute("role", "dialog"); p.setAttribute("aria-label", e[0]);
+  p.innerHTML = `<header><b>${esc(e[0])}</b><button type="button" class="term-x" aria-label="${esc(g().gloss.close)}">×</button></header><p>${richText(e[1])}</p>`;
+  document.body.appendChild(p);
+  p.querySelector(".term-x").onclick = hideTerm;
+  p.querySelector(".term-x").focus();
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest(".term");
+  if (b) { e.preventDefault(); e.stopPropagation(); Sound.select(); showTerm(b.dataset.term); return; }
+  if (!(e.target.closest && e.target.closest(".term-pop"))) hideTerm();
+}, true);
+document.addEventListener("keydown", e => { if (e.key === "Escape" && document.getElementById("termPop")) { e.stopImmediatePropagation(); hideTerm(); } });
+
+function openGlossary(back) {
+  if (game) cardToken = null;
+  const G_ = g().gloss, terms = Object.entries(G_.terms).sort((a, b) => a[1][0].localeCompare(b[1][0], lang));
+  openOverlay(`<div class="scr"><h2 class="scr-title">${esc(G_.title)}</h2><p class="credits">${esc(G_.sub)}</p>
+    <dl class="gloss">${terms.map(([k, [name, def]]) => `<div id="gl-${k}"><dt>${esc(name)}</dt><dd>${richText(def)}</dd></div>`).join("")}</dl>
+    <button class="btn big" id="glBack" data-hot>← ${esc(g().back)}</button></div>`);
+  $("glBack").onclick = back;
+}
+
+// Debrief: your term against the rule, the decisions that mattered, and what history did.
+function openDebrief() {
+  const gg = g(), D = gg.debrief, t = tr(), H = game.hist, key = game.cfg.scenario;
+  const R = rulePath(game.sc), data = debriefData(game.sc, game.inputs, game.reports), fed = FED_PATH[key];
+  const qL = k => quarterLabel(k).replace(" ", "");
+  const card = (title, keys, spec) => `<div class="chart-card"><header><h4>${esc(title)}</h4><span class="keys">${keys.map(([n, c]) => `<span style="--c:${c}">${esc(n)}</span>`).join("")}</span></header>${chartSVG(spec, qL)}</div>`;
+  const rate = card(D.rateTitle, [[D.you, "#3FB68B"], [D.rule, "#9AA4BD"]], { title: D.rateTitle, series: [{ values: R.map(h => h.i), color: "#9AA4BD", dash: true }, { values: H.map(h => h.i), color: "#3FB68B", step: true }], include: [0, 5] });
+  const infl = card(D.inflTitle, [[D.you, "#E5484D"], [D.rule, "#9AA4BD"]], { title: D.inflTitle, series: [{ values: R.map(h => h.pi), color: "#9AA4BD", dash: true }, { values: H.map(h => h.pi), color: "#E5484D", area: true }], band: [1, 3], include: [0, 4] });
+  const hist = fed ? card(D.histChart, [[D.you, "#3FB68B"], [D.fedKey, "#F2B650"]], { title: D.histChart,
+    series: [{ values: fed.map(v => v - fed[0]), color: "#F2B650", dash: true }, { values: H.map(h => h.i - H[0].i), color: "#3FB68B", step: true }], include: [-3, 3], refs: [0] }) : "";
+  const moment = m => {
+    const cls = m.lesson === "same" ? "" : m.lesson === "ruleLost" || m.impact > 0 ? "pos" : "neg";
+    return `<article class="moment ${cls}"><header><span class="q-date">${esc(quarterLabel(m.t))}</span><span class="pill ${cls}">${esc(m.lesson === "same" ? D.impactSame : m.lesson === "ruleLost" ? D.keptJob : m.lesson === "youLost" ? D.lostJob : D.impact(m.impact))}</span></header>
+      <b>${esc(D.moment(t.moveName(m.you), t.moveName(m.rule)))}</b><small>${esc(D.saw(pc(m.pi, 1), sgn(m.x, 1)))}</small>${m.overruled ? `<small>${esc(D.overruled(t.moveName(m.asked)))}</small>` : ""}
+      <p>${richText(D.lessons[m.lesson] + (m.caved ? D.caved : ""))}</p></article>`;
+  };
+  openOverlay(`<div class="scr debrief">
+    <span class="q-date">${esc(gg.levels[key][0])} · ${esc(game.cfg.seed)}</span>
+    <h2 class="scr-title">${esc(D.title)}</h2>
+    <p class="credits">${esc(D.sub)}</p>
+    <div class="db-stats"><span>${esc(D.stats.onTarget(data.onTarget, data.N))}</span><span>${esc(D.stats.followed(data.N - data.deviations, data.N))}</span><span>${esc(D.stats.cred(Math.round(data.cred0 * 100), Math.round(data.cred1 * 100)))}</span></div>
+    <div class="chart-grid db-charts">${rate}${infl}</div>
+    <section class="db-sec"><span class="sec-lab">${esc(D.momentsTitle)}</span>
+      ${data.moments.length ? `<div class="moments">${data.moments.map(moment).join("")}</div><p class="note">${esc(D.momentsNote)}</p>` : `<p class="note">${esc(D.noMoments)}</p>`}</section>
+    ${fed ? `<section class="db-sec"><span class="sec-lab">${esc(D.histTitle)}</span><div class="db-hist">${hist}<p class="interlude">${esc(D.hist[key])}</p></div><p class="note">${esc(D.histCaveat)}</p></section>` : ""}
+    <div class="btns"><button class="btn big" id="dbBack" data-hot>← ${esc(D.back)}</button><button class="btn ghost" id="dbGloss">${esc(gg.gloss.title)}</button></div>
+  </div>`);
+  $("dbBack").onclick = () => endLevel(true);
+  $("dbGloss").onclick = () => openGlossary(openDebrief);
+}
 /* ═══════════════ END OF LEVEL ═══════════════ */
 function evalAchievements(score, rule) {
   const R = game.reports, s = cur(), got = [], finished = !s.lost && s.t >= M.turns;
@@ -2997,13 +3354,15 @@ function endLevel(restored) {
     <p class="note">${esc(gg.starsNote)}</p>
     ${fresh.length ? `<div class="achs"><span class="sec-lab">${esc(gg.newAch)}</span>${fresh.map(a => `<div class="ach"><b>${esc(gg.ach[a][0])}</b><small>${esc(gg.ach[a][1])}</small></div>`).join("")}</div>` : ""}
     <div class="end-charts">${["infl", "mkt", "pol"].map(k => chartCard(k, qL, true)).join("")}</div>
-    ${game.cfg.career ? `<div class="btns"><button class="btn big" id="eCareer" data-hot>${esc(gg.career.continueStory)} →</button></div>` : `<div class="btns">
+    ${game.cfg.career ? `<div class="btns"><button class="btn big" id="eCareer" data-hot>${esc(gg.career.continueStory)} →</button><button class="btn ghost" id="eDebrief">${esc(gg.debrief.btn)}</button></div>` : `<div class="btns">
       <button class="btn big" id="eRetry" data-hot>${esc(gg.retry)}</button>
+      <button class="btn" id="eDebrief">${esc(gg.debrief.btn)}</button>
       <button class="btn ghost" id="eFresh">${esc(gg.newShocks)}</button>
       ${nextKey && !s.lost ? `<button class="btn ghost" id="eNext">${esc(gg.nextLevel)} →</button>` : ""}
       <button class="btn ghost" id="eLevels">${esc(gg.toLevels)}</button>
     </div>`}
   </div>`);
+  $("eDebrief").onclick = () => { Sound.select(); openDebrief(); };
   if ($("eCareer")) $("eCareer").onclick = () => { Sound.confirm(); careerAfterTerm(); };
   const opts = { mandate: game.cfg.mandate };
   if ($("eRetry")) $("eRetry").onclick = () => { Sound.confirm(); startLevel(key, game.cfg.seed, [], game.cfg.hard, game.cfg.em, opts); };
@@ -3065,14 +3424,16 @@ function openMenu() {
       <button class="btn big" id="mResume" data-hot>${esc(gg.resume)}</button>
       ${game.cfg.career ? "" : `<button class="btn ghost" id="mRestart">${esc(gg.restart)}</button>`}
       <button class="btn ghost" id="mLevels">${esc(gg.quit)}</button>
+      <button class="btn ghost" id="mGloss">${esc(gg.gloss.title)}</button>
       <button class="btn ghost" id="mTitle">${esc(gg.toTitle)}</button>
     </div>
-    <div class="toggles">${langToggle()}${soundToggle()}</div>
+    <div class="toggles">${langToggle()}${soundToggle()}${tipsToggle()}</div>
     <p class="hint">${esc(gg.codeLine(game.cfg.seed))}</p></div>`);
   $("mResume").onclick = resume;
   if ($("mRestart")) $("mRestart").onclick = () => startLevel(game.cfg.scenario, game.cfg.seed, [], game.cfg.hard, game.cfg.em, { mandate: game.cfg.mandate });
   $("mLevels").onclick = levelSelect;
   $("mTitle").onclick = titleScreen;
+  $("mGloss").onclick = () => openGlossary(openMenu);
   bindToggles(() => { closeOverlay(); if (game.hud) renderHUD(game.hud.s, null, game.hud.turn); drawRoom(); renderTicker(); rerunBeat(); openMenu(); });
 }
 

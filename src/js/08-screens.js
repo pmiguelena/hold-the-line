@@ -8,6 +8,7 @@ function bindToggles(rerender) {
   $("overlay").querySelectorAll("[data-diff]").forEach(b => (b.onclick = () => { store.hard = b.dataset.diff === "1"; persist(); Sound.select(); rerender(); }));
   $("overlay").querySelectorAll("[data-mandate]").forEach(b => (b.onclick = () => { store.mandate = b.dataset.mandate; persist(); Sound.select(); rerender(); }));
   $("overlay").querySelectorAll("[data-econ]").forEach(b => (b.onclick = () => { store.em = b.dataset.econ === "1"; persist(); Sound.select(); rerender(); }));
+  const tb = $("tipsBtn"); if (tb) tb.onclick = () => { store.tips = store.tips === false; if (store.tips) store.tipsSeen = {}; persist(); Sound.select(); rerender(); };
   const sb = $("sndBtn"); if (sb) sb.onclick = () => { store.sound = store.sound === false; persist(); Sound.select(); rerender(); };
 }
 function resetStage() { if (typing) typing.cancel(); beats = []; beatIdx = -1; setCast([]); tvOff(); $("panel").innerHTML = ""; }
@@ -50,13 +51,14 @@ function levelSelect() {
     <label class="code"><span>${esc(gg.code)}</span><input id="codeIn" maxlength="8" autocomplete="off" spellcheck="false"></label>
     <p class="hint">${esc(gg.codeHint)}</p>
     <div class="achbar"><span class="sec-lab">${esc(gg.achTitle)} · ${got}/${achIds.length}</span><div class="ach-row">${achIds.map(id => `<span class="ach-pill ${store.ach[id] ? "got" : ""}" title="${esc(gg.ach[id][1])}">${esc(gg.ach[id][0])}</span>`).join("")}</div></div>
-    <div class="btns"><button class="btn ghost" id="lBack">← ${esc(gg.back)}</button>${langToggle()}${soundToggle()}</div>
+    <div class="btns"><button class="btn ghost" id="lBack">← ${esc(gg.back)}</button><button class="btn ghost" id="lGloss">${esc(gg.gloss.title)}</button>${langToggle()}${soundToggle()}${tipsToggle()}</div>
   </div>`);
   $("overlay").querySelectorAll("[data-level]").forEach(b => (b.onclick = () => {
     const code = ($("codeIn").value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
     Sound.confirm(); startLevel(b.dataset.level, code || randomCode(), [], !!store.hard, !!store.em, { mandate: store.mandate === "dual" ? "dual" : "price" });
   }));
   $("lBack").onclick = titleScreen;
+  $("lGloss").onclick = () => openGlossary(levelSelect);
   bindCareerCard();
   bindToggles(levelSelect);
 }

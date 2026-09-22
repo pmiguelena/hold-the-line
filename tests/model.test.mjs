@@ -238,3 +238,38 @@ test("career carry-over: credibility and departments pass to the next era", () =
   const low = m.initGame(m.applyMode(m.buildScenario("pandemic", "CR1"), false, false, "price", { cred: 0.1, dept: {}, points: 3 }));
   assert.equal(low.cred, 0.3, "carried credibility is floored");
 });
+
+// Plays like the game does, keeping the inputs and reports the debrief needs.
+function record(level, seed, policy) {
+  const S = m.applyMode(m.extendScenario(m.buildScenario(level, seed), seed), false, false);
+  let s = m.initGame(S); const inputs = [], reports = [];
+  while (s.t < m.M.turns && !s.lost) {
+    const p = m.prepGame(s, S), inp = { buy: [], ...policy(s, p) }, res = m.stepGame(s, S, p, inp);
+    inputs.push(inp); reports.push({ prep: p, inp, prev: s, ...res }); s = res.state;
+  }
+  return { S, s, inputs, reports };
+}
+
+test("debrief: history data covers every quarter of the historical eras", () => {
+  for (const k of ["oil", "crisis", "pandemic"]) assert.equal(m.FED_PATH[k].length, m.M.turns + 1, k);
+  assert.equal(m.rulePath(m.applyMode(m.extendScenario(m.buildScenario("oil", "H1"), "H1"), false, false)).length, m.M.turns + 1);
+});
+
+test("debrief: replaying your own moves reproduces your game; a rule-follower has nothing to regret", () => {
+  const g1 = record("crisis", "DB1", POLICIES.keynes);
+  const same = m.replayGame(g1.S, g1.inputs, 0, g1.inputs[0].move);
+  assert.equal(same.pi, g1.s.pi); assert.equal(same.cred, g1.s.cred);
+  const rule = m.debriefData(...Object.values((({ S, inputs, reports }) => ({ S, inputs, reports }))(record("crisis", "DB1", POLICIES.rule))));
+  assert.equal(rule.deviations, 0); assert.equal(rule.moments.length, 0);
+});
+
+test("debrief: easing too much every quarter shows up as costly decisions with lessons", () => {
+  const dove = (s, p) => ({ ...POLICIES.rule(s, p), move: Math.max(m.M.iMin - s.i, p.advisors.taylor - 0.5) });
+  let hurt = 0, total = 0;
+  for (let k = 0; k < 20; k++) {
+    const g1 = record("random", "YM" + k, dove), d = m.debriefData(g1.S, g1.inputs, g1.reports);
+    assert.ok(d.moments.length <= 3);
+    d.moments.forEach(x => { total++; if (x.impact < 0) hurt++; assert.ok(/^(same|ruleLost|youLost|(easeHigh|ease|tightLow|tight)(Help|Hurt))$/.test(x.lesson), x.lesson); });
+  }
+  assert.ok(total > 0 && hurt / total > 0.6, `${hurt}/${total} moments hurt`);
+});

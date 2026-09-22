@@ -54,13 +54,15 @@ function endLevel(restored) {
     <p class="note">${esc(gg.starsNote)}</p>
     ${fresh.length ? `<div class="achs"><span class="sec-lab">${esc(gg.newAch)}</span>${fresh.map(a => `<div class="ach"><b>${esc(gg.ach[a][0])}</b><small>${esc(gg.ach[a][1])}</small></div>`).join("")}</div>` : ""}
     <div class="end-charts">${["infl", "mkt", "pol"].map(k => chartCard(k, qL, true)).join("")}</div>
-    ${game.cfg.career ? `<div class="btns"><button class="btn big" id="eCareer" data-hot>${esc(gg.career.continueStory)} →</button></div>` : `<div class="btns">
+    ${game.cfg.career ? `<div class="btns"><button class="btn big" id="eCareer" data-hot>${esc(gg.career.continueStory)} →</button><button class="btn ghost" id="eDebrief">${esc(gg.debrief.btn)}</button></div>` : `<div class="btns">
       <button class="btn big" id="eRetry" data-hot>${esc(gg.retry)}</button>
+      <button class="btn" id="eDebrief">${esc(gg.debrief.btn)}</button>
       <button class="btn ghost" id="eFresh">${esc(gg.newShocks)}</button>
       ${nextKey && !s.lost ? `<button class="btn ghost" id="eNext">${esc(gg.nextLevel)} →</button>` : ""}
       <button class="btn ghost" id="eLevels">${esc(gg.toLevels)}</button>
     </div>`}
   </div>`);
+  $("eDebrief").onclick = () => { Sound.select(); openDebrief(); };
   if ($("eCareer")) $("eCareer").onclick = () => { Sound.confirm(); careerAfterTerm(); };
   const opts = { mandate: game.cfg.mandate };
   if ($("eRetry")) $("eRetry").onclick = () => { Sound.confirm(); startLevel(key, game.cfg.seed, [], game.cfg.hard, game.cfg.em, opts); };
@@ -122,14 +124,16 @@ function openMenu() {
       <button class="btn big" id="mResume" data-hot>${esc(gg.resume)}</button>
       ${game.cfg.career ? "" : `<button class="btn ghost" id="mRestart">${esc(gg.restart)}</button>`}
       <button class="btn ghost" id="mLevels">${esc(gg.quit)}</button>
+      <button class="btn ghost" id="mGloss">${esc(gg.gloss.title)}</button>
       <button class="btn ghost" id="mTitle">${esc(gg.toTitle)}</button>
     </div>
-    <div class="toggles">${langToggle()}${soundToggle()}</div>
+    <div class="toggles">${langToggle()}${soundToggle()}${tipsToggle()}</div>
     <p class="hint">${esc(gg.codeLine(game.cfg.seed))}</p></div>`);
   $("mResume").onclick = resume;
   if ($("mRestart")) $("mRestart").onclick = () => startLevel(game.cfg.scenario, game.cfg.seed, [], game.cfg.hard, game.cfg.em, { mandate: game.cfg.mandate });
   $("mLevels").onclick = levelSelect;
   $("mTitle").onclick = titleScreen;
+  $("mGloss").onclick = () => openGlossary(openMenu);
   bindToggles(() => { closeOverlay(); if (game.hud) renderHUD(game.hud.s, null, game.hud.turn); drawRoom(); renderTicker(); rerunBeat(); openMenu(); });
 }
 

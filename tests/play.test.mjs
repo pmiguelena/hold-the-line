@@ -101,3 +101,38 @@ test("dual mandate: the tag shows and a level still plays to the end", () => {
   assert.deepEqual(errors, []);
   assert.ok(ENDINGS.includes(r.end), r.end);
 });
+
+test("teaching: staff notes appear, glossary terms open, and the debrief explains the term", () => {
+  const { d, errors } = boot();
+  const r = playThrough(d, { level: "pandemic", lang: "en", advisor: 0 });
+  assert.ok(r.coach >= 15, `only ${r.coach} staff notes`);
+  d.getElementById("eDebrief").click();
+  const ov = d.getElementById("overlay");
+  assert.equal(ov.querySelectorAll("svg.chart").length, 3, "rate, inflation and history charts");
+  assert.ok(ov.querySelector(".moment"), "at least one decision that mattered");
+  assert.ok(!/NaN|undefined|\[object/.test(ov.textContent), "bad text in the debrief");
+  ov.querySelector(".term").click();
+  assert.ok(d.getElementById("termPop"), "a term card opens");
+  d.body.click();
+  assert.equal(d.getElementById("termPop"), null, "clicking away closes it");
+  d.getElementById("dbGloss").click();
+  assert.ok(ov.querySelectorAll("dl.gloss > div").length >= 25);
+  d.getElementById("glBack").click();
+  d.getElementById("dbBack").click();
+  assert.ok(d.getElementById("eRetry"), "back on the results screen");
+  assert.deepEqual(errors, []);
+});
+
+test("teaching: every glossary link points to a real term, in both languages", () => {
+  const { w, d, errors } = boot();
+  for (const L of ["en", "es"]) {
+    d.querySelector(`#overlay [data-lang="${L}"]`).click();
+    d.getElementById("tStart").click();
+    d.getElementById("lGloss").click();
+    const ids = new Set([...d.querySelectorAll("dl.gloss > div")].map(x => x.id.slice(3)));
+    d.querySelectorAll("dl.gloss .term").forEach(t => assert.ok(ids.has(t.dataset.term), `${L}: ${t.dataset.term}`));
+    d.getElementById("glBack").click();
+    d.getElementById("lBack").click();
+  }
+  assert.deepEqual(errors, []);
+});
