@@ -20,7 +20,9 @@ export const POLICIES = {
 };
 
 // Boots the built page in a simulated browser (no animations: jsdom has no matchMedia).
-export function boot(pre = "", url = "https://example.org/") {
+// By default a booted game already has the profile page behind it, the way a returning player does.
+export function boot(pre = "", url = "https://example.org/", fresh = false) {
+  if (!fresh) pre = `<script>localStorage.setItem("holdtheline.v1", JSON.stringify({ profileSkip: true }))</script>` + pre;
   const html = readFileSync(new URL("../game.html", import.meta.url), "utf8");
   const vc = new VirtualConsole(), errors = [];
   vc.on("jsdomError", e => { if (!/Not implemented/.test(e.message)) errors.push(e.message); });

@@ -14,10 +14,12 @@ document.addEventListener("keydown", e => {
 function start(data) {
   document.documentElement.lang = lang;
   const teacherLink = readClassFromURL();
+  flushOutbox();                                                                // results that could not be sent last time
   if (!FAST) $("room").addEventListener("mousemove", e => { const r = $("room").getBoundingClientRect(); $("room").style.setProperty("--px", ((e.clientX - r.left) / r.width - 0.5).toFixed(3)); $("room").style.setProperty("--py", ((e.clientY - r.top) / r.height - 0.5).toFixed(3)); });
   if (data && data.screen === "game" && data.cfg) startLevel(data.cfg.scenario, data.cfg.seed, data.inputs || [], !!data.cfg.hard, !!data.cfg.em, optsOf(data.cfg));
   else if (data && data.screen === "levels") levelSelect();
   else if (teacherLink || (data && data.screen === "teacher")) teacherDesk();
+  else if (!store.profile && !store.profileSkip) profileScreen(titleScreen);     // first run: who is playing
   else titleScreen();
   window.claude?.hot?.snapshot?.(() => ({ screen, cfg: game?.cfg, inputs: game?.inputs, lang }));
 }

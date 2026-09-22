@@ -24,6 +24,7 @@ function endLevel(restored) {
   const sp = scoreGame(s), rule = scoreGame(ruleBoundGame(game.sc)).total;
   const stars = s.lost ? 0 : sp.total >= rule ? 3 : sp.total >= 0.9 * rule ? 2 : 1;
   const got = evalAchievements(sp.total, rule), fresh = got.filter(a => !store.ach[a]);
+  if (!restored) sendResult(sp, stars, rule);                              // a finished term reaches the teacher's sheet, if a class set one up
   if (game.cfg.career) careerRecord(s, sp.total, stars);                    // idempotent: a reload of the end screen records nothing new
   if (!restored) {
     clearSave();

@@ -187,3 +187,5 @@ dl.gloss dd{margin:0;font-size:14.5px;line-height:1.5;color:#D5DAE6}
 .fld .row>select{width:auto;flex:0 0 88px}
 .fld>.seg,.fld>.toggles{justify-self:start}
 .td-grid .toggles{justify-content:flex-start;margin:0}
+.prof-grid{width:min(620px,100%);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px 16px;text-align:left}
+.prof-grid .fld input,.prof-grid .fld select{width:100%;min-width:0;font:500 15px var(--f-ui);color:var(--text);background:var(--bg-2);border:1px solid var(--line-2);border-radius:10px;padding:9px 11px}

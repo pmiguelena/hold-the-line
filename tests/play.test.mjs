@@ -219,3 +219,53 @@ test("classroom: a class link in the URL shows the assignment; a teacher's own s
   assert.ok(ENDINGS.includes(r.end), r.end);
   assert.deepEqual(st.errors, []);
 });
+
+test("profile: asked once on the first run, then it rides along to the teacher's table and CSV", () => {
+  const { d, w, errors } = boot("", "https://example.org/", true);
+  assert.ok(d.getElementById("pfGo"), "the profile page opens first");
+  const set = (id, v) => { const el = d.getElementById(id); el.value = v; el.dispatchEvent(new w.Event(id === "pfProf" ? "change" : "input")); };
+  set("pfNick", "Rivera"); set("pfAge", "21"); set("pfGen", "f"); set("pfEdu", "under"); set("pfProf", "student");
+  d.getElementById("pfGo").click();
+  assert.ok(d.getElementById("tStart"), "then the title screen");
+  assert.deepEqual(JSON.parse(w.localStorage.getItem("holdtheline.v1")).profile, { nick: "Rivera", age: 21, gen: "f", edu: "under", prof: "student", profText: "" });
+
+  playThrough(d, { level: "random", lang: "en" });
+  const code = d.getElementById("hiCode").value;
+  const t = boot();
+  t.d.getElementById("tTeach").click();
+  t.d.querySelector('[data-tab="2"]').click();
+  t.d.getElementById("rIn").value = code; t.d.getElementById("rGo").click();
+  assert.equal(t.d.querySelector(".res-tbl tbody td b").textContent, "Rivera");
+  t.d.querySelector("[data-rep]").click();
+  assert.match(t.d.querySelector(".report-who").textContent, /21 · Undergraduate · Student/);
+  assert.deepEqual(errors, []);
+  assert.deepEqual(t.errors, []);
+});
+
+test("collection: a finished term is posted to the teacher's sheet, dismissal and all", () => {
+  const t = boot();
+  t.d.getElementById("tTeach").click();
+  t.d.querySelector('[data-tab="3"]').click();
+  const url = t.d.getElementById("dUrl");
+  url.value = "https://script.google.com/macros/s/TEST/exec"; url.dispatchEvent(new t.w.Event("input"));
+  t.d.querySelector('[data-tab="0"]').click();
+  const code = t.d.getElementById("aCode").value;
+
+  const st = boot(), posts = [];
+  st.w.fetch = (u, o) => { posts.push([u, JSON.parse(o.body)]); return Promise.resolve({}); };
+  const r = playThrough(st.d, { lang: "en", start: d => {
+    d.getElementById("tJoin").click();
+    d.getElementById("joinIn").value = code; d.getElementById("joinGo").click();
+    d.getElementById("stName").value = "Nico"; d.getElementById("caGo").click();
+  } });
+  assert.equal(posts.length, 1, "one row per finished term");
+  const [u, row] = posts[0];
+  assert.equal(u, "https://script.google.com/macros/s/TEST/exec");
+  assert.equal(row.nickname, "Nico");
+  assert.equal(row.score, r.score);
+  assert.equal(row.quarters, 18);
+  assert.equal(row.dismissed, "no");
+  assert.equal(row.outcome, "Completed");
+  assert.ok(row.result_code.startsWith("HTLR1."), "the row carries the replayable code");
+  assert.deepEqual(st.errors, []);
+});

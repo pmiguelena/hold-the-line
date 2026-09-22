@@ -33,7 +33,7 @@ const optsOf = c => ({ mandate: c.mandate, carry: c.carry, career: c.career, kla
 
 function resultCode(name) {
   const c = game.cfg;
-  return encodeCode("R", { cfg: cfgOf(c), cl: c.klass ? c.klass.cl || "" : "", nm: (name || "").trim(), d: new Date().toISOString().slice(0, 10), in: game.inputs.map(packInp) });
+  return encodeCode("R", { cfg: cfgOf(c), cl: c.klass ? c.klass.cl || "" : "", pr: store.profile || null, nm: (name || "").trim(), d: new Date().toISOString().slice(0, 10), in: game.inputs.map(packInp) });
 }
 // Replays a term from its settings and decisions, exactly as the game played it.
 function replayCfg(cfg, inputs) {
@@ -90,7 +90,7 @@ function classCardHTML() {
   const k = store.klass, C = g().cls;
   if (!k) return "";
   return `<div class="class-card"><span class="sec-lab">${esc(C.assignTitle)}</span><b class="cc-name">${esc(k.cl || "—")}</b><span class="cc-tags">${esc(classTags(k))}</span>
-    <label class="code"><span>${esc(C.yourName)}</span><input id="stName" class="name-in" maxlength="40" value="${esc(store.studentName || "")}" autocomplete="name" spellcheck="false"></label>
+    <label class="code"><span>${esc(C.yourName)}</span><input id="stName" class="name-in" maxlength="40" value="${esc(store.studentName || (store.profile && store.profile.nick) || "")}" autocomplete="name" spellcheck="false"></label>
     <p class="diff-hint" id="stHint"></p>
     <div class="btns"><button class="btn big" id="caGo" data-hot>${esc(C.start)} →</button><button class="btn ghost small" id="caLeave">${esc(C.leave)}</button></div></div>`;
 }
@@ -124,7 +124,7 @@ function handInHTML() {
   return `<div class="hand-in ${k ? "" : "folded"}" id="handIn">
     ${k ? "" : `<button class="btn ghost" id="hiOpen">${esc(C.shareBtn)}</button>`}
     <div class="hi-body" ${k ? "" : "hidden"}><span class="sec-lab">${esc(C.handTitle)}${k && k.cl ? ` · ${esc(k.cl)}` : ""}</span>
-      ${k ? "" : `<label class="code"><span>${esc(C.nameFor)}</span><input id="hiName" class="name-in" maxlength="40" value="${esc(store.studentName || "")}" spellcheck="false"></label>`}
+      ${k ? "" : `<label class="code"><span>${esc(C.nameFor)}</span><input id="hiName" class="name-in" maxlength="40" value="${esc(store.studentName || (store.profile && store.profile.nick) || "")}" spellcheck="false"></label>`}
       <textarea id="hiCode" class="code-box" rows="3" readonly spellcheck="false"></textarea>
       <p class="note">${esc(C.handHint)}</p>
       <div class="btns"><button class="btn" id="hiCopy">${esc(C.copy)}</button><button class="btn ghost" id="hiDl">${esc(C.download)}</button></div></div></div>`;
@@ -163,7 +163,7 @@ function teacherDesk(tab) {
   $("overlay").querySelectorAll("[data-tab]").forEach(b => (b.onclick = () => { Sound.select(); persist(); teacherDesk(+b.dataset.tab); }));
   $("tdBack").onclick = () => { persist(); titleScreen(); };
   bindToggles(() => teacherDesk());
-  [assignTab, builderTab, resultsTab][cur_]();
+  [assignTab, builderTab, resultsTab, dataTab][cur_]();
 }
 const seg = (attr, opts, val) => `<div class="seg" role="group">${opts.map(([v, label]) => `<button data-${attr}="${v}" aria-pressed="${String(v) === String(val)}">${esc(label)}</button>`).join("")}</div>`;
 
@@ -186,7 +186,7 @@ function assignTab() {
     <p class="note">${esc(A.classCodeHint)}</p>
     <div class="btns"><button class="btn" id="aTry">${esc(A.tryIt)} →</button></div>
   </div>`;
-  const payload = () => ({ v: 1, cl: a.cl.trim(), l: a.l, sd: (a.sd || "").toUpperCase().replace(/[^A-Z0-9]/g, "") || randomCode(), h: !!a.h, e: !!a.e, m: a.m, cs: a.l === "custom" ? T_.bSaved : null });
+  const payload = () => ({ v: 1, cl: a.cl.trim(), l: a.l, sd: (a.sd || "").toUpperCase().replace(/[^A-Z0-9]/g, "") || randomCode(), h: !!a.h, e: !!a.e, m: a.m, cs: a.l === "custom" ? T_.bSaved : null, ep: (T_.ep || "").trim() || null });
   const out = () => { const code = encodeCode("C", payload()); $("aLink").value = classLink(code); $("aCode").value = code; persist(); };
   $("aCl").oninput = () => { a.cl = $("aCl").value; out(); };
   $("aLv").onchange = () => { a.l = $("aLv").value; out(); };
@@ -281,15 +281,15 @@ function checkResults(text) {
       const B = d.body, gm = replayCfg(B.cfg, B.in.map(unpackInp)), s = gm.hist[gm.hist.length - 1];
       const sp = scoreGame(s), rule = scoreGame(ruleBoundGame(gm.sc)).total, db = debriefData(gm.sc, gm.inputs, gm.reports);
       const stars = s.lost ? 0 : sp.total >= rule ? 3 : sp.total >= 0.9 * rule ? 2 : 1;
-      out.push({ raw, ok: d.ok, nm: B.nm || "—", cl: B.cl || "", date: B.d || "", cfg: B.cfg, gm, s, score: sp.total, rule, stars, db, done: !s.lost && s.t >= M.turns });
+      out.push({ raw, ok: d.ok, nm: B.nm || "—", cl: B.cl || "", date: B.d || "", pr: B.pr || null, cfg: B.cfg, gm, s, score: sp.total, rule, stars, db, done: !s.lost && s.t >= M.turns });
     } catch { out.push({ bad: true, raw }); }
   }
   return out;
 }
 function resultsCSV(rows) {
   const t = tr(), gg = g(), q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const head = ["student", "class", "scenario", "shock_code", "difficulty", "economy", "mandate", "score", "stars", "rule_score", "credibility", "popularity", "peak_removal_risk", "outcome", "quarters_on_target", "quarters_following_rule", "quarters_played", "date", "check"];
-  const lines = rows.filter(r => !r.bad).map(r => [r.nm, r.cl, gg.levels[r.cfg.l] ? gg.levels[r.cfg.l][0] : r.cfg.l, r.cfg.sd, r.cfg.h ? "hard" : "normal", r.cfg.e ? "emerging" : "advanced", r.cfg.m,
+  const head = ["student", "age", "gender", "education", "profession", "class", "scenario", "shock_code", "difficulty", "economy", "mandate", "score", "stars", "rule_score", "credibility", "popularity", "peak_removal_risk", "outcome", "quarters_on_target", "quarters_following_rule", "quarters_played", "date", "check"];
+  const lines = rows.filter(r => !r.bad).map(r => [r.nm, r.pr ? r.pr.age : "", profLabel("genders", r.pr && r.pr.gen), profLabel("edus", r.pr && r.pr.edu), r.pr ? profText(r.pr) : "", r.cl, gg.levels[r.cfg.l] ? gg.levels[r.cfg.l][0] : r.cfg.l, r.cfg.sd, r.cfg.h ? "hard" : "normal", r.cfg.e ? "emerging" : "advanced", r.cfg.m,
     r.score, r.stars, r.rule, Math.round(r.s.cred * 100), Math.round(r.s.pop), Math.round(r.s.heatPeak || 0), r.s.lost ? t.outcome[r.s.lost] : g().cls.res.done,
     r.db.onTarget, r.db.N - r.db.deviations, r.db.N, r.date, r.ok ? "verified" : "altered"].map(q).join(","));
   return [head.join(","), ...lines].join("\n");
@@ -317,6 +317,6 @@ function resultsTab() {
   $("tdBody").querySelectorAll("[data-rep]").forEach(b => (b.onclick = () => {
     const r = rows[+b.dataset.rep];
     game = r.gm; Sound.select();
-    openDebrief({ back: () => { game = null; teacherDesk(2); }, who: C.report.who(r.nm, r.cl, r.date) });
+    openDebrief({ back: () => { game = null; teacherDesk(2); }, who: [C.report.who(r.nm, r.cl, r.date), r.pr ? [r.pr.age, profLabel("edus", r.pr.edu), profText(r.pr)].filter(Boolean).join(" · ") : ""].filter(Boolean).join(" — ") });
   }));
 }

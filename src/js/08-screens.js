@@ -24,7 +24,7 @@ function titleScreen() {
     ${classCardHTML()}
     ${sv ? `<button class="btn big ${store.klass ? "ghost" : ""}" id="tCont" ${store.klass ? "" : "data-hot"}>${esc(gg.continueGame(gg.levels[sv.cfg.scenario][0], sv.inputs.length + 1))} →</button>` : ""}
     <button class="btn big ${sv || store.klass ? "ghost" : ""}" id="tStart" ${sv || store.klass ? "" : "data-hot"}>${esc(gg.play)} →</button>
-    <div class="toggles"><button class="btn ghost small" id="tJoin">${esc(gg.cls.joinBtn)}</button><button class="btn ghost small" id="tTeach">${esc(gg.cls.teacherBtn)}</button></div>
+    <div class="toggles"><button class="btn ghost small" id="tJoin">${esc(gg.cls.joinBtn)}</button><button class="btn ghost small" id="tProf">${esc(gg.prof.edit)}</button><button class="btn ghost small" id="tTeach">${esc(gg.cls.teacherBtn)}</button></div>
     <div class="toggles">${langToggle()}${soundToggle()}</div>
   </div>`);
   $("tStart").onclick = () => { Sound.unlock(); Sound.confirm(); levelSelect(); };
@@ -32,6 +32,7 @@ function titleScreen() {
   bindClassCard();
   $("tJoin").onclick = () => { Sound.unlock(); Sound.select(); joinClass(); };
   $("tTeach").onclick = () => { Sound.unlock(); Sound.select(); teacherDesk(); };
+  $("tProf").onclick = () => { Sound.unlock(); Sound.select(); profileScreen(titleScreen); };
   bindToggles(titleScreen);
 }
 
