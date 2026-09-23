@@ -29,7 +29,7 @@ function installCustom(spec) {
   });
 }
 const cfgOf = c => ({ l: c.scenario, sd: c.seed, h: !!c.hard, e: !!c.em, m: c.mandate || "price", cs: c.cs || null, cr: c.carry || null });
-const optsOf = c => ({ mandate: c.mandate, carry: c.carry, career: c.career, klass: c.klass, student: c.student, cs: c.cs });
+const optsOf = c => ({ mandate: c.mandate, carry: c.carry, career: c.career, stage: c.stage, klass: c.klass, student: c.student, cs: c.cs });
 
 function resultCode(name) {
   const c = game.cfg;

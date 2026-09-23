@@ -27,7 +27,7 @@ function qaId(s, prep, inp) {
 }
 function qaEffect(s, prep, inp) { const e = QA_EFF[qaId(s, prep, inp)][inp.qa] || {}; return typeof e === "function" ? e(s) : e; }
 /*FIN-START*/
-M.turns = 18; M.election = 12;                      // a four-and-a-half year term, election two thirds in
+M.turns = 12; M.election = 8;                       // a three-year term, election two thirds in
 const EQ_TREND = 1.012, Y10_NEUTRAL = 3.5, QE_RATE = 1.25, CRASH_DD = 18;
 // Asset purchases: only near the zero bound. Same-quarter demand, softer long yields, cheaper for the Treasury.
 const QE = [{ d: 0, s: 0, eq: 0, y: 0, heat: 0, cred: 0 },
@@ -143,7 +143,7 @@ function extendScenario(sc, seed) {
   const used = new Set(Object.keys(sc.news).map(Number)), fixed = SCEN[sc.key] && SCEN[sc.key].fixed;   // a teacher's scenario can switch surprises off
   for (let k = 0; k < (fixed ? 0 : 3); k++) {
     let t = 0, tries = 0;
-    do { t = 9 + Math.floor(rng() * (M.turns - 9)); tries++; } while (tries < 40 && (used.has(t) || used.has(t - 1) || used.has(t + 1)));
+    do { t = Math.round(M.turns * 0.55) + Math.floor(rng() * Math.max(1, M.turns - Math.round(M.turns * 0.55))); tries++; } while (tries < 40 && (used.has(t) || used.has(t - 1) || used.has(t + 1)));
     used.add(t);
     const ev = EVENT_POOL[Math.floor(rng() * EVENT_POOL.length)], mag = 0.9 + rng() * 0.8;
     [1, 0.6, 0.3].forEach((w, j) => { if (t + j <= M.turns) sc[ev.kind][t + j] += ev.sign * mag * w; });
@@ -164,7 +164,7 @@ function extendScenario(sc, seed) {
   sc.bustRoll = Array.from({ length: n }, () => wrng());                                        // fixed dice for credit busts and sudden stops
   sc.ssRoll = Array.from({ length: n }, () => wrng());
   const free = Object.keys(DILEMMAS).filter(id => !Object.values(sc.dilemmas).includes(id)).sort(() => rng() - 0.5);
-  if (!fixed) [12 + Math.floor(rng() * 2), 15 + Math.floor(rng() * 3)].forEach((t, k) => { if (!sc.dilemmas[t] && free[k]) sc.dilemmas[t] = free[k]; });
+  if (!fixed) [Math.round(M.turns * 0.66) + Math.floor(rng() * 2), Math.round(M.turns * 0.85) + Math.floor(rng() * 2)].forEach((t, k) => { if (!sc.dilemmas[t] && free[k]) sc.dilemmas[t] = free[k]; });
   return sc;
 }
 // A teacher's own scenario: each event [quarter, "d"|"s", size, duration, headline, details] becomes a fading shock path.
@@ -257,7 +257,7 @@ function prepGame(s, sc) {
   p.qe = s.i <= QE_RATE;
   p.qt = !p.qe && (s.qeStock || 0) >= 1;
   p.em = !!sc.em;
-  p.hearing = (p.t === 6 || p.t === 14 || (p.t === 10 && s.heat >= 40)) && !p.gd;     // parliament calls the Governor in twice a term
+  p.hearing = (p.t === Math.round(M.turns / 3) || p.t === Math.round(M.turns * 0.8) || (p.t === Math.round(M.turns * 0.55) && s.heat >= 40)) && !p.gd;   // parliament calls the Governor in twice a term
   if (p.hearing) p.hearQs = hearingQs(seenOf(s, sc, s.t), p);
   p.budget = budgetQuarter(p.t); p.canMacro = dept.supervision >= 2;
   p.fxTool = !!sc.em || dept.markets >= 2; p.bustNow = s.bust === 3; p.ssLast = !!s.ssHit;
@@ -469,11 +469,12 @@ const QT = { d: -0.3, s: -0.03, eq: -1.2, y: -0.55, heat: 4, cred: 0.02 };
 /*HEAT-END*/
 /*TEACH-START*/
 // US federal funds rate, quarterly averages (approximate), from each era's first quarter: 1973 Q3, 2007 Q3, 2020 Q1.
-const FED_PATH = {
+const FED_FULL = {
   oil: [10.56, 10.0, 9.32, 11.25, 12.09, 9.35, 6.3, 5.42, 6.16, 5.41, 4.83, 5.2, 5.28, 4.87, 4.66, 5.16, 5.82, 6.51, 6.76],
   crisis: [5.07, 4.5, 3.18, 2.09, 1.94, 0.51, 0.18, 0.18, 0.16, 0.12, 0.13, 0.19, 0.19, 0.19, 0.16, 0.09, 0.08, 0.07, 0.1],
   pandemic: [1.26, 0.06, 0.09, 0.09, 0.08, 0.07, 0.09, 0.08, 0.12, 0.77, 2.19, 3.65, 4.52, 4.99, 5.26, 5.33, 5.33, 5.33, 5.26]
 };
+const FED_PATH = Object.fromEntries(Object.entries(FED_FULL).map(([k, v]) => [k, v.slice(0, M.turns + 1)]));
 const ruleInput = (s, p) => ({ move: p.advisors.taylor, tone: "neutral", choice: 0, qa: null, qe: p.qe && s.x < -0.5 ? 2 : 0, buy: p.budget ? ruleBuys(s) : [] });
 function rulePath(sc) {
   let s = initGame(sc); const H = [s];

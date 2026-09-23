@@ -36,46 +36,68 @@ function titleScreen() {
   bindToggles(titleScreen);
 }
 
+// The campaign: four stages in order of difficulty. You reach the next one by finishing the one before it.
+const campState = () => (store.camp = store.camp || { stage: 0, done: [], carry: null });
+const campUnlocked = k => k <= campState().stage;
 function levelSelect() {
   screen = "levels"; game = null; resetStage(); $("hud").hidden = true; drawRoom(); renderTicker();
-  const gg = g(), achIds = Object.keys(gg.ach), got = achIds.filter(a => store.ach[a]).length;
+  const gg = g(), C = gg.camp, cp = campState(), achIds = Object.keys(gg.ach), got = achIds.filter(a => store.ach[a]).length;
   openOverlay(`<div class="scr">
     <h2 class="scr-title">${esc(gg.levelsTitle)}</h2>
-    ${careerCard()}
+    <p class="credits">${esc(C.sub)}</p>
+    <div class="toggles"><span class="pill">${esc(C.setup)}</span></div>
+    ${cp.stage >= LEVEL_ORDER.length ? careerCard() : ""}
     <div class="lvl-grid">${LEVEL_ORDER.map((k, idx) => {
-      const [name, year, blurb] = gg.levels[k], sk = k + (store.hard ? ":hard" : "") + (store.em ? ":em" : "") + (store.mandate === "dual" ? ":dual" : ""), st = store.stars[sk] || 0, [bg, icon] = LEVEL_ICON[k];
-      return `<button class="lvl" data-level="${k}" data-key="${idx + 1}">
-        <span class="lvl-icon" style="--ic:${bg}">${icon}</span>
+      const [name, year, blurb] = gg.levels[k], sk = k + ":camp", st = store.stars[sk] || 0, [bg, icon] = LEVEL_ICON[k];
+      const open = campUnlocked(idx), here = idx === cp.stage, beaten = cp.done.includes(idx);
+      return `<button class="lvl ${open ? "" : "locked"} ${here ? "here" : ""}" data-level="${k}" data-stage="${idx}" data-key="${idx + 1}" ${open ? "" : "disabled aria-disabled=\"true\""}>
+        <span class="lvl-icon" style="--ic:${bg}">${open ? icon : ICON.lock}</span>
         <span class="lvl-main">
-          <span class="lvl-top"><span>${esc(gg.level(idx + 1))} · ${esc(year)}</span><span class="dots">${[0, 1, 2, 3].map(d => `<i class="${d <= idx ? "on" : ""}"></i>`).join("")}</span></span>
-          <span class="lvl-name">${esc(name)}</span>
-          <span class="lvl-blurb">${esc(blurb)}</span>
+          <span class="lvl-top"><span>${esc(gg.level(idx + 1))} · ${esc(year)}</span>${here ? `<span class="pill">${esc(C.current)}</span>` : beaten ? `<span class="pill done">${esc(C.done)}</span>` : ""}</span>
+          <span class="lvl-name">${esc(open ? name : C.locked)}</span>
+          <span class="lvl-blurb">${esc(open ? blurb : C.lockedHint(idx))}</span>
           <span class="lvl-foot"><span class="stars-s" aria-label="${st}/3">${starRow(st)}</span><span>${esc(gg.best)}: ${store.best[sk] ?? "—"}</span></span>
         </span></button>`;
     }).join("")}</div>
-    <div class="toggles">${diffToggle()}${econToggle()}${mandateToggle()}</div><p class="diff-hint">${[store.hard ? gg.hardHint : "", store.em ? gg.emHint : "", store.mandate === "dual" ? gg.mandate.hint.dual : ""].filter(Boolean).map(esc).join(" ")}</p>
-    <label class="code"><span>${esc(gg.code)}</span><input id="codeIn" maxlength="8" autocomplete="off" spellcheck="false"></label>
-    <p class="hint">${esc(gg.codeHint)}</p>
+    ${cp.carry && cp.stage > 0 ? `<p class="hint">${esc(C.carry(Math.round((cp.carry.cred || 0.75) * 100), cp.carry.points ?? 0))}</p>` : ""}
     <div class="achbar"><span class="sec-lab">${esc(gg.achTitle)} · ${got}/${achIds.length}</span><div class="ach-row">${achIds.map(id => `<span class="ach-pill ${store.ach[id] ? "got" : ""}" title="${esc(gg.ach[id][1])}">${esc(gg.ach[id][0])}</span>`).join("")}</div></div>
     <div class="btns"><button class="btn ghost" id="lBack">← ${esc(gg.back)}</button><button class="btn ghost" id="lGloss">${esc(gg.gloss.title)}</button>${langToggle()}${soundToggle()}${tipsToggle()}</div>
   </div>`);
-  $("overlay").querySelectorAll("[data-level]").forEach(b => (b.onclick = () => {
-    const code = ($("codeIn").value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
-    Sound.confirm(); startLevel(b.dataset.level, code || randomCode(), [], !!store.hard, !!store.em, { mandate: store.mandate === "dual" ? "dual" : "price" });
+  $("overlay").querySelectorAll("[data-level]:not([disabled])").forEach(b => (b.onclick = () => {
+    Sound.confirm();
+    startStage(+b.dataset.stage);
   }));
   $("lBack").onclick = titleScreen;
   $("lGloss").onclick = () => openGlossary(levelSelect);
   bindCareerCard();
   bindToggles(levelSelect);
 }
+// Finishing the stage you had reached opens the next one, and hands your institution over to it.
+function campRecord(s, stars) {
+  const cp = campState(), idx = game.cfg.stage;
+  if (idx == null || s.lost || idx !== cp.stage) return;
+  if (!cp.done.includes(idx)) cp.done.push(idx);
+  const next = LEVEL_ORDER[Math.min(idx + 1, LEVEL_ORDER.length - 1)];
+  const base = SCEN[next].cred - (FIXED.em ? 0.08 : 0) - (FIXED.hard ? 0.05 : 0);
+  cp.carry = { dept: Object.assign({}, s.dept || initDept()), rel: Object.assign({}, s.rel),
+    cred: +clamp(0.5 * base + 0.5 * s.cred, 0.3, 0.9).toFixed(3), points: 3 + stars };
+  cp.stage = Math.min(idx + 1, LEVEL_ORDER.length);
+  persist();
+}
+// Starting a stage: the one you have reached continues from the last, an earlier one is replayed on its own.
+function startStage(idx, seed) {
+  const cp = campState(), key = LEVEL_ORDER[idx], chain = idx === cp.stage && idx > 0;
+  startLevel(key, seed || randomCode(), [], FIXED.hard, FIXED.em, { mandate: FIXED.mandate, carry: chain ? cp.carry : null, stage: idx });
+}
 
 function startLevel(scenario, seed, inputs = [], hard = false, em = false, opts = {}) {
   closeOverlay(); resetStage();
   screen = "game";
   const mandate = opts.mandate === "dual" ? "dual" : "price";
+  if (opts.stage != null) { hard = FIXED.hard; em = FIXED.em; }
   if (scenario === "custom" && opts.cs) installCustom(opts.cs);
   const sc = applyMode(extendScenario(buildScenario(scenario, seed), seed), hard, em, mandate, opts.carry);
-  game = { cfg: { scenario, seed, hard: !!hard, em: !!em, mandate, carry: opts.carry || null, career: !!opts.career, klass: opts.klass || null, student: opts.student || "", cs: opts.cs || null }, sc, hist: [initGame(sc)], reports: [], inputs: [], hud: null, headlines: [] };
+  game = { cfg: { scenario, seed, hard: !!hard, em: !!em, mandate, carry: opts.carry || null, career: !!opts.career, stage: opts.stage ?? null, klass: opts.klass || null, student: opts.student || "", cs: opts.cs || null }, sc, hist: [initGame(sc)], reports: [], inputs: [], hud: null, headlines: [] };
   g().tickerStart.forEach((x, k) => game.headlines.push({ key: "start" + k, src: "wire", textFn: () => g().tickerStart[k] }));
   inputs.forEach(advance);
   saveGame();

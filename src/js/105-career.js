@@ -15,6 +15,7 @@ function careerCard() {
   </div>`;
 }
 function bindCareerCard() {
+  if (!$("crNew")) return;                                  // the career only opens once the campaign is done
   $("crNew").onclick = careerSetup;
   $("crHall").onclick = hallOfFame;
   if ($("crCont")) $("crCont").onclick = startCareerTerm;
@@ -26,8 +27,8 @@ function careerSetup() {
     <h2 class="scr-title">${esc(C.setupTitle)}</h2>
     <p class="credits">${esc(C.tagline)}</p>
     <label class="code"><span>${esc(C.nameLabel)}</span><input id="govName" class="name-in" maxlength="28" value="${esc(keep)}" autocomplete="off" spellcheck="false"></label>
-    <div class="toggles">${mandateToggle()}${econToggle()}${diffToggle()}</div>
-    <p class="diff-hint">${esc(gg.mandate.hint[store.mandate === "dual" ? "dual" : "price"])}${store.em ? " " + esc(gg.emHint) : ""}</p>
+    <div class="toggles"><span class="pill">${esc(gg.camp.setup)}</span></div>
+    <p class="diff-hint">${esc(gg.mandate.hint.dual)}</p>
     <ol class="era-list">${C.eras.map(e => `<li>${esc(e)}</li>`).join("")}</ol>
     <div class="btns"><button class="btn ghost" id="csBack">← ${esc(gg.back)}</button><button class="btn big" id="csGo" data-hot>${esc(C.begin)} →</button></div>
   </div>`);
@@ -35,7 +36,7 @@ function careerSetup() {
   $("csBack").onclick = levelSelect;
   $("csGo").onclick = () => {
     const name = ($("govName").value || "").trim().slice(0, 28) || suggestName();
-    store.career = { id: Date.now(), mandate: store.mandate === "dual" ? "dual" : "price", em: !!store.em, hard: !!store.hard,
+    store.career = { id: Date.now(), mandate: FIXED.mandate, em: FIXED.em, hard: FIXED.hard,
       era: 0, gov: { name, terms: [] }, govs: [], results: [], carry: null, seeds: [], recorded: -1 };
     persist();
     startCareerTerm();

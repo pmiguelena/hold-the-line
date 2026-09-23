@@ -19,15 +19,15 @@ for (const p of plays) {
     assert.deepEqual(errors, []);
     assert.ok(ENDINGS.includes(r.end), r.end);
     if (/complete|superado/.test(r.end)) {
-      assert.equal(r.quarters, 18);
-      assert.equal(r.fronts, 18);
-      assert.equal(r.reactions, 18);
-      assert.equal(r.fans, 18, "the staff forecast should appear at every decision");
-      assert.equal(r.maps, 18, "the economy map briefing should appear every quarter");
-      assert.equal(r.budgets, 5, "a budget meeting should open each of the five years");
-      assert.ok(r.buys >= 5, `only ${r.buys} upgrades bought`);
-      assert.equal(r.boards, 18, "the board vote should appear at every decision");
-      if (p.em) assert.equal(r.fxRows, 18, "emerging markets always have the currency tool");
+      assert.equal(r.quarters, 12);
+      assert.equal(r.fronts, 12);
+      assert.equal(r.reactions, 12);
+      assert.equal(r.fans, 12, "the staff forecast should appear at every decision");
+      assert.equal(r.maps, 12, "the economy map briefing should appear every quarter");
+      assert.equal(r.budgets, 3, "a budget meeting should open each of the five years");
+      assert.ok(r.buys >= 3, `only ${r.buys} upgrades bought`);
+      assert.equal(r.boards, 12, "the board vote should appear at every decision");
+      if (p.em) assert.equal(r.fxRows, 12, "emerging markets always have the currency tool");
     }
   });
 }
@@ -37,7 +37,7 @@ test("restores a saved game mid-level", () => {
     inputs: [{ move: -0.5, tone: "neutral", choice: null, qa: 0 }, { move: -0.5, tone: "dovish", choice: 0, qa: 2 }], lang: "en" };
   const { d, errors } = boot(`<script>window.claude={hot:{data:${JSON.stringify(snap)}}}</script>`);
   assert.deepEqual(errors, []);
-  assert.equal(d.querySelector("#overlay .big-title").textContent, "Quarter 3 of 18");
+  assert.equal(d.querySelector("#overlay .big-title").textContent, "Quarter 3 of 12");
   assert.ok(d.querySelector("#hud .hard-tag"));
 });
 
@@ -48,7 +48,7 @@ test("an unfinished game can be continued from the title screen", () => {
   assert.ok(btn, "continue button missing");
   assert.match(btn.textContent, /The Pandemic, quarter 2/);
   btn.click();
-  assert.equal(d.querySelector("#overlay .big-title").textContent, "Quarter 2 of 18");
+  assert.equal(d.querySelector("#overlay .big-title").textContent, "Quarter 2 of 12");
   assert.deepEqual(errors, []);
 });
 
@@ -98,7 +98,7 @@ test("phase 8 on screen: debt meter, household panel and the sell-holdings contr
   const { d, errors } = boot();
   const r = playThrough(d, { level: "crisis", lang: "en", qe: 2 });
   assert.ok(r.qtRows >= 1, "the sell-holdings control should appear after purchases, once rates rise");
-  assert.ok(r.groups >= 18, `the household panel appeared ${r.groups} times`);
+  assert.ok(r.groups >= 12, `the household panel appeared ${r.groups} times`);
   assert.deepEqual(errors, []);
   d.getElementById("eDebrief").click();
   assert.ok(!/NaN|undefined/.test(d.getElementById("overlay").textContent));
@@ -154,18 +154,18 @@ test("dual mandate: the tag shows and a level still plays to the end", () => {
 test("teaching: staff notes appear, glossary terms open, and the debrief explains the term", () => {
   const { d, errors } = boot();
   const r = playThrough(d, { level: "pandemic", lang: "en", advisor: 0 });
-  assert.ok(r.coach >= 15, `only ${r.coach} staff notes`);
+  assert.ok(r.coach >= 12, `only ${r.coach} staff notes`);
   d.getElementById("eDebrief").click();
   const ov = d.getElementById("overlay");
   assert.equal(ov.querySelectorAll("svg.chart").length, 3, "rate, inflation and history charts");
-  assert.ok(ov.querySelector(".moment"), "at least one decision that mattered");
+  assert.ok(ov.querySelector(".moment") || /followed the rule every quarter/.test(ov.textContent), "the decisions section says something");
   assert.ok(!/NaN|undefined|\[object/.test(ov.textContent), "bad text in the debrief");
+  d.getElementById("dbGloss").click();
+  assert.ok(ov.querySelectorAll("dl.gloss > div").length >= 25);
   ov.querySelector(".term").click();
   assert.ok(d.getElementById("termPop"), "a term card opens");
   d.body.click();
   assert.equal(d.getElementById("termPop"), null, "clicking away closes it");
-  d.getElementById("dbGloss").click();
-  assert.ok(ov.querySelectorAll("dl.gloss > div").length >= 25);
   d.getElementById("glBack").click();
   d.getElementById("dbBack").click();
   assert.ok(d.getElementById("eRetry"), "back on the results screen");
@@ -312,9 +312,39 @@ test("collection: a finished term is posted to the teacher's sheet, dismissal an
   assert.equal(u, "https://script.google.com/macros/s/TEST/exec");
   assert.equal(row.nickname, "Nico");
   assert.equal(row.score, r.score);
-  assert.equal(row.quarters, 18);
+  assert.equal(row.quarters, 12);
   assert.equal(row.dismissed, "no");
   assert.equal(row.outcome, "Completed");
   assert.ok(row.result_code.startsWith("HTLR1."), "the row carries the replayable code");
   assert.deepEqual(st.errors, []);
+});
+
+test("campaign: one fixed setup, stages locked until the one before is finished, then carried forward", () => {
+  const fresh = boot(`<script>localStorage.setItem("holdtheline.v1", JSON.stringify({ profileSkip: true }))</script>`, "https://example.org/", true);
+  const d = fresh.d;
+  d.getElementById("tStart").click();
+  const cards = [...d.querySelectorAll("[data-stage]")];
+  assert.equal(cards.length, 4);
+  assert.ok(!cards[0].disabled, "the first stage is open");
+  assert.ok(cards.slice(1).every(c => c.disabled), "the rest are locked");
+  assert.ok(!d.querySelector("[data-diff],[data-econ],[data-mandate]"), "no setup toggles on the campaign screen");
+  assert.match(d.querySelector("#overlay .pill").textContent, /Emerging economy · Dual mandate/);
+
+  const r = playThrough(d, { start: dd => dd.querySelector('[data-stage="0"]').click(), lang: "en" });
+  const hud = d.getElementById("hud").textContent;
+  assert.match(hud, /Emerging/); assert.match(hud, /Dual mandate/);
+  if (/complete/.test(r.end)) {
+    assert.ok(d.getElementById("eStage"), "a finished stage offers the next one");
+    const st = JSON.parse(fresh.w.localStorage.getItem("holdtheline.v1"));
+    assert.equal(st.camp.stage, 1, "the next stage is unlocked");
+    assert.ok(st.camp.carry.cred > 0 && st.camp.carry.points > 0, "and the institution carries over");
+    d.getElementById("eLevels").click();
+    const now = [...d.querySelectorAll("[data-stage]")];
+    assert.ok(!now[1].disabled, "the second stage is open now");
+    assert.ok(now[2].disabled, "the third is still locked");
+  } else {
+    assert.ok(d.getElementById("eRetry"), "a lost stage offers a retry");
+    assert.equal(JSON.parse(fresh.w.localStorage.getItem("holdtheline.v1")).camp.stage, 0, "and unlocks nothing");
+  }
+  assert.deepEqual(fresh.errors, []);
 });

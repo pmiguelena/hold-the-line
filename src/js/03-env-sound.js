@@ -1,4 +1,6 @@
 /* ═══════════════ STORAGE & ENV ═══════════════ */
+// One setup for everyone: an emerging economy, a dual mandate and the hard shocks. Teachers can still change it in a class assignment.
+const FIXED = { hard: true, em: true, mandate: "dual" };
 const STORE_KEY = "holdtheline.v1";
 const store = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; } })();
 store.stars = store.stars || {}; store.best = store.best || {}; store.ach = store.ach || {};

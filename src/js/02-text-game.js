@@ -127,9 +127,15 @@ G.en = {
   peakHeat: "Peak removal risk",
   dilemmasExtra: { crash: ["Markets are crashing", "Stocks are down more than a fifth from their peak and banks are refusing to lend to each other. The board wants a decision tonight.", "Open an emergency liquidity line for solvent banks", "Let markets find their own level"], truce: ["The President offers a truce", "Publicly endorse the government's budget plan, and the talk of removing you stops.", "Decline: the Bank does not endorse budgets", "Accept the truce"] },
   tagline: "A central banker's game", play: "Play",
-  credits: "Eighteen quarters. One election. A whole country with an opinion about your interest rate.",
+  credits: "Twelve quarters. One election. A whole country with an opinion about your interest rate.",
   sound: "Sound", on: "on", off: "off",
-  levelsTitle: "Choose your crisis", level: n => `Level ${n}`, best: "Best", back: "Back",
+  camp: {
+    sub: "Four stages, each harder than the last. Finish one and you carry your credibility and your institution into the next.",
+    setup: "Emerging economy · Dual mandate · Hard shocks", locked: "Locked", lockedHint: n => `Finish stage ${n} to unlock this one.`,
+    current: "You are here", done: "Completed", carry: (c, p) => `You start with credibility ${c} and ${p} budget points from the last stage.`,
+    next: "Next stage", retry: "Try this stage again", finale: "You have held the line through every stage.", replay: "Play again"
+  },
+  levelsTitle: "Your term ahead", level: n => `Stage ${n}`, best: "Best", back: "Back",
   code: "Shock code", codeHint: "Leave it empty for random shocks. Same code, same shocks — share it with your class.",
   levels: {
     random: ["Normal Times", "Today", "Two surprises and an election. Learn the job."],
@@ -421,9 +427,15 @@ G.es = {
   peakHeat: "Riesgo de destitución máximo",
   dilemmasExtra: { crash: ["Los mercados se desploman", "La bolsa cae más de un quinto desde su máximo y los bancos no se prestan entre sí. El directorio quiere una decisión esta noche.", "Abrir una línea de liquidez de emergencia para bancos solventes", "Dejar que el mercado encuentre su nivel"], truce: ["El Presidente ofrece una tregua", "Respalda públicamente el plan presupuestario del gobierno y se acaban los rumores de destitución.", "Rechazar: el Banco no avala presupuestos", "Aceptar la tregua"] },
   tagline: "Un juego de banca central", play: "Jugar",
-  credits: "Dieciocho trimestres. Una elección. Un país entero opinando sobre tu tasa de interés.",
+  credits: "Doce trimestres. Una elección. Un país entero opinando sobre tu tasa de interés.",
   sound: "Sonido", on: "sí", off: "no",
-  levelsTitle: "Elige tu crisis", level: n => `Nivel ${n}`, best: "Récord", back: "Volver",
+  camp: {
+    sub: "Cuatro etapas, cada una más difícil que la anterior. Si superas una, llevas tu credibilidad y tu institución a la siguiente.",
+    setup: "Economía emergente · Mandato dual · Shocks fuertes", locked: "Bloqueada", lockedHint: n => `Supera la etapa ${n} para desbloquear esta.`,
+    current: "Estás aquí", done: "Superada", carry: (c, p) => `Empiezas con credibilidad ${c} y ${p} puntos de presupuesto de la etapa anterior.`,
+    next: "Siguiente etapa", retry: "Reintentar esta etapa", finale: "Aguantaste en todas las etapas.", replay: "Jugar de nuevo"
+  },
+  levelsTitle: "Tu mandato por delante", level: n => `Etapa ${n}`, best: "Récord", back: "Volver",
   code: "Código de shocks", codeHint: "Déjalo vacío para shocks aleatorios. Mismo código, mismos shocks — compártelo con tu clase.",
   levels: {
     random: ["Tiempos Normales", "Hoy", "Dos sorpresas y una elección. Aprende el oficio."],
@@ -588,6 +600,6 @@ G.es = {
 };
 
 
-const LEVEL_ORDER = ["random", "pandemic", "crisis", "oil"];
+const LEVEL_ORDER = ["random", "oil", "crisis", "pandemic"];   // ordered by how hard each one plays under the fixed setup
 const ADV_ID = { keynes: "harrow", friedman: "weiss", taylor: "okafor" };
 

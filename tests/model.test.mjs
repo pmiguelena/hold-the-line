@@ -8,8 +8,8 @@ const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
 const run = (level, pol, n = 120, hard = false) => Array.from({ length: n }, (_, k) => simulate(m, level, "T" + k, POLICIES[pol], hard));
 
 test("term length and election", () => {
-  assert.equal(m.M.turns, 18);
-  assert.equal(m.M.election, 12);
+  assert.equal(m.M.turns, 12);
+  assert.equal(m.M.election, 8);
 });
 
 test("same seed, same game", () => {

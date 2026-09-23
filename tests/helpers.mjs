@@ -22,7 +22,7 @@ export const POLICIES = {
 // Boots the built page in a simulated browser (no animations: jsdom has no matchMedia).
 // By default a booted game already has the profile page behind it, the way a returning player does.
 export function boot(pre = "", url = "https://example.org/", fresh = false) {
-  if (!fresh) pre = `<script>localStorage.setItem("holdtheline.v1", JSON.stringify({ profileSkip: true }))</script>` + pre;
+  if (!fresh) pre = `<script>localStorage.setItem("holdtheline.v1", JSON.stringify({ profileSkip: true, camp: { stage: 4, done: [0, 1, 2, 3] } }))</script>` + pre;
   const html = readFileSync(new URL("../game.html", import.meta.url), "utf8");
   const vc = new VirtualConsole(), errors = [];
   vc.on("jsdomError", e => { if (!/Not implemented/.test(e.message)) errors.push(e.message); });
@@ -37,9 +37,6 @@ export function playThrough(d, { level, lang = "en", hard = false, em = false, a
   const seen = { quarters: 0, fronts: 0, reactions: 0, dilemmas: 0, qa: 0, qe: 0, elections: 0, fans: 0 };
   d.querySelector(`#overlay [data-lang="${lang}"]`).click();
   if (!start) d.getElementById("tStart").click();
-  if (hard) d.querySelector('#overlay [data-diff="1"]').click();
-  if (em) d.querySelector('#overlay [data-econ="1"]').click();
-  if (dual) d.querySelector('#overlay [data-mandate="dual"]').click();
   if (start) start(d);
   else if (career) {
     seen.terms = []; d.getElementById("crNew").click();

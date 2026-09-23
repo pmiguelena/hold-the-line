@@ -20,11 +20,12 @@ function evalAchievements(score, rule) {
 
 function endLevel(restored) {
   resetStage();
-  const s = cur(), t = tr(), gg = g(), key = game.cfg.scenario, sk = key + (game.cfg.hard ? ":hard" : "") + (game.cfg.em ? ":em" : "") + (game.cfg.mandate === "dual" ? ":dual" : ""), H = game.hist;
+  const s = cur(), t = tr(), gg = g(), key = game.cfg.scenario, stage = game.cfg.stage, H = game.hist;
+  const sk = stage != null ? key + ":camp" : key + (game.cfg.hard ? ":hard" : "") + (game.cfg.em ? ":em" : "") + (game.cfg.mandate === "dual" ? ":dual" : "");
   const sp = scoreGame(s), rule = scoreGame(ruleBoundGame(game.sc)).total;
   const stars = s.lost ? 0 : sp.total >= rule ? 3 : sp.total >= 0.9 * rule ? 2 : 1;
   const got = evalAchievements(sp.total, rule), fresh = got.filter(a => !store.ach[a]);
-  if (!restored) sendResult(sp, stars, rule);                              // a finished term reaches the teacher's sheet, if a class set one up
+  if (!restored) { sendResult(sp, stars, rule); campRecord(s, stars); }                              // a finished term reaches the teacher's sheet, if a class set one up
   if (game.cfg.career) careerRecord(s, sp.total, stars);                    // idempotent: a reload of the end screen records nothing new
   if (!restored) {
     clearSave();
@@ -34,7 +35,7 @@ function endLevel(restored) {
     persist();
   }
   const T_ = Math.max(1, s.t), avg = (a, b) => ((b / a) ** (1 / T_) - 1) * 400;
-  const elec = game.reports.find(r => r.election), nextKey = LEVEL_ORDER.includes(key) && !game.cfg.klass ? LEVEL_ORDER[LEVEL_ORDER.indexOf(key) + 1] : null;
+  const elec = game.reports.find(r => r.election), nextKey = LEVEL_ORDER.includes(key) && !game.cfg.klass && stage == null ? LEVEL_ORDER[LEVEL_ORDER.indexOf(key) + 1] : null;
   const front = s.lost ? gg.finalFront[s.lost] : s.cred > 0.8 ? gg.finalFront.good : gg.finalFront.mixed;
   const qL = k => quarterLabel(k).replace(" ", "");
   openOverlay(`<div class="scr end">
@@ -57,7 +58,13 @@ function endLevel(restored) {
     ${memoirHTML(s)}
     ${handInHTML()}
     <div class="end-charts">${["infl", "mkt", "pol"].map(k => chartCard(k, qL, true)).join("")}</div>
-    ${game.cfg.career ? `<div class="btns"><button class="btn big" id="eCareer" data-hot>${esc(gg.career.continueStory)} →</button><button class="btn ghost" id="eDebrief">${esc(gg.debrief.btn)}</button></div>` : `<div class="btns">
+    ${stage != null ? `<div class="btns">
+      ${!s.lost && stage + 1 < LEVEL_ORDER.length ? `<button class="btn big" id="eStage" data-hot>${esc(gg.camp.next)} →</button>` : ""}
+      ${!s.lost && stage + 1 >= LEVEL_ORDER.length ? `<button class="btn big" id="eReplay" data-hot>${esc(gg.camp.replay)}</button>` : ""}
+      <button class="btn ${s.lost ? "big" : "ghost"}" id="eRetry" ${s.lost ? "data-hot" : ""}>${esc(s.lost ? gg.camp.retry : gg.retry)}</button>
+      <button class="btn" id="eDebrief">${esc(gg.debrief.btn)}</button>
+      <button class="btn ghost" id="eLevels">${esc(gg.toLevels)}</button>
+    </div>${!s.lost && stage + 1 >= LEVEL_ORDER.length ? `<p class="hint">${esc(gg.camp.finale)}</p>` : ""}` : game.cfg.career ? `<div class="btns"><button class="btn big" id="eCareer" data-hot>${esc(gg.career.continueStory)} →</button><button class="btn ghost" id="eDebrief">${esc(gg.debrief.btn)}</button></div>` : `<div class="btns">
       <button class="btn big" id="eRetry" data-hot>${esc(gg.retry)}</button>
       <button class="btn" id="eDebrief">${esc(gg.debrief.btn)}</button>
       ${game.cfg.klass ? "" : `<button class="btn ghost" id="eFresh">${esc(gg.newShocks)}</button>`}
@@ -65,11 +72,13 @@ function endLevel(restored) {
       <button class="btn ghost" id="eLevels">${esc(gg.toLevels)}</button>
     </div>`}
   </div>`);
+  if ($("eStage")) $("eStage").onclick = () => { Sound.confirm(); startStage(stage + 1); };
+  if ($("eReplay")) $("eReplay").onclick = () => { Sound.confirm(); startStage(stage); };
   $("eDebrief").onclick = () => { Sound.select(); openDebrief(); };
   if ($("eCareer")) $("eCareer").onclick = () => { Sound.confirm(); careerAfterTerm(); };
   bindHandIn();
   const opts = optsOf(game.cfg);
-  if ($("eRetry")) $("eRetry").onclick = () => { Sound.confirm(); startLevel(key, game.cfg.seed, [], game.cfg.hard, game.cfg.em, opts); };
+  if ($("eRetry")) $("eRetry").onclick = () => { Sound.confirm(); if (stage != null) startStage(stage); else startLevel(key, game.cfg.seed, [], game.cfg.hard, game.cfg.em, opts); };
   if ($("eFresh")) $("eFresh").onclick = () => { Sound.confirm(); startLevel(key, randomCode(), [], game.cfg.hard, game.cfg.em, opts); };
   if ($("eNext")) $("eNext").onclick = () => { Sound.confirm(); startLevel(nextKey, randomCode(), [], game.cfg.hard, game.cfg.em, opts); };
   if ($("eLevels")) $("eLevels").onclick = levelSelect;
